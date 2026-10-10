@@ -11,6 +11,7 @@ import androidx.annotation.Nullable;
 import androidx.core.graphics.ColorUtils;
 import androidx.core.graphics.Insets;
 import androidx.core.widget.NestedScrollView;
+import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -18,6 +19,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.google.android.material.appbar.AppBarLayout;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.color.MaterialColors;
 import de.danoeh.antennapod.R;
 import de.danoeh.antennapod.activity.MainActivity;
@@ -45,6 +47,14 @@ public class PodcastChrome {
                 @Override
                 public void onFragmentResumed(FragmentManager fm, Fragment f) {
                     applyIfMainContent(f);
+                }
+
+                @Override
+                public void onFragmentStarted(FragmentManager fm, Fragment f) {
+                    if (f instanceof DialogFragment
+                            && ((DialogFragment) f).getDialog() instanceof BottomSheetDialog) {
+                        PodcastPopupMenu.applyGlass((BottomSheetDialog) ((DialogFragment) f).getDialog());
+                    }
                 }
             };
 

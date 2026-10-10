@@ -2,20 +2,26 @@
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:padding="16dp">
+    android:paddingLeft="24dp"
+    android:paddingTop="10dp"
+    android:paddingRight="24dp"
+    android:paddingBottom="16dp">
+
+    <include layout="@layout/podcast_sheet_handle" />
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical">
 
         <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="@string/playback_speed"
-            style="@style/AntennaPod.TextView.ListItemPrimaryTitle" />
+            style="@style/Podcast.SheetTitle" />
 
         <com.google.android.material.chip.Chip
             android:id="@+id/add_current_speed_chip"
@@ -33,9 +39,8 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
         android:text="@string/speed_presets"
-        style="@style/AntennaPod.TextView.ListItemPrimaryTitle" />
+        style="@style/Podcast.SheetSection" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/selected_speeds_grid"

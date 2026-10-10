@@ -5,6 +5,7 @@
     android:id="@+id/buttonGroup"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:paddingBottom="10dp"
     android:weightSum="2"
     app:singleSelection="true">
 
@@ -13,13 +14,13 @@
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_weight="1"
-        style="@style/OutlinedButtonBetterContrast" />
+        style="@style/Widget.Podcast.Segment" />
 
     <Button
         android:id="@+id/filterButton2"
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_weight="1"
-        style="@style/OutlinedButtonBetterContrast" />
+        style="@style/Widget.Podcast.Segment" />
 
 </com.google.android.material.button.MaterialButtonToggleGroup>

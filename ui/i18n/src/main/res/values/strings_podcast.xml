@@ -71,4 +71,5 @@
     <string name="podcast_tab_with_badge">%1$s, %2$s</string>
     <string name="podcast_player_episode_details">Episode details</string>
     <string name="podcast_player_sleep_off">Off</string>
+    <string name="podcast_fork_notice">Podcast is a personal app based on AntennaPod and, like AntennaPod, is licensed under the GNU General Public License (GPL). Its source code is available at github.com/markvankester/Podcast. The AntennaPod team does not provide support for this version.</string>
 </resources>

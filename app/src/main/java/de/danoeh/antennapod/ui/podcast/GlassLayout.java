@@ -2,33 +2,62 @@ package de.danoeh.antennapod.ui.podcast;
 
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.ColorMatrix;
+import android.graphics.ColorMatrixColorFilter;
 import android.graphics.Outline;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.graphics.RecordingCanvas;
 import android.graphics.RectF;
+import android.graphics.RenderEffect;
+import android.graphics.RenderNode;
+import android.graphics.Shader;
 import android.os.Build;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewOutlineProvider;
+import android.view.PixelCopy;
 import android.view.ViewTreeObserver;
+import android.view.Window;
 import android.widget.FrameLayout;
+import androidx.annotation.RequiresApi;
 import com.google.android.material.color.MaterialColors;
 import de.danoeh.antennapod.R;
 
 public class GlassLayout extends FrameLayout {
+    private static final int SNAPSHOT_SCALE = 4;
+    private final Paint snapshotPaint = new Paint(Paint.FILTER_BITMAP_FLAG);
     private final Path shapePath = new Path();
     private final Path highlightPath = new Path();
     private final RectF rect = new RectF();
     private final Paint fillPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint borderPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-    private final int tintColor;
-    private final int fallbackColor;
-    private final int highlightColor;
-    private final float configuredRadius;
+    private int tintColor;
+    private int fallbackColor;
+    private int highlightColor;
+    private float configuredRadius;
     private final float borderWidth;
     private float radius;
+    private boolean topCornersOnly = false;
+    private Window snapshotWindow;
+    private Bitmap snapshot;
+    private RenderNode snapshotNode;
+    private final int[] snapshotLocation = new int[2];
+    private final int[] windowLocation = new int[2];
+    private final ViewTreeObserver.OnPreDrawListener snapshotPreDrawListener = () -> {
+        int x = snapshotLocation[0];
+        int y = snapshotLocation[1];
+        getLocationOnScreen(snapshotLocation);
+        if (x != snapshotLocation[0] || y != snapshotLocation[1]) {
+            invalidate();
+        }
+        return true;
+    };
     private GlassBlurRenderer blurRenderer;
     private boolean preDrawRegistered = false;
 
@@ -75,7 +104,9 @@ public class GlassLayout extends FrameLayout {
         setOutlineProvider(new ViewOutlineProvider() {
             @Override
             public void getOutline(View view, Outline outline) {
-                outline.setRoundRect(0, 0, view.getWidth(), view.getHeight(), radius);
+                int bottom = topCornersOnly ? view.getHeight() + Math.round(radius) : view.getHeight();
+                outline.setRoundRect(0, 0, view.getWidth(), bottom, radius);
+                outline.setAlpha(1f);
             }
         });
         setClipToOutline(true);
@@ -85,23 +116,54 @@ public class GlassLayout extends FrameLayout {
         }
     }
 
+    public void setBlurSnapshot(Window window) {
+        snapshotWindow = window;
+    }
+
+    public void setCornerRadius(float cornerRadius, boolean topOnly) {
+        configuredRadius = cornerRadius;
+        topCornersOnly = topOnly;
+        updateShape(getWidth(), getHeight());
+    }
+
+    public void setGlassColors(int tint, int fallback, int border, int highlight) {
+        tintColor = tint;
+        fallbackColor = fallback;
+        borderPaint.setColor(border);
+        highlightColor = highlight;
+        invalidate();
+    }
+
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
+        updateShape(w, h);
+    }
+
+    private void updateShape(int w, int h) {
         float maxRadius = Math.min(w, h) / 2f;
         radius = configuredRadius >= 0 ? Math.min(configuredRadius, maxRadius) : maxRadius;
-        rect.set(0, 0, w, h);
+        float bottom = topCornersOnly ? h + radius : h;
+        rect.set(0, 0, w, bottom);
         shapePath.reset();
         shapePath.addRoundRect(rect, radius, radius, Path.Direction.CW);
         highlightPath.reset();
         highlightPath.addRoundRect(rect, radius, radius, Path.Direction.CW);
         highlightPath.offset(0, borderWidth);
         invalidateOutline();
+        invalidate();
     }
 
     @Override
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
+        if (snapshotWindow != null) {
+            if (Build.VERSION.SDK_INT >= 31) {
+                requestSnapshot();
+                getViewTreeObserver().addOnPreDrawListener(snapshotPreDrawListener);
+            }
+            return;
+        }
         if (Build.VERSION.SDK_INT >= 31 && blurRenderer == null) {
             View content = getRootView().findViewById(R.id.main_content_view);
             if (content != null) {
@@ -114,8 +176,64 @@ public class GlassLayout extends FrameLayout {
         }
     }
 
+    @RequiresApi(31)
+    private void requestSnapshot() {
+        View decor = snapshotWindow.getDecorView();
+        int width = decor.getWidth() / SNAPSHOT_SCALE;
+        int height = decor.getHeight() / SNAPSHOT_SCALE;
+        if (width <= 0 || height <= 0) {
+            return;
+        }
+        decor.getLocationOnScreen(windowLocation);
+        Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+        PixelCopy.request(snapshotWindow, bitmap, result -> {
+            if (result == PixelCopy.SUCCESS && isAttachedToWindow()) {
+                snapshot = bitmap;
+                invalidate();
+            }
+        }, new Handler(Looper.getMainLooper()));
+    }
+
+    @RequiresApi(31)
+    private boolean drawSnapshot(Canvas canvas) {
+        if (!canvas.isHardwareAccelerated()) {
+            return false;
+        }
+        int padding = Math.round(PodcastMetrics.dp(getContext(), 40));
+        if (snapshotNode == null) {
+            snapshotNode = new RenderNode("podcast_glass_snapshot");
+            float blur = PodcastMetrics.dp(getContext(), 20);
+            ColorMatrix matrix = new ColorMatrix();
+            matrix.setSaturation(1.8f);
+            snapshotNode.setRenderEffect(RenderEffect.createChainEffect(
+                    RenderEffect.createColorFilterEffect(new ColorMatrixColorFilter(matrix)),
+                    RenderEffect.createBlurEffect(blur, blur, Shader.TileMode.CLAMP)));
+        }
+        getLocationOnScreen(snapshotLocation);
+        int width = getWidth() + 2 * padding;
+        int height = getHeight() + 2 * padding;
+        snapshotNode.setPosition(0, 0, width, height);
+        RecordingCanvas recording = snapshotNode.beginRecording(width, height);
+        try {
+            recording.translate(windowLocation[0] - snapshotLocation[0] + padding,
+                    windowLocation[1] - snapshotLocation[1] + padding);
+            recording.scale(SNAPSHOT_SCALE, SNAPSHOT_SCALE);
+            recording.drawBitmap(snapshot, 0, 0, snapshotPaint);
+        } finally {
+            snapshotNode.endRecording();
+        }
+        canvas.translate(-padding, -padding);
+        canvas.drawRenderNode(snapshotNode);
+        return true;
+    }
+
     @Override
     protected void onDetachedFromWindow() {
+        getViewTreeObserver().removeOnPreDrawListener(snapshotPreDrawListener);
+        if (snapshotNode != null && Build.VERSION.SDK_INT >= 31) {
+            snapshotNode.discardDisplayList();
+        }
+        snapshot = null;
         if (preDrawRegistered) {
             getViewTreeObserver().removeOnPreDrawListener(preDrawListener);
             preDrawRegistered = false;
@@ -134,7 +252,12 @@ public class GlassLayout extends FrameLayout {
             return;
         }
         boolean blurred = false;
-        if (blurRenderer != null) {
+        if (snapshot != null && Build.VERSION.SDK_INT >= 31) {
+            canvas.save();
+            canvas.clipPath(shapePath);
+            blurred = drawSnapshot(canvas);
+            canvas.restore();
+        } else if (blurRenderer != null) {
             canvas.save();
             canvas.clipPath(shapePath);
             blurred = blurRenderer.draw(canvas);
@@ -144,7 +267,8 @@ public class GlassLayout extends FrameLayout {
         canvas.drawPath(shapePath, fillPaint);
 
         float inset = borderWidth / 2f;
-        canvas.drawRoundRect(inset, inset, getWidth() - inset, getHeight() - inset,
+        float borderBottom = topCornersOnly ? getHeight() + radius : getHeight() - inset;
+        canvas.drawRoundRect(inset, inset, getWidth() - inset, borderBottom,
                 Math.max(0, radius - inset), Math.max(0, radius - inset), borderPaint);
 
         if (Build.VERSION.SDK_INT >= 26) {

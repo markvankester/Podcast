@@ -11,7 +11,19 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:gravity="center"
-        android:padding="16dp">
+        android:paddingLeft="24dp"
+        android:paddingTop="10dp"
+        android:paddingRight="24dp"
+        android:paddingBottom="16dp">
+
+        <include layout="@layout/podcast_sheet_handle" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:text="@string/sleep_timer_label"
+            style="@style/Podcast.SheetTitle" />
 
         <LinearLayout
             android:id="@+id/timeSetupContainer"
@@ -58,7 +70,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/set_sleeptimer_label"
-                style="@style/Widget.Material3.Button" />
+                style="@style/Widget.Podcast.PillButton.Primary" />
 
         </LinearLayout>
 
@@ -76,8 +88,10 @@
                 android:text="00:00:00"
                 android:layout_gravity="center"
                 android:gravity="center"
-                android:textSize="32sp"
-                android:textColor="?android:attr/textColorPrimary" />
+                android:layout_marginBottom="12dp"
+                android:fontFamily="@font/manrope_extrabold"
+                android:textSize="40sp"
+                android:textColor="?attr/podcast_text_primary" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -94,7 +108,7 @@
                     android:paddingHorizontal="2dp"
                     android:paddingVertical="4dp"
                     android:layout_weight="1"
-                    style="?attr/materialButtonOutlinedStyle"
+                    style="@style/Widget.Podcast.SortButton"
                     tools:text="+5 min" />
 
                 <Button
@@ -106,7 +120,7 @@
                     android:paddingHorizontal="2dp"
                     android:paddingVertical="4dp"
                     android:layout_weight="1"
-                    style="?attr/materialButtonOutlinedStyle"
+                    style="@style/Widget.Podcast.SortButton"
                     tools:text="+10 min" />
 
                 <Button
@@ -119,7 +133,7 @@
                     android:paddingHorizontal="2dp"
                     android:paddingVertical="4dp"
                     android:layout_weight="1"
-                    style="?attr/materialButtonOutlinedStyle"
+                    style="@style/Widget.Podcast.SortButton"
                     tools:text="+20 min" />
 
             </LinearLayout>
@@ -128,8 +142,9 @@
                 android:id="@+id/disableSleeptimerButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
                 android:text="@string/disable_sleeptimer_label"
-                style="@style/Widget.Material3.Button" />
+                style="@style/Widget.Podcast.PillButton.Primary" />
 
         </LinearLayout>
 
@@ -178,8 +193,10 @@
                 android:id="@+id/playbackPreferencesButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
                 android:visibility="visible"
-                android:text="@string/settings_label" />
+                android:text="@string/settings_label"
+                style="@style/Widget.Podcast.SortButton" />
 
         </LinearLayout>
 

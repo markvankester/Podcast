@@ -1,16 +1,19 @@
 package de.danoeh.antennapod.ui.podcast;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
-import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.RippleDrawable;
 import android.text.TextUtils;
 import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
@@ -85,6 +88,7 @@ public final class PodcastPopupMenu {
         final int ripple;
         @ColorInt
         final int accent;
+        boolean themed = false;
 
         public Colors(@ColorInt int background, @ColorInt int border, @ColorInt int text,
                       @ColorInt int secondary, @ColorInt int divider, @ColorInt int ripple, @ColorInt int accent) {
@@ -105,13 +109,15 @@ public final class PodcastPopupMenu {
 
         public static Colors fromTheme(Context context) {
             int text = MaterialColors.getColor(context, R.attr.podcast_text_primary, Color.BLACK);
-            return new Colors(MaterialColors.getColor(context, R.attr.podcast_menu_surface, Color.WHITE),
+            Colors colors = new Colors(MaterialColors.getColor(context, R.attr.podcast_menu_surface, Color.WHITE),
                     MaterialColors.getColor(context, R.attr.podcast_glass_border, Color.argb(15, 0, 0, 0)),
                     text,
                     MaterialColors.getColor(context, R.attr.podcast_text_secondary, Color.GRAY),
                     MaterialColors.getColor(context, R.attr.podcast_divider, Color.LTGRAY),
                     ColorUtils.setAlphaComponent(text, 31),
                     MaterialColors.getColor(context, R.attr.podcast_accent, Color.RED));
+            colors.themed = true;
+            return colors;
         }
     }
 
@@ -133,7 +139,17 @@ public final class PodcastPopupMenu {
             anyIcon |= entry.icon != null;
         }
 
-        PopupWindow popup = new PopupWindow(scroll, PodcastMetrics.dp(context, WIDTH_DP),
+        GlassLayout glass = createGlass(context, colors, findActivity(context));
+        glass.setCornerRadius(PodcastMetrics.dp(context, 22), false);
+        glass.addView(scroll);
+        FrameLayout frame = new FrameLayout(context);
+        int shadow = PodcastMetrics.dp(context, 14);
+        frame.setPadding(shadow, shadow, shadow, shadow);
+        frame.setClipToPadding(false);
+        frame.addView(glass, new FrameLayout.LayoutParams(PodcastMetrics.dp(context, WIDTH_DP),
+                ViewGroup.LayoutParams.WRAP_CONTENT));
+
+        PopupWindow popup = new PopupWindow(frame, PodcastMetrics.dp(context, WIDTH_DP) + 2 * shadow,
                 ViewGroup.LayoutParams.WRAP_CONTENT, true);
         for (int i = 0; i < entries.size(); i++) {
             Entry entry = entries.get(i);
@@ -153,21 +169,16 @@ public final class PodcastPopupMenu {
             list.addView(row);
         }
 
-        GradientDrawable background = new GradientDrawable();
-        background.setColor(colors.background);
-        background.setCornerRadius(PodcastMetrics.dp(context, 22));
-        background.setStroke(PodcastMetrics.dp(context, 1), colors.border);
-        popup.setBackgroundDrawable(background);
-        popup.setElevation(PodcastMetrics.dp(context, 16));
+        popup.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         popup.setAnimationStyle(0);
-        popup.showAsDropDown(anchor, 0, PodcastMetrics.dp(context, 8), Gravity.END);
+        popup.showAsDropDown(anchor, shadow, PodcastMetrics.dp(context, 8) - shadow, Gravity.END);
 
-        View window = scroll.getRootView();
+        View window = frame.getRootView();
         window.setAlpha(0f);
         window.setScaleX(0.92f);
         window.setScaleY(0.92f);
-        window.setPivotY(0);
-        window.setPivotX(PodcastMetrics.dp(context, WIDTH_DP));
+        window.setPivotY(shadow);
+        window.setPivotX(PodcastMetrics.dp(context, WIDTH_DP) + shadow);
         window.animate().alpha(1f).scaleX(1f).scaleY(1f).setDuration(160).start();
         return popup;
     }
@@ -178,7 +189,8 @@ public final class PodcastPopupMenu {
         BottomSheetDialog dialog = new BottomSheetDialog(context);
         LinearLayout list = new LinearLayout(context);
         list.setOrientation(LinearLayout.VERTICAL);
-        list.setPadding(0, PodcastMetrics.dp(context, 8), 0, PodcastMetrics.dp(context, 16));
+        list.setPadding(0, PodcastMetrics.dp(context, 10), 0, PodcastMetrics.dp(context, 16));
+        LayoutInflater.from(context).inflate(R.layout.podcast_sheet_handle, list, true);
         if (title != null) {
             TextView header = new TextView(context);
             header.setText(title);
@@ -188,7 +200,7 @@ public final class PodcastPopupMenu {
             header.setMaxLines(2);
             header.setEllipsize(TextUtils.TruncateAt.END);
             int horizontal = PodcastMetrics.dp(context, 22);
-            header.setPadding(horizontal, PodcastMetrics.dp(context, 12), horizontal, PodcastMetrics.dp(context, 10));
+            header.setPadding(horizontal, 0, horizontal, PodcastMetrics.dp(context, 10));
             list.addView(header);
         }
         boolean anyIcon = false;
@@ -220,7 +232,47 @@ public final class PodcastPopupMenu {
         dialog.getBehavior().setSkipCollapsed(true);
         dialog.getBehavior().setState(BottomSheetBehavior.STATE_EXPANDED);
         dialog.show();
+        applyGlass(dialog);
         return dialog;
+    }
+
+    public static void applyGlass(BottomSheetDialog dialog) {
+        FrameLayout container = dialog.findViewById(R.id.design_bottom_sheet);
+        Activity activity = findActivity(dialog.getContext());
+        if (container == null || activity == null || container.getTag(R.id.podcast_glass_applied) != null) {
+            return;
+        }
+        container.setTag(R.id.podcast_glass_applied, true);
+        container.setBackgroundTintList(ColorStateList.valueOf(Color.TRANSPARENT));
+        GlassLayout glass = createGlass(dialog.getContext(), null, activity);
+        glass.setCornerRadius(PodcastMetrics.dp(dialog.getContext(), 28), true);
+        container.addView(glass, 0, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT));
+    }
+
+    private static GlassLayout createGlass(Context context, @Nullable Colors colors, @Nullable Activity activity) {
+        GlassLayout glass = new GlassLayout(context);
+        glass.setElevation(colors != null ? PodcastMetrics.dp(context, 10) : 0);
+        if (activity != null) {
+            glass.setBlurSnapshot(activity.getWindow());
+        }
+        if (colors != null && !colors.themed) {
+            glass.setGlassColors(ColorUtils.setAlphaComponent(colors.background, 0xC8),
+                    ColorUtils.setAlphaComponent(colors.background, 0xF2), colors.border,
+                    Color.argb(30, 255, 255, 255));
+        }
+        return glass;
+    }
+
+    @Nullable
+    private static Activity findActivity(Context context) {
+        while (context instanceof ContextWrapper) {
+            if (context instanceof Activity) {
+                return (Activity) context;
+            }
+            context = ((ContextWrapper) context).getBaseContext();
+        }
+        return null;
     }
 
     public static void showChoiceSheet(Context context, CharSequence title, String[] items, int selectedIndex,

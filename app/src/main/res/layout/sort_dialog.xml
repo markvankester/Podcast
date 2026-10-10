@@ -6,29 +6,26 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:paddingLeft="16dp"
-    android:paddingTop="8dp"
-    android:paddingRight="16dp"
+    android:paddingLeft="20dp"
+    android:paddingTop="10dp"
+    android:paddingRight="20dp"
     android:paddingBottom="24dp">
+
+    <include layout="@layout/podcast_sheet_handle" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="4dp"
         android:layout_marginBottom="8dp"
-        android:fontFamily="@font/manrope_extrabold"
         android:text="@string/sort"
-        android:textColor="?attr/podcast_text_primary"
-        android:textSize="22sp" />
+        style="@style/Podcast.SheetTitle" />
 
-    <androidx.gridlayout.widget.GridLayout
+    <LinearLayout
         android:id="@+id/gridLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:columnCount="2"
-        app:rowOrderPreserved="false"
-        app:useDefaultMargins="true"
-        app:alignmentMode="alignBounds" />
+        android:orientation="vertical" />
 
     <CheckBox
         android:id="@+id/keepSortedCheckbox"

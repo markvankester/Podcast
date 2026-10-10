@@ -97,8 +97,8 @@ final class GlassBlurRenderer {
                 recorded = false;
                 return;
             }
-            glass.getLocationInWindow(glassLocation);
-            content.getLocationInWindow(contentLocation);
+            glass.getLocationOnScreen(glassLocation);
+            content.getLocationOnScreen(contentLocation);
             int nodeWidth = width + 2 * padding;
             int nodeHeight = height + 2 * padding;
             node.setPosition(0, 0, nodeWidth, nodeHeight);
