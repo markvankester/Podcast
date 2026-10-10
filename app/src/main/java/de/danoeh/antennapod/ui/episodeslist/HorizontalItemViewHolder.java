@@ -1,6 +1,7 @@
 package de.danoeh.antennapod.ui.episodeslist;
 
 import android.app.Activity;
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,7 +12,6 @@ import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 import de.danoeh.antennapod.R;
 import de.danoeh.antennapod.ui.CoverLoader;
-import de.danoeh.antennapod.actionbutton.ItemActionButton;
 import de.danoeh.antennapod.ui.common.DateFormatter;
 import de.danoeh.antennapod.playback.service.PlaybackStatus;
 import de.danoeh.antennapod.event.playback.PlaybackPositionEvent;
@@ -21,6 +21,7 @@ import de.danoeh.antennapod.net.download.serviceinterface.DownloadServiceInterfa
 import de.danoeh.antennapod.ui.common.CircularProgressBar;
 import de.danoeh.antennapod.ui.common.SquareImageView;
 import de.danoeh.antennapod.ui.common.ThemeUtils;
+import de.danoeh.antennapod.ui.podcast.PodcastFormat;
 import de.danoeh.antennapod.ui.episodes.ImageResourceUtils;
 
 public class HorizontalItemViewHolder extends RecyclerView.ViewHolder {
@@ -55,17 +56,20 @@ public class HorizontalItemViewHolder extends RecyclerView.ViewHolder {
         this.item = item;
 
         card.setAlpha(1.0f);
-        card.setCardBackgroundColor(ThemeUtils.getColorFromAttr(activity, R.attr.colorSurfaceContainer));
+        card.setCardBackgroundColor(Color.TRANSPARENT);
         new CoverLoader()
                 .withUri(ImageResourceUtils.getEpisodeListImageLocation(item))
                 .withFallbackUri(item.getFeed().getImageUrl())
                 .withCoverView(cover)
                 .load();
         title.setText(item.getTitle());
-        date.setText(DateFormatter.formatAbbrev(activity, item.getPubDate()));
+        if (item.getMedia() != null && item.getMedia().getDuration() > 0) {
+            date.setText(PodcastFormat.timeLeft(activity, item.getMedia().getDuration(),
+                    item.getMedia().getPosition()));
+        } else {
+            date.setText(DateFormatter.formatAbbrev(activity, item.getPubDate()));
+        }
         date.setContentDescription(DateFormatter.formatForAccessibility(item.getPubDate()));
-        ItemActionButton actionButton = ItemActionButton.forItem(item);
-        actionButton.configure(secondaryActionIcon, secondaryActionIcon, activity);
         secondaryActionIcon.setFocusable(false);
 
         FeedMedia media = item.getMedia();
@@ -74,7 +78,7 @@ public class HorizontalItemViewHolder extends RecyclerView.ViewHolder {
             setProgressBar(false, 0);
         } else {
             if (PlaybackStatus.isCurrentlyPlaying(media)) {
-                card.setCardBackgroundColor(ThemeUtils.getColorFromAttr(activity, R.attr.colorSecondaryContainer));
+                card.setCardBackgroundColor(ThemeUtils.getColorFromAttr(activity, R.attr.podcast_accent_soft));
             }
 
             if (item.getMedia().getDuration() > 0 && item.getMedia().getPosition() > 0) {

@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:clickable="true"
+    android:focusable="true"
+    android:foreground="?attr/selectableItemBackground">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="51dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+
+        <ImageView
+            android:id="@+id/podcast_row_icon"
+            android:layout_width="22dp"
+            android:layout_height="22dp"
+            android:importantForAccessibility="no"
+            app:tint="?attr/podcast_accent"
+            tools:src="@drawable/podcast_ic_row_queue" />
+
+        <TextView
+            android:id="@+id/podcast_row_label"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="14dp"
+            android:textSize="17sp"
+            android:fontFamily="@font/manrope_semibold"
+            android:maxLines="1"
+            android:ellipsize="end"
+            style="@style/Podcast.Text"
+            tools:text="Queue" />
+
+        <TextView
+            android:id="@+id/podcast_row_count"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            style="@style/Podcast.Text.Subtitle"
+            tools:text="5" />
+
+        <ImageView
+            android:layout_width="16dp"
+            android:layout_height="16dp"
+            android:layout_marginStart="14dp"
+            android:importantForAccessibility="no"
+            app:tint="@color/podcast_drag_handle"
+            app:srcCompat="@drawable/podcast_ic_chevron_right" />
+
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="?attr/podcast_divider" />
+
+</LinearLayout>

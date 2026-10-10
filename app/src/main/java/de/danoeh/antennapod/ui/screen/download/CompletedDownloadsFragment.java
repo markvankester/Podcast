@@ -44,7 +44,8 @@ import de.danoeh.antennapod.storage.preferences.UserPreferences;
 import de.danoeh.antennapod.ui.common.EmptyViewHandler;
 import de.danoeh.antennapod.ui.episodeslist.EpisodeItemListRecyclerView;
 import de.danoeh.antennapod.ui.view.FloatingSelectMenu;
-import de.danoeh.antennapod.ui.common.LiftOnScrollListener;
+import de.danoeh.antennapod.ui.podcast.PodcastHeader;
+import de.danoeh.antennapod.ui.podcast.PodcastSelectMode;
 import de.danoeh.antennapod.ui.episodeslist.EpisodeItemViewHolder;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
@@ -85,7 +86,7 @@ public class CompletedDownloadsFragment extends Fragment
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        View root = inflater.inflate(R.layout.simple_list_fragment, container, false);
+        View root = inflater.inflate(R.layout.podcast_simple_list_fragment, container, false);
         toolbar = root.findViewById(R.id.toolbar);
         toolbar.setTitle(R.string.downloads_label);
         toolbar.inflateMenu(R.menu.downloads_completed);
@@ -100,6 +101,13 @@ public class CompletedDownloadsFragment extends Fragment
             displayUpArrow = savedInstanceState.getBoolean(KEY_UP_ARROW);
         }
         ((MainActivity) getActivity()).setupToolbarToggle(toolbar, displayUpArrow);
+        PodcastHeader header = root.findViewById(R.id.podcast_header);
+        header.setTitle(getString(R.string.downloads_label));
+        if (displayUpArrow) {
+            header.setBackLink(getString(R.string.podcast_back_to_library),
+                    v -> getParentFragmentManager().popBackStack());
+        }
+        header.addOverflowButton(toolbar.getMenu(), this);
 
         swipeRefreshLayout = root.findViewById(R.id.swipeRefresh);
         swipeRefreshLayout.setDistanceToTriggerSync(getResources().getInteger(R.integer.swipe_refresh_distance));
@@ -109,7 +117,6 @@ public class CompletedDownloadsFragment extends Fragment
         adapter = new CompletedDownloadsListAdapter(getActivity());
         adapter.setOnSelectModeListener(this);
         recyclerView.setAdapter(adapter);
-        recyclerView.addOnScrollListener(new LiftOnScrollListener(root.findViewById(R.id.appbar)));
         swipeActions = new SwipeActions(this, TAG).attachTo(recyclerView);
         swipeActions.setFilter(new FeedItemFilter(FeedItemFilter.DOWNLOADED));
 
@@ -345,18 +352,13 @@ public class CompletedDownloadsFragment extends Fragment
     @Override
     public void onStartSelectMode() {
         swipeActions.detach();
-        floatingSelectMenu.setVisibility(View.VISIBLE);
-        recyclerView.setPadding(recyclerView.getPaddingLeft(), recyclerView.getPaddingTop(),
-                recyclerView.getPaddingRight(),
-                (int) getResources().getDimension(R.dimen.floating_select_menu_height));
+        PodcastSelectMode.start(requireActivity(), floatingSelectMenu, recyclerView);
     }
 
     @Override
     public void onEndSelectMode() {
-        floatingSelectMenu.setVisibility(View.GONE);
+        PodcastSelectMode.end(requireActivity(), floatingSelectMenu, recyclerView);
         swipeActions.attachTo(recyclerView);
-        recyclerView.setPadding(recyclerView.getPaddingLeft(), recyclerView.getPaddingTop(),
-                recyclerView.getPaddingRight(), 0);
     }
 
     private class CompletedDownloadsListAdapter extends EpisodeItemListAdapter {

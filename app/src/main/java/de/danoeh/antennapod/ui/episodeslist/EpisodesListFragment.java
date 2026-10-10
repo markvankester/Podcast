@@ -44,11 +44,12 @@ import de.danoeh.antennapod.event.FeedListUpdateEvent;
 import de.danoeh.antennapod.event.FeedUpdateRunningEvent;
 import de.danoeh.antennapod.event.PlayerStatusEvent;
 import de.danoeh.antennapod.event.playback.PlaybackPositionEvent;
+import de.danoeh.antennapod.ui.podcast.PodcastHeader;
+import de.danoeh.antennapod.ui.podcast.PodcastSelectMode;
 import de.danoeh.antennapod.ui.swipeactions.SwipeActions;
 import de.danoeh.antennapod.model.feed.FeedItem;
 import de.danoeh.antennapod.model.feed.FeedItemFilter;
 import de.danoeh.antennapod.ui.common.EmptyViewHandler;
-import de.danoeh.antennapod.ui.common.LiftOnScrollListener;
 import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
@@ -80,6 +81,7 @@ public abstract class EpisodesListFragment extends Fragment
     protected List<FeedItem> episodes = new ArrayList<>();
     protected Disposable disposable;
     protected TextView txtvInformation;
+    protected PodcastHeader header;
 
     @Override
     public void onStart() {
@@ -145,6 +147,7 @@ public abstract class EpisodesListFragment extends Fragment
         super.onCreateView(inflater, container, savedInstanceState);
         View root = inflater.inflate(R.layout.episodes_list_fragment, container, false);
         txtvInformation = root.findViewById(R.id.txtvInformation);
+        header = root.findViewById(R.id.podcast_header);
         toolbar = root.findViewById(R.id.toolbar);
         toolbar.setOnMenuItemClickListener(this);
         toolbar.setOnLongClickListener(v -> {
@@ -160,7 +163,6 @@ public abstract class EpisodesListFragment extends Fragment
 
         recyclerView = root.findViewById(R.id.recyclerView);
         setupLoadMoreScrollListener();
-        recyclerView.addOnScrollListener(new LiftOnScrollListener(root.findViewById(R.id.appbar)));
 
         swipeActions = new SwipeActions(this, getFragmentTag()).attachTo(recyclerView);
         swipeActions.setFilter(getFilter());
@@ -191,6 +193,7 @@ public abstract class EpisodesListFragment extends Fragment
                 floatingSelectMenu.updateItemVisibility();
             }
         };
+        listAdapter.setRowStyle(getRowStyle());
         listAdapter.setOnSelectModeListener(this);
         recyclerView.setAdapter(listAdapter);
         progressBar = root.findViewById(R.id.progressBar);
@@ -234,6 +237,25 @@ public abstract class EpisodesListFragment extends Fragment
         });
 
         return root;
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        header.setTitle(toolbar.getTitle());
+        if (displayUpArrow) {
+            header.setBackLink(getString(R.string.podcast_back_to_library),
+                    v -> getParentFragmentManager().popBackStack());
+        }
+        onConfigureHeader();
+    }
+
+    protected void onConfigureHeader() {
+        header.addOverflowButton(toolbar.getMenu(), this);
+    }
+
+    protected int getRowStyle() {
+        return EpisodeItemListAdapter.ROW_DEFAULT;
     }
 
     private void performMultiSelectAction(int actionItemId) {
@@ -311,17 +333,12 @@ public abstract class EpisodesListFragment extends Fragment
 
     @Override
     public void onStartSelectMode() {
-        floatingSelectMenu.setVisibility(View.VISIBLE);
-        recyclerView.setPadding(recyclerView.getPaddingLeft(), recyclerView.getPaddingTop(),
-                recyclerView.getPaddingRight(),
-                (int) getResources().getDimension(R.dimen.floating_select_menu_height));
+        PodcastSelectMode.start(requireActivity(), floatingSelectMenu, recyclerView);
     }
 
     @Override
     public void onEndSelectMode() {
-        floatingSelectMenu.setVisibility(View.GONE);
-        recyclerView.setPadding(recyclerView.getPaddingLeft(), recyclerView.getPaddingTop(),
-                recyclerView.getPaddingRight(), 0);
+        PodcastSelectMode.end(requireActivity(), floatingSelectMenu, recyclerView);
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)

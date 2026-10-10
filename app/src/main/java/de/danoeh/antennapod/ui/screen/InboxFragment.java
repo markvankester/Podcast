@@ -23,7 +23,9 @@ import de.danoeh.antennapod.model.feed.FeedItem;
 import de.danoeh.antennapod.model.feed.FeedItemFilter;
 import de.danoeh.antennapod.model.feed.SortOrder;
 import de.danoeh.antennapod.storage.preferences.UserPreferences;
+import de.danoeh.antennapod.ui.episodeslist.EpisodeItemListAdapter;
 import de.danoeh.antennapod.ui.episodeslist.EpisodesListFragment;
+import de.danoeh.antennapod.ui.podcast.PodcastFooterHint;
 import org.greenrobot.eventbus.EventBus;
 
 import java.util.List;
@@ -37,6 +39,7 @@ public class InboxFragment extends EpisodesListFragment {
     private static final String PREF_NAME = "PrefNewEpisodesFragment";
     private static final String PREF_DO_NOT_PROMPT_REMOVE_ALL_FROM_INBOX = "prefDoNotPromptRemovalAllFromInbox";
     private SharedPreferences prefs;
+    private volatile int newCount = 0;
     private static Pair<Integer, Integer> scrollPosition = null;
 
     @NonNull
@@ -50,7 +53,31 @@ public class InboxFragment extends EpisodesListFragment {
         emptyView.setIcon(R.drawable.ic_inbox);
         emptyView.setTitle(R.string.no_inbox_head_label);
         emptyView.setMessage(R.string.home_new_empty_text);
+        recyclerView.addItemDecoration(new PodcastFooterHint(requireContext(), R.string.podcast_swipe_hint_new));
         return root;
+    }
+
+    @Override
+    protected void onConfigureHeader() {
+        header.setTitle(getString(R.string.podcast_tab_new));
+        header.addPillButton(R.string.podcast_clear_all,
+                v -> onMenuItemClick(toolbar.getMenu().findItem(R.id.remove_all_inbox_item)));
+        header.addOverflowButton(toolbar.getMenu(), this, R.id.remove_all_inbox_item);
+    }
+
+    @Override
+    protected int getRowStyle() {
+        return EpisodeItemListAdapter.ROW_NEW;
+    }
+
+    @Override
+    protected void updateToolbar() {
+        super.updateToolbar();
+        if (header != null) {
+            header.setSubtitle(newCount > 0
+                    ? getResources().getQuantityString(R.plurals.podcast_new_episodes_count, newCount, newCount)
+                    : null);
+        }
     }
 
     @Override
@@ -109,7 +136,8 @@ public class InboxFragment extends EpisodesListFragment {
 
     @Override
     protected int loadTotalItemCount() {
-        return DBReader.getTotalEpisodeCount(new FeedItemFilter(FeedItemFilter.NEW));
+        newCount = DBReader.getTotalEpisodeCount(new FeedItemFilter(FeedItemFilter.NEW));
+        return newCount;
     }
 
     private void removeAllFromInbox() {

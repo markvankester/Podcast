@@ -32,7 +32,12 @@ import de.danoeh.antennapod.ui.screen.episode.ItemPagerFragment;
 public class EpisodeItemListAdapter extends SelectableAdapter<EpisodeItemViewHolder>
         implements View.OnCreateContextMenuListener {
 
+    public static final int ROW_DEFAULT = 0;
+    public static final int ROW_NEW = 1;
+    public static final int ROW_COMPACT = 2;
+
     private final WeakReference<FragmentActivity> mainActivityRef;
+    private int rowStyle = ROW_DEFAULT;
     private List<FeedItem> episodes = new ArrayList<>();
     private FeedItem longPressedItem;
     int longPressedPosition = 0; // used to init actionMode
@@ -42,6 +47,10 @@ public class EpisodeItemListAdapter extends SelectableAdapter<EpisodeItemViewHol
         super(mainActivity);
         this.mainActivityRef = new WeakReference<>(mainActivity);
         setHasStableIds(true);
+    }
+
+    public void setRowStyle(int rowStyle) {
+        this.rowStyle = rowStyle;
     }
 
     public void setDummyViews(int dummyViews) {
@@ -63,7 +72,7 @@ public class EpisodeItemListAdapter extends SelectableAdapter<EpisodeItemViewHol
     @NonNull
     @Override
     public final EpisodeItemViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        return new EpisodeItemViewHolder(mainActivityRef.get(), parent);
+        return new EpisodeItemViewHolder(mainActivityRef.get(), parent, rowStyle);
     }
 
     @Override

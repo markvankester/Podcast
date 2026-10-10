@@ -14,7 +14,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import de.danoeh.antennapod.R;
 import de.danoeh.antennapod.activity.MainActivity;
 import de.danoeh.antennapod.model.feed.Feed;
-import de.danoeh.antennapod.storage.preferences.UserPreferences;
 import de.danoeh.antennapod.ui.SelectableAdapter;
 import de.danoeh.antennapod.ui.common.ThemeUtils;
 import de.danoeh.antennapod.ui.screen.feed.FeedItemlistFragment;
@@ -193,10 +192,8 @@ public class SubscriptionsRecyclerAdapter extends SelectableAdapter<Subscription
     public int getItemViewType(int position) {
         if (columnCount == 1) {
             return R.id.view_type_subscription_list;
-        } else if (UserPreferences.shouldShowSubscriptionTitle()) {
-            return R.id.view_type_subscription_grid_with_title;
         } else {
-            return R.id.view_type_subscription_grid_without_title;
+            return R.id.view_type_subscription_grid_with_title;
         }
     }
 

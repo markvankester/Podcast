@@ -21,6 +21,7 @@ import de.danoeh.antennapod.event.PlayerStatusEvent;
 import de.danoeh.antennapod.event.QueueEvent;
 import de.danoeh.antennapod.event.playback.PlaybackPositionEvent;
 import de.danoeh.antennapod.ui.screen.queue.QueueFragment;
+import de.danoeh.antennapod.ui.screen.subscriptions.SubscriptionFragment;
 import de.danoeh.antennapod.model.feed.FeedItem;
 import de.danoeh.antennapod.ui.screen.home.HomeSection;
 import de.danoeh.antennapod.ui.episodeslist.HorizontalItemViewHolder;
@@ -36,7 +37,7 @@ import java.util.List;
 
 public class QueueSection extends HomeSection {
     public static final String TAG = "QueueSection";
-    private static final int NUM_EPISODES = 8;
+    private static final int NUM_EPISODES = 6;
     private HorizontalItemListAdapter listAdapter;
     private Disposable disposable;
     private List<FeedItem> queue = new ArrayList<>();
@@ -57,8 +58,6 @@ public class QueueSection extends HomeSection {
         viewBinding.recyclerView.setLayoutManager(
                 new LinearLayoutManager(getContext(), RecyclerView.HORIZONTAL, false));
         viewBinding.recyclerView.setAdapter(listAdapter);
-        int paddingHorizontal = (int) (12 * getResources().getDisplayMetrics().density);
-        viewBinding.recyclerView.setPadding(paddingHorizontal, 0, paddingHorizontal, 0);
         viewBinding.emptyLabel.setText(R.string.home_continue_empty_text);
         return view;
     }
@@ -79,7 +78,7 @@ public class QueueSection extends HomeSection {
 
     @Override
     protected void handleMoreClick() {
-        ((MainActivity) requireActivity()).loadChildFragment(new QueueFragment());
+        ((MainActivity) requireActivity()).loadChildFragment(new QueueFragment(), SubscriptionFragment.TAG);
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -146,12 +145,12 @@ public class QueueSection extends HomeSection {
 
     @Override
     protected String getSectionTitle() {
-        return getString(R.string.home_continue_title);
+        return getString(R.string.podcast_up_next);
     }
 
     @Override
     protected String getMoreLinkTitle() {
-        return getString(R.string.queue_label);
+        return getString(R.string.podcast_see_all);
     }
 
     private void loadItems() {
