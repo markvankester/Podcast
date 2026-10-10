@@ -27,6 +27,7 @@ import de.danoeh.antennapod.playback.service.PlaybackService;
 import de.danoeh.antennapod.playback.service.PlaybackServiceStarter;
 import de.danoeh.antennapod.storage.database.DBReader;
 import de.danoeh.antennapod.storage.preferences.PlaybackPreferences;
+import de.danoeh.antennapod.storage.preferences.UserPreferences;
 import de.danoeh.antennapod.ui.appstartintent.MediaButtonStarter;
 import de.danoeh.antennapod.ui.episodes.ImageResourceUtils;
 import de.danoeh.antennapod.ui.screen.playback.PlayButton;
@@ -91,6 +92,19 @@ public class ExternalPlayerFragment extends Fragment {
                 new PlaybackServiceStarter(getContext(), currentMedia)
                         .callEvenIfRunning(true)
                         .start();
+            }
+        });
+        root.findViewById(R.id.podcast_mini_ff).setOnClickListener(v -> {
+            if (BuildConfig.USE_MEDIA3_PLAYBACK_SERVICE) {
+                PlaybackController.bindToMedia3Service(getContext(), controller -> {
+                    if (controller.getCurrentMediaItem() != null) {
+                        controller.seekForward();
+                    }
+                });
+            } else {
+                PlaybackController.bindToService(getActivity(), playbackService ->
+                        playbackService.seekTo(playbackService.getCurrentPosition()
+                                + UserPreferences.getFastForwardSecs() * 1000));
             }
         });
         return root;

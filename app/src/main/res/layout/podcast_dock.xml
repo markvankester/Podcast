@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/podcast_dock"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_gravity="bottom"
+    android:clipChildren="false"
+    android:clipToPadding="false"
+    android:elevation="16dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="66dp"
+        android:clipChildren="false"
+        android:clipToPadding="false"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <de.danoeh.antennapod.ui.podcast.GlassLayout
+            android:id="@+id/podcast_tab_capsule"
+            android:layout_width="0dp"
+            android:layout_height="64dp"
+            android:layout_weight="1"
+            android:padding="4dp">
+
+            <View
+                android:id="@+id/podcast_tab_highlight"
+                android:layout_width="1dp"
+                android:layout_height="match_parent" />
+
+            <LinearLayout
+                android:id="@+id/podcast_tabs"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="horizontal" />
+
+        </de.danoeh.antennapod.ui.podcast.GlassLayout>
+
+        <de.danoeh.antennapod.ui.podcast.GlassLayout
+            android:id="@+id/podcast_search_button"
+            android:layout_width="66dp"
+            android:layout_height="66dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginLeft="8dp"
+            android:clickable="true"
+            android:contentDescription="@string/podcast_search_label"
+            android:focusable="true"
+            android:foreground="?attr/selectableItemBackgroundBorderless">
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_gravity="center"
+                android:importantForAccessibility="no"
+                app:srcCompat="@drawable/podcast_ic_search"
+                app:tint="?attr/podcast_text_primary" />
+
+        </de.danoeh.antennapod.ui.podcast.GlassLayout>
+
+    </LinearLayout>
+
+</FrameLayout>

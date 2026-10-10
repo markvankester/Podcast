@@ -21,4 +21,10 @@
         android:title="@string/configure_home"
         custom:showAsAction="never"/>
 
+
+    <item
+        android:id="@+id/podcast_settings_item"
+        android:title="@string/podcast_settings_label"
+        custom:showAsAction="never"/>
+
 </menu>

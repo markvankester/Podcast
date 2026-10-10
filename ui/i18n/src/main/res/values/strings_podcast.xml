@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="podcast_tab_home">Home</string>
+    <string name="podcast_tab_new">New</string>
+    <string name="podcast_tab_library">Library</string>
+    <string name="podcast_search_label">Search</string>
+    <string name="podcast_settings_label">Settings</string>
+    <string name="podcast_queue_label">Queue</string>
+</resources>

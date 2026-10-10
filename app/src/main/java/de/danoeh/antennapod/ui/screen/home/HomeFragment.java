@@ -2,6 +2,7 @@ package de.danoeh.antennapod.ui.screen.home;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -14,6 +15,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentContainerView;
 import de.danoeh.antennapod.R;
 import de.danoeh.antennapod.activity.MainActivity;
+import de.danoeh.antennapod.ui.screen.preferences.PreferenceActivity;
 import de.danoeh.antennapod.databinding.HomeFragmentBinding;
 import de.danoeh.antennapod.event.FeedListUpdateEvent;
 import de.danoeh.antennapod.event.FeedUpdateRunningEvent;
@@ -136,6 +138,9 @@ public class HomeFragment extends Fragment implements Toolbar.OnMenuItemClickLis
             return true;
         } else if (item.getItemId() == R.id.refresh_item) {
             FeedUpdateManager.getInstance().runOnceOrAsk(requireContext());
+            return true;
+        } else if (item.getItemId() == R.id.podcast_settings_item) {
+            startActivity(new Intent(requireContext(), PreferenceActivity.class));
             return true;
         } else if (item.getItemId() == R.id.action_search) {
             ((MainActivity) getActivity()).loadChildFragment(SearchFragment.newInstance());

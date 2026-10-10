@@ -23,6 +23,7 @@ import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import de.danoeh.antennapod.R;
 import de.danoeh.antennapod.activity.MainActivity;
+import de.danoeh.antennapod.ui.screen.queue.QueueFragment;
 import de.danoeh.antennapod.event.FeedItemEvent;
 import de.danoeh.antennapod.event.FeedListUpdateEvent;
 import de.danoeh.antennapod.event.FeedUpdateRunningEvent;
@@ -252,7 +253,10 @@ public class SubscriptionFragment extends Fragment
     @Override
     public boolean onMenuItemClick(MenuItem item) {
         final int itemId = item.getItemId();
-        if (itemId == R.id.refresh_item) {
+        if (itemId == R.id.podcast_queue_item) {
+            ((MainActivity) requireActivity()).loadChildFragment(new QueueFragment(), SubscriptionFragment.TAG);
+            return true;
+        } else if (itemId == R.id.refresh_item) {
             FeedUpdateManager.getInstance().runOnceOrAsk(requireContext());
             return true;
         } else if (itemId == R.id.subscriptions_filter) {

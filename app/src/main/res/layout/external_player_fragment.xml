@@ -1,79 +1,106 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/fragmentLayout"
     android:layout_width="match_parent"
-    android:layout_height="@dimen/external_player_height"
-    android:background="?attr/selectableItemBackground"
-    android:orientation="vertical">
+    android:layout_height="wrap_content"
+    android:clipChildren="false"
+    android:clipToPadding="false">
 
-    <LinearLayout
+    <de.danoeh.antennapod.ui.podcast.GlassLayout
+        android:id="@+id/fragmentLayout"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:gravity="center_vertical"
-        android:layout_weight="1">
-
-        <ImageView
-            android:id="@+id/imgvCover"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:adjustViewBounds="true"
-            android:cropToPadding="true"
-            android:maxWidth="96dp"
-            android:scaleType="fitCenter"
-            android:background="@color/non_square_icon_background"
-            tools:src="@tools:sample/avatars" />
+        android:layout_height="56dp"
+        android:layout_marginStart="12dp"
+        android:layout_marginLeft="12dp"
+        android:layout_marginEnd="12dp"
+        android:layout_marginRight="12dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:padding="8dp">
 
         <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="vertical"
-            android:layout_marginLeft="16dp"
-            android:layout_marginStart="16dp">
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
 
-            <TextView
-                android:id="@+id/txtvTitle"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:ellipsize="end"
-                android:maxLines="1"
-                style="@style/Base.TextAppearance.AppCompat.Body1"
-                tools:text="Episode title that is too long and will cause the text to wrap" />
+            <ImageView
+                android:id="@+id/imgvCover"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="@drawable/podcast_cover_bg"
+                android:clipToOutline="true"
+                android:importantForAccessibility="no"
+                android:scaleType="centerCrop"
+                tools:src="@tools:sample/avatars" />
 
-            <TextView
-                android:id="@+id/txtvAuthor"
-                android:layout_width="match_parent"
+            <LinearLayout
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:textColor="?android:attr/textColorSecondary"
-                android:ellipsize="end"
-                android:maxLines="1"
-                style="@style/TextAppearance.AppCompat.Body1"
-                tools:text="Episode author that is too long and will cause the text to wrap" />
+                android:layout_marginStart="10dp"
+                android:layout_marginLeft="10dp"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/txtvTitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:fontFamily="@font/manrope_bold"
+                    android:maxLines="1"
+                    android:textColor="?attr/podcast_text_primary"
+                    android:textSize="14sp"
+                    tools:text="Episode title that is too long and will cause the text to wrap" />
+
+                <TextView
+                    android:id="@+id/txtvAuthor"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:textColor="?attr/podcast_text_secondary"
+                    android:textSize="12sp"
+                    tools:text="Show name" />
+
+            </LinearLayout>
+
+            <de.danoeh.antennapod.ui.screen.playback.PlayButton
+                android:id="@+id/butPlay"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="@string/pause_label"
+                android:padding="6dp"
+                android:scaleType="fitCenter"
+                app:srcCompat="@drawable/ic_play_48dp"
+                app:tint="?attr/podcast_text_primary"
+                tools:src="@drawable/ic_play_48dp" />
+
+            <ImageButton
+                android:id="@+id/podcast_mini_ff"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="@string/fast_forward_label"
+                android:padding="8dp"
+                android:scaleType="fitCenter"
+                app:srcCompat="@drawable/podcast_ic_fast_forward"
+                app:tint="?attr/podcast_text_primary" />
 
         </LinearLayout>
 
-        <de.danoeh.antennapod.ui.screen.playback.PlayButton
-            android:id="@+id/butPlay"
-            android:layout_width="52dp"
-            android:layout_height="match_parent"
-            android:contentDescription="@string/pause_label"
-            android:background="?attr/selectableItemBackground"
-            android:scaleType="fitCenter"
-            android:padding="8dp"
-            app:srcCompat="@drawable/ic_play_48dp"
-            tools:src="@drawable/ic_play_48dp" />
+        <com.google.android.material.progressindicator.LinearProgressIndicator
+            android:id="@+id/episodeProgress"
+            android:layout_width="match_parent"
+            android:layout_height="2dp"
+            android:indeterminate="false"
+            android:visibility="gone"
+            app:trackStopIndicatorSize="0dp"
+            tools:progress="100" />
 
-    </LinearLayout>
+    </de.danoeh.antennapod.ui.podcast.GlassLayout>
 
-    <com.google.android.material.progressindicator.LinearProgressIndicator
-        android:id="@+id/episodeProgress"
-        android:layout_width="match_parent"
-        android:layout_height="4dp"
-        android:indeterminate="false"
-        app:trackStopIndicatorSize="0dp"
-        tools:progress="100" />
-
-</LinearLayout>
+</FrameLayout>

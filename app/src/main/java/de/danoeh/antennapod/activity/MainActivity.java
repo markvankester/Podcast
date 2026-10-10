@@ -15,7 +15,6 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.RelativeLayout;
 import androidx.activity.OnBackPressedCallback;
-import androidx.annotation.IdRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StyleRes;
@@ -68,14 +67,13 @@ import de.danoeh.antennapod.ui.screen.PlaybackHistoryFragment;
 import de.danoeh.antennapod.ui.screen.SearchFragment;
 import de.danoeh.antennapod.ui.screen.download.CompletedDownloadsFragment;
 import de.danoeh.antennapod.ui.screen.download.DownloadLogFragment;
-import de.danoeh.antennapod.ui.screen.drawer.BottomNavigation;
 import de.danoeh.antennapod.ui.screen.drawer.NavDrawerFragment;
-import de.danoeh.antennapod.ui.screen.drawer.NavigationNames;
 import de.danoeh.antennapod.ui.screen.episode.ItemPagerFragment;
 import de.danoeh.antennapod.ui.screen.feed.FeedItemlistFragment;
+import de.danoeh.antennapod.ui.podcast.PodcastChrome;
+import de.danoeh.antennapod.ui.podcast.PodcastDock;
 import de.danoeh.antennapod.ui.screen.home.HomeFragment;
 import de.danoeh.antennapod.ui.screen.playback.audio.AudioPlayerFragment;
-import de.danoeh.antennapod.ui.screen.preferences.PreferenceActivity;
 import de.danoeh.antennapod.ui.screen.queue.QueueFragment;
 import de.danoeh.antennapod.ui.screen.rating.RatingDialogManager;
 import de.danoeh.antennapod.ui.screen.subscriptions.SubscriptionFragment;
@@ -107,7 +105,8 @@ public class MainActivity extends CastEnabledActivity implements NavigationToolb
 
     private @Nullable DrawerLayout drawerLayout;
     private @Nullable ActionBarDrawerToggle drawerToggle;
-    private BottomNavigation bottomNavigation;
+    private PodcastChrome podcastChrome;
+    private PodcastDock bottomNavigation;
     private View navDrawer;
     private LockableBottomSheetBehavior<FragmentContainerView> sheetBehavior;
     private BottomSheetBackPressedCallback bottomSheetBackPressedCallback;
@@ -129,31 +128,27 @@ public class MainActivity extends CastEnabledActivity implements NavigationToolb
 
         drawerLayout = findViewById(R.id.drawer_layout);
         navDrawer = findViewById(R.id.navDrawerFragment);
-        bottomNavigation = new BottomNavigation(findViewById(R.id.bottomNavigationView)) {
+        podcastChrome = new PodcastChrome(this, new PodcastDock.Listener() {
             @Override
-            public void onItemSelected(@IdRes int itemId) {
+            public void onTabClicked(String tag) {
                 sheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
-                if (itemId == R.id.bottom_navigation_settings) {
-                    startActivity(new Intent(MainActivity.this, PreferenceActivity.class));
-                    return;
-                }
-                loadFragment(NavigationNames.getBottomNavigationFragmentTag(itemId), null);
+                loadFragment(tag, null);
             }
-        };
-        if (UserPreferences.isBottomNavigationEnabled()) {
-            bottomNavigation.buildMenu();
-            if (drawerLayout == null) { // Tablet mode
-                navDrawer.setVisibility(View.GONE);
-            } else {
-                drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+
+            @Override
+            public void onSearchClicked() {
+                sheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+                loadChildFragment(new AddFeedFragment());
             }
-            drawerLayout = null;
-            bottomNavigation.onCreateView();
+        });
+        bottomNavigation = podcastChrome.getDock();
+        if (drawerLayout == null) { // Tablet mode
+            navDrawer.setVisibility(View.GONE);
         } else {
-            bottomNavigation.hide();
-            bottomNavigation = null;
-            setNavDrawerSize();
+            drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
         }
+        drawerLayout = null;
+        bottomNavigation.onCreateView();
         openDefaultPageBackPressedCallback = new OpenDefaultPageBackPressedCallback();
         if (drawerLayout != null) {
             drawerLayout.addDrawerListener(new DrawerLayout.SimpleDrawerListener() {
@@ -318,6 +313,7 @@ public class MainActivity extends CastEnabledActivity implements NavigationToolb
 
         @Override
         public void onSlide(@NonNull View view, float slideOffset) {
+            podcastChrome.onSheetSlide(slideOffset);
             AudioPlayerFragment audioPlayer = (AudioPlayerFragment) getSupportFragmentManager()
                     .findFragmentByTag(AudioPlayerFragment.TAG);
             if (audioPlayer == null) {
@@ -361,6 +357,9 @@ public class MainActivity extends CastEnabledActivity implements NavigationToolb
         if (bottomNavigation != null) {
             bottomNavigation.onDestroyView();
         }
+        if (podcastChrome != null) {
+            podcastChrome.onDestroy();
+        }
     }
 
     private void checkFirstLaunch() {
@@ -376,6 +375,10 @@ public class MainActivity extends CastEnabledActivity implements NavigationToolb
 
     public boolean isDrawerOpen() {
         return drawerLayout != null && navDrawer != null && drawerLayout.isDrawerOpen(navDrawer);
+    }
+
+    public int getDockClearance() {
+        return podcastChrome.getClearance();
     }
 
     public LockableBottomSheetBehavior<FragmentContainerView> getBottomSheet() {
@@ -396,15 +399,18 @@ public class MainActivity extends CastEnabledActivity implements NavigationToolb
         }
         View bottomPaddingView = findViewById(R.id.bottom_padding);
         ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) bottomPaddingView.getLayoutParams();
-        params.height = systemBarInsets.bottom;
+        params.height = 0;
         bottomPaddingView.setLayoutParams(params);
 
-        int externalPlayerHeight = (int) getResources().getDimension(R.dimen.external_player_height);
         FragmentContainerView mainView = findViewById(R.id.main_content_view);
         params = (ViewGroup.MarginLayoutParams) mainView.getLayoutParams();
-        params.setMargins(systemBarInsets.left, 0, systemBarInsets.right, (visible ? externalPlayerHeight : 0));
+        params.setMargins(systemBarInsets.left, 0, systemBarInsets.right, 0);
         mainView.setLayoutParams(params);
-        sheetBehavior.setPeekHeight(externalPlayerHeight);
+        podcastChrome.onInsetsChanged(systemBarInsets, visible);
+        if (!visible) {
+            podcastChrome.onSheetSlide(0f);
+        }
+        sheetBehavior.setPeekHeight(podcastChrome.getPeekHeight());
         sheetBehavior.setHideable(true);
         sheetBehavior.setGestureInsetBottomIgnored(true);
 
@@ -586,9 +592,7 @@ public class MainActivity extends CastEnabledActivity implements NavigationToolb
         super.onResume();
         handleNavIntent();
 
-        boolean hasBottomNavigation = bottomNavigation != null;
-        if (lastTheme != ThemeSwitcher.getNoTitleTheme(this)
-                || hasBottomNavigation != UserPreferences.isBottomNavigationEnabled()) {
+        if (lastTheme != ThemeSwitcher.getNoTitleTheme(this)) {
             restartActivity();
         }
         if (UserPreferences.getHiddenDrawerItems().contains(NavDrawerFragment.getLastNavFragment(this))) {
@@ -671,13 +675,12 @@ public class MainActivity extends CastEnabledActivity implements NavigationToolb
         Snackbar snackbar;
         if (getBottomSheet().getState() == BottomSheetBehavior.STATE_EXPANDED) {
             snackbar = Snackbar.make(findViewById(android.R.id.content), event.message, Snackbar.LENGTH_LONG);
-            if (findViewById(R.id.bottomNavigationView).getVisibility() == View.VISIBLE) {
-                snackbar.setAnchorView(findViewById(R.id.bottomNavigationView));
-            }
         } else {
             snackbar = Snackbar.make(findViewById(R.id.main_content_view), event.message, Snackbar.LENGTH_LONG);
             if (findViewById(R.id.audioplayerFragment).getVisibility() == View.VISIBLE) {
                 snackbar.setAnchorView(findViewById(R.id.audioplayerFragment));
+            } else {
+                snackbar.setAnchorView(findViewById(R.id.podcast_dock));
             }
         }
         snackbar.show();

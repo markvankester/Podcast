@@ -4,7 +4,9 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:clipChildren="false"
+    android:clipToPadding="false">
 
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/playerFragment"
@@ -13,7 +15,7 @@
         android:layout_gravity="top"
         android:elevation="8dp"
         android:outlineProvider="none"
-        android:background="?attr/colorSurfaceContainer"
+        android:clipChildren="false"
         tools:layout_height="@dimen/external_player_height" />
 
     <RelativeLayout
