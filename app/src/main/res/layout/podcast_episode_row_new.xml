@@ -138,8 +138,8 @@
 
         <FrameLayout
             android:id="@+id/secondaryActionButton"
-            android:layout_width="44dp"
-            android:layout_height="44dp"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
             android:layout_marginStart="8dp"
             android:background="@drawable/podcast_bg_round_accent_soft"
             android:clickable="true"

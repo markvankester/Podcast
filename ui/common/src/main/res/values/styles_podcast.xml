@@ -24,6 +24,7 @@
         <item name="podcast_divider">@color/podcast_divider_light</item>
         <item name="podcast_subtle_fill">@color/podcast_subtle_fill_light</item>
         <item name="podcast_accent">@color/podcast_accent_light</item>
+        <item name="podcast_on_accent">@color/podcast_on_accent_light</item>
         <item name="podcast_accent_soft">@color/podcast_accent_soft_light</item>
         <item name="podcast_glass_surface">@color/podcast_glass_surface_light</item>
         <item name="podcast_glass_surface_fallback">@color/podcast_glass_surface_fallback_light</item>
@@ -56,6 +57,7 @@
         <item name="podcast_divider">@color/podcast_divider_dark</item>
         <item name="podcast_subtle_fill">@color/podcast_subtle_fill_dark</item>
         <item name="podcast_accent">@color/podcast_accent_dark</item>
+        <item name="podcast_on_accent">@color/podcast_on_accent_dark</item>
         <item name="podcast_accent_soft">@color/podcast_accent_soft_dark</item>
         <item name="podcast_glass_surface">@color/podcast_glass_surface_dark</item>
         <item name="podcast_glass_surface_fallback">@color/podcast_glass_surface_fallback_dark</item>

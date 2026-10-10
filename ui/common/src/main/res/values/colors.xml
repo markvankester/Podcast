@@ -13,20 +13,20 @@
     <!-- Theme colors -->
     <color name="background_light">#f9fcff</color>
     <color name="background_elevated_light">#EFEEEE</color>
-    <color name="background_darktheme">#21272b</color>
-    <color name="background_elevated_darktheme">#2D3337</color>
+    <color name="background_darktheme">#121212</color>
+    <color name="background_elevated_darktheme">#1C1C1C</color>
     <color name="non_square_icon_background">#22777777</color>
     <color name="seek_background_light">#90000000</color>
     <color name="seek_background_dark">#905B5B5B</color>
     <color name="text_color_secondary_light">#444444</color>
-    <color name="text_color_secondary_dark">#cccccc</color>
+    <color name="text_color_secondary_dark">#A3A3A3</color>
     <color name="color_surface_variant_light">#EDEDEA</color>
-    <color name="color_surface_variant_dark">#2F3B4F</color>
+    <color name="color_surface_variant_dark">#242424</color>
     <color name="color_secondary_container_light">#F2F2F0</color>
-    <color name="color_secondary_container_dark">#3C4E68</color>
+    <color name="color_secondary_container_dark">#2A2A2A</color>
 
     <color name="accent_light">#0078C2</color>
-    <color name="accent_dark">#3D8BFF</color>
+    <color name="accent_dark">#E8657B</color>
 
     <color name="gradient_000">#364ff3</color>
     <color name="gradient_025">#2E6FF6</color>

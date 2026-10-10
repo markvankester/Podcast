@@ -6,6 +6,7 @@ import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.GradientDrawable;
 import android.util.TypedValue;
+import android.view.View;
 import android.view.Gravity;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -15,6 +16,9 @@ import androidx.annotation.DrawableRes;
 import androidx.annotation.StringRes;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.core.graphics.ColorUtils;
+import androidx.core.view.AccessibilityDelegateCompat;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
 import androidx.core.widget.ImageViewCompat;
 import com.google.android.material.color.MaterialColors;
 import de.danoeh.antennapod.R;
@@ -30,6 +34,7 @@ public class PodcastTabView extends FrameLayout {
     private final int inactiveColor;
     private final Typeface regularTypeface;
     private final Typeface selectedTypeface;
+    private final CharSequence labelText;
     private boolean boldApplied = false;
 
     public PodcastTabView(Context context, @DrawableRes int outlineRes, @DrawableRes int filledRes,
@@ -42,6 +47,19 @@ public class PodcastTabView extends FrameLayout {
         selectedTypeface = ResourcesCompat.getFont(context, R.font.manrope_bold);
         setClickable(true);
         setFocusable(true);
+        labelText = context.getString(labelRes);
+        setContentDescription(labelText);
+        ViewCompat.setAccessibilityDelegate(this, new AccessibilityDelegateCompat() {
+            @Override
+            public void onInitializeAccessibilityNodeInfo(View host, AccessibilityNodeInfoCompat info) {
+                super.onInitializeAccessibilityNodeInfo(host, info);
+                info.setRoleDescription(host.getContext().getString(R.string.podcast_tab_role));
+                info.setSelected(host.isSelected());
+                if (host.isSelected()) {
+                    info.setStateDescription(host.getContext().getString(R.string.podcast_tab_selected));
+                }
+            }
+        });
 
         LinearLayout column = new LinearLayout(context);
         column.setOrientation(LinearLayout.VERTICAL);
@@ -69,7 +87,8 @@ public class PodcastTabView extends FrameLayout {
         badge = new TextView(context);
         badge.setTextSize(TypedValue.COMPLEX_UNIT_SP, 10);
         badge.setTypeface(selectedTypeface);
-        badge.setTextColor(Color.WHITE);
+        badge.setTextColor(MaterialColors.getColor(context, R.attr.podcast_on_accent, Color.WHITE));
+        badge.setImportantForAccessibility(IMPORTANT_FOR_ACCESSIBILITY_NO);
         badge.setGravity(Gravity.CENTER);
         badge.setSingleLine(true);
         int badgePadding = PodcastMetrics.dp(context, 4);
@@ -117,5 +136,11 @@ public class PodcastTabView extends FrameLayout {
     public void setBadgeCount(int count) {
         badge.setVisibility(count > 0 ? VISIBLE : GONE);
         badge.setText(String.format(Locale.getDefault(), "%d", count));
+        if (count > 0) {
+            setContentDescription(getContext().getString(R.string.podcast_tab_with_badge, labelText,
+                    getResources().getQuantityString(R.plurals.podcast_new_episodes_count, count, count)));
+        } else {
+            setContentDescription(labelText);
+        }
     }
 }
