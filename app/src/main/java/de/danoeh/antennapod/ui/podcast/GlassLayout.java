@@ -119,6 +119,9 @@ public class GlassLayout extends FrameLayout {
             getViewTreeObserver().removeOnPreDrawListener(preDrawListener);
             preDrawRegistered = false;
         }
+        if (blurRenderer != null) {
+            blurRenderer.release();
+        }
         blurRenderer = null;
         super.onDetachedFromWindow();
     }

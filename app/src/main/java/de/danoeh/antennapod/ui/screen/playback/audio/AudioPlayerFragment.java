@@ -4,7 +4,6 @@ import android.animation.ArgbEvaluator;
 import android.animation.ValueAnimator;
 import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
-import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
@@ -221,8 +220,7 @@ public class AudioPlayerFragment extends Fragment implements
         cardViewSeek = root.findViewById(R.id.cardViewSeek);
         txtvSeek = root.findViewById(R.id.txtvSeek);
 
-        root.findViewById(R.id.podcast_player_collapse).setOnClickListener(v ->
-                ((MainActivity) getActivity()).getBottomSheet().setState(BottomSheetBehavior.STATE_COLLAPSED));
+        root.findViewById(R.id.podcast_player_collapse).setOnClickListener(v -> collapseSheet());
         root.findViewById(R.id.podcast_player_more).setOnClickListener(this::showMoreMenu);
         butFavorite.setOnClickListener(v -> toggleFavorite());
 
@@ -275,9 +273,9 @@ public class AudioPlayerFragment extends Fragment implements
         contentLayout.bind(new PlayerContentLayout.SwipeHost() {
             @Override
             public boolean canSwipeUp() {
-                return getActivity() != null && currentMedia != null
-                        && ((MainActivity) getActivity()).getBottomSheet().getState()
-                        == BottomSheetBehavior.STATE_EXPANDED;
+                MainActivity activity = mainActivity();
+                return activity != null && currentMedia != null
+                        && activity.getBottomSheet().getState() == BottomSheetBehavior.STATE_EXPANDED;
             }
 
             @Override
@@ -353,11 +351,24 @@ public class AudioPlayerFragment extends Fragment implements
         }
     }
 
+    @Nullable
+    private MainActivity mainActivity() {
+        return getActivity() instanceof MainActivity ? (MainActivity) getActivity() : null;
+    }
+
+    private void collapseSheet() {
+        MainActivity activity = mainActivity();
+        if (activity != null) {
+            activity.getBottomSheet().setState(BottomSheetBehavior.STATE_COLLAPSED);
+        }
+    }
+
     private void onPanelOpenChanged(boolean open) {
-        if (getActivity() == null) {
+        MainActivity activity = mainActivity();
+        if (activity == null || getView() == null) {
             return;
         }
-        ((MainActivity) getActivity()).getBottomSheet().setDragBlocked(open);
+        activity.getBottomSheet().setDragBlocked(open);
         panelBackCallback.setEnabled(open);
         if (open) {
             panelBackCallback.remove();
@@ -377,6 +388,9 @@ public class AudioPlayerFragment extends Fragment implements
         if (coverTarget != null) {
             Glide.with(this).clear(coverTarget);
             coverTarget = null;
+        }
+        if (cardViewSeek != null) {
+            cardViewSeek.animate().cancel();
         }
         panelBackCallback.remove();
         panel.onDestroyView();
@@ -427,7 +441,7 @@ public class AudioPlayerFragment extends Fragment implements
                 getActivity().sendBroadcast(
                         MediaButtonStarter.createIntent(getContext(), KeyEvent.KEYCODE_MEDIA_PAUSE));
             }
-        } else {
+        } else if (currentMedia != null) {
             new PlaybackServiceStarter(getContext(), currentMedia)
                     .callEvenIfRunning(true)
                     .start();
@@ -557,7 +571,7 @@ public class AudioPlayerFragment extends Fragment implements
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onPlaybackServiceChanged(PlaybackServiceEvent event) {
         if (event.action == PlaybackServiceEvent.Action.SERVICE_SHUT_DOWN) {
-            ((MainActivity) getActivity()).getBottomSheet().setState(BottomSheetBehavior.STATE_COLLAPSED);
+            collapseSheet();
         }
     }
 
@@ -645,17 +659,33 @@ public class AudioPlayerFragment extends Fragment implements
         if (coverTarget != null) {
             Glide.with(this).clear(coverTarget);
         }
+        final long mediaId = media.getId();
         coverTarget = new CustomTarget<Bitmap>(900, 900) {
             @Override
             public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
-                coverView.setImageBitmap(resource);
-                sheet.setBlurBitmap(resource);
-                panel.setBlurBitmap(resource);
-                PlayerPalette.extract(resource, color -> animateColor(color));
+                if (getView() == null) {
+                    return;
+                }
+                Bitmap copy = resource.copy(Bitmap.Config.ARGB_8888, false);
+                if (copy == null) {
+                    onLoadFailed(null);
+                    return;
+                }
+                coverView.setImageBitmap(copy);
+                sheet.setBlurBitmap(copy);
+                panel.setBlurBitmap(copy);
+                PlayerPalette.extract(copy, color -> {
+                    if (getView() != null && isAdded() && coverMediaId == mediaId) {
+                        animateColor(color);
+                    }
+                });
             }
 
             @Override
             public void onLoadFailed(@Nullable Drawable errorDrawable) {
+                if (getView() == null) {
+                    return;
+                }
                 coverView.setImageDrawable(null);
                 sheet.setBlurBitmap(null);
                 panel.setBlurBitmap(null);
@@ -668,6 +698,7 @@ public class AudioPlayerFragment extends Fragment implements
         };
         Glide.with(this)
                 .asBitmap()
+                .disallowHardwareConfig()
                 .load(media.getImageLocation())
                 .error(Glide.with(this).asBitmap().load(ImageResourceUtils.getFallbackImageLocation(media)))
                 .into(coverTarget);

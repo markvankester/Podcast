@@ -123,7 +123,7 @@ public class PlayerContentLayout extends FrameLayout {
             case MotionEvent.ACTION_UP:
             case MotionEvent.ACTION_CANCEL:
                 velocityTracker.computeCurrentVelocity(1000);
-                float velocity = velocityTracker.getYVelocity();
+                final float velocity = velocityTracker.getYVelocity();
                 velocityTracker.recycle();
                 velocityTracker = null;
                 swiping = false;

@@ -38,6 +38,15 @@ public class QueueRecyclerAdapter extends EpisodeItemListAdapter {
         return changed;
     }
 
+    public boolean isHidden(int pos) {
+        return pos >= 0 && pos < getItemCount() && getItem(pos).getId() == hiddenItemId;
+    }
+
+    @Override
+    protected boolean isSelectable(int pos) {
+        return !isHidden(pos);
+    }
+
     public void updateDragDropEnabled() {
         dragDropEnabled = ! (UserPreferences.isQueueKeepSorted() || UserPreferences.isQueueLocked());
         notifyDataSetChanged();
@@ -81,7 +90,7 @@ public class QueueRecyclerAdapter extends EpisodeItemListAdapter {
         holder.isInQueue.setVisibility(View.GONE);
         holder.secondaryActionButton.setVisibility(View.GONE);
         holder.setCompactMeta(true);
-        boolean hidden = pos < getItemCount() && getItem(pos).getId() == hiddenItemId;
+        boolean hidden = isHidden(pos);
         ViewGroup.LayoutParams params = holder.itemView.getLayoutParams();
         if (params != null) {
             params.height = hidden ? 0 : ViewGroup.LayoutParams.WRAP_CONTENT;

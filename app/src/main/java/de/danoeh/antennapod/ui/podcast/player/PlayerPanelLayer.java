@@ -153,6 +153,24 @@ public class PlayerPanelLayer extends FrameLayout {
         animator.start();
     }
 
+    public void cancelAnimation() {
+        if (animator != null) {
+            animator.cancel();
+            animator = null;
+        }
+        if (velocityTracker != null) {
+            velocityTracker.recycle();
+            velocityTracker = null;
+        }
+        dragging = false;
+    }
+
+    @Override
+    protected void onDetachedFromWindow() {
+        cancelAnimation();
+        super.onDetachedFromWindow();
+    }
+
     public void beginExternalDrag() {
         if (animator != null) {
             animator.cancel();

@@ -87,6 +87,7 @@ public class PlayerPanel {
     private int[] realIndices = new int[0];
     private int dragFrom = -1;
     private int dragTo = -1;
+    private List<FeedItem> pendingQueue;
     private int tab = TAB_QUEUE;
     private int color = PlayerPalette.FALLBACK_COLOR;
     private boolean open = false;
@@ -145,7 +146,10 @@ public class PlayerPanel {
 
             @Override
             public void onRemove(FeedItem item) {
-                queueAdapter.remove(item);
+                if (dragFrom != -1) {
+                    return;
+                }
+                removeFromDisplayedQueue(item);
                 DBWriter.removeQueueItem(fragment.requireContext(), true, item);
                 updateEmptyState();
             }
@@ -190,6 +194,11 @@ public class PlayerPanel {
                 }
                 dragFrom = -1;
                 dragTo = -1;
+                if (pendingQueue != null) {
+                    List<FeedItem> pending = pendingQueue;
+                    pendingQueue = null;
+                    onQueueLoaded(pending);
+                }
             }
         });
         touchHelper.attachToRecyclerView(queueList);
@@ -365,7 +374,28 @@ public class PlayerPanel {
                 .subscribe(this::onQueueLoaded, error -> Log.e(TAG, Log.getStackTraceString(error)));
     }
 
+    private void removeFromDisplayedQueue(FeedItem item) {
+        int index = queueAdapter.getItems().indexOf(item);
+        if (index < 0 || index >= realIndices.length) {
+            return;
+        }
+        int removedReal = realIndices[index];
+        int[] updated = new int[realIndices.length - 1];
+        for (int i = 0, j = 0; i < realIndices.length; i++) {
+            if (i != index) {
+                updated[j++] = realIndices[i] > removedReal ? realIndices[i] - 1 : realIndices[i];
+            }
+        }
+        realIndices = updated;
+        queueAdapter.remove(item);
+        fullQueue.remove(item);
+    }
+
     private void onQueueLoaded(List<FeedItem> queue) {
+        if (dragFrom != -1) {
+            pendingQueue = queue;
+            return;
+        }
         fullQueue.clear();
         fullQueue.addAll(queue);
         long currentId = PlaybackPreferences.getCurrentlyPlayingFeedMediaId();
@@ -416,10 +446,18 @@ public class PlayerPanel {
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(data -> webView.loadDataWithBaseURL("https://127.0.0.1", data, "text/html", "utf-8",
-                        "about:blank"), error -> Log.e(TAG, Log.getStackTraceString(error)));
+                        "about:blank"), error -> onNotesFailed(mediaId, error));
+    }
+
+    private void onNotesFailed(long mediaId, Throwable error) {
+        if (loadedNotesMediaId == mediaId) {
+            loadedNotesMediaId = -1;
+        }
+        Log.e(TAG, Log.getStackTraceString(error));
     }
 
     public void onDestroyView() {
+        layer.cancelAnimation();
         if (queueDisposable != null) {
             queueDisposable.dispose();
         }

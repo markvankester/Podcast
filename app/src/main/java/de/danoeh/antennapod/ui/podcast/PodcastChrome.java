@@ -1,9 +1,11 @@
 package de.danoeh.antennapod.ui.podcast;
 
 import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewParent;
 import android.widget.ScrollView;
 import androidx.core.graphics.ColorUtils;
 import androidx.core.graphics.Insets;
@@ -22,6 +24,11 @@ public class PodcastChrome {
     private final PodcastDock dock;
     private Insets insets = Insets.NONE;
     private boolean playerVisible = false;
+    private float lastSlideOffset = -1f;
+    private View sheet;
+    private View playerContent;
+    private ColorDrawable sheetDrawable;
+    private int sheetBackground;
 
     private final FragmentManager.FragmentLifecycleCallbacks fragmentCallbacks =
             new FragmentManager.FragmentLifecycleCallbacks() {
@@ -53,6 +60,7 @@ public class PodcastChrome {
 
     public void onInsetsChanged(Insets systemBarInsets, boolean visible) {
         insets = systemBarInsets;
+        lastSlideOffset = -1f;
         playerVisible = visible;
         View root = dock.getRoot();
         int side = PodcastMetrics.dp(activity, PodcastMetrics.SIDE_MARGIN_DP);
@@ -79,6 +87,10 @@ public class PodcastChrome {
 
     public void onSheetSlide(float slideOffset) {
         float offset = Math.max(0f, Math.min(1f, slideOffset));
+        if (offset == lastSlideOffset && playerContent != null) {
+            return;
+        }
+        lastSlideOffset = offset;
         View root = dock.getRoot();
         float travel = root.getHeight()
                 + PodcastMetrics.dp(activity, PodcastMetrics.DOCK_BOTTOM_MARGIN_DP) + insets.bottom;
@@ -86,14 +98,25 @@ public class PodcastChrome {
         root.setAlpha(1f - Math.min(1f, offset * 2.5f));
         root.setVisibility(offset >= 0.99f ? View.INVISIBLE : View.VISIBLE);
 
-        View sheet = activity.findViewById(R.id.audioplayerFragment);
-        View content = sheet.findViewById(R.id.playerContent);
+        if (sheet == null) {
+            sheet = activity.findViewById(R.id.audioplayerFragment);
+            if (sheet == null) {
+                return;
+            }
+            sheetBackground = MaterialColors.getColor(sheet, android.R.attr.colorBackground, Color.WHITE);
+        }
+        if (sheetDrawable == null || sheet.getBackground() != sheetDrawable) {
+            sheetDrawable = new ColorDrawable(sheetBackground);
+            sheet.setBackground(sheetDrawable);
+        }
         float fade = Math.max(0f, Math.min(1f, (offset - 0.05f) / 0.3f));
-        int background = MaterialColors.getColor(sheet, android.R.attr.colorBackground, Color.WHITE);
-        sheet.setBackgroundColor(ColorUtils.setAlphaComponent(background, Math.round(fade * 255)));
-        if (content != null) {
-            content.setAlpha(fade);
-            content.setVisibility(fade < 0.01f ? View.INVISIBLE : View.VISIBLE);
+        sheetDrawable.setColor(ColorUtils.setAlphaComponent(sheetBackground, Math.round(fade * 255)));
+        if (playerContent == null) {
+            playerContent = sheet.findViewById(R.id.playerContent);
+        }
+        if (playerContent != null) {
+            playerContent.setAlpha(fade);
+            playerContent.setVisibility(fade < 0.01f ? View.INVISIBLE : View.VISIBLE);
         }
     }
 
@@ -102,9 +125,22 @@ public class PodcastChrome {
         while (top.getParentFragment() != null) {
             top = top.getParentFragment();
         }
-        if (top.getId() == R.id.main_content_view && fragment.getView() != null) {
+        if (top.getId() == R.id.main_content_view && fragment.getView() != null
+                && !isInsideScrollContainer(fragment.getView())) {
             applyToTree(fragment.getView());
         }
+    }
+
+    private boolean isInsideScrollContainer(View view) {
+        ViewParent parent = view.getParent();
+        while (parent instanceof View) {
+            if (parent instanceof NestedScrollView || parent instanceof ScrollView
+                    || (parent instanceof RecyclerView && !isHorizontal((RecyclerView) parent))) {
+                return true;
+            }
+            parent = parent.getParent();
+        }
+        return false;
     }
 
     public void applyScrollPadding() {

@@ -532,8 +532,11 @@ public class QueueFragment extends Fragment implements MaterialToolbar.OnMenuIte
         if (recyclerAdapter == null || recyclerAdapter.getItemCount() == 0 || recyclerAdapter.inActionMode()) {
             return;
         }
-        recyclerAdapter.startSelectMode(0);
-        recyclerAdapter.setSelected(0, 1, false);
+        int first = recyclerAdapter.isHidden(0) ? 1 : 0;
+        if (first >= recyclerAdapter.getItemCount()) {
+            return;
+        }
+        recyclerAdapter.startSelectMode(first);
     }
 
     private void refreshInfoBar() {
@@ -742,21 +745,18 @@ public class QueueFragment extends Fragment implements MaterialToolbar.OnMenuIte
         @Override
         public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder,
                               @NonNull RecyclerView.ViewHolder target) {
-            int fromPosition = viewHolder.getBindingAdapterPosition();
-            int toPosition = target.getBindingAdapterPosition();
-
-            // Update tracked position
-            if (dragFrom == -1) {
-                dragFrom =  fromPosition;
-            }
-            dragTo = toPosition;
-
             int from = viewHolder.getBindingAdapterPosition();
             int to = target.getBindingAdapterPosition();
             Log.d(TAG, "move(" + from + ", " + to + ") in memory");
-            if (queue == null || from >= queue.size() || to >= queue.size() || from < 0 || to < 0) {
+            if (queue == null || from >= queue.size() || to >= queue.size() || from < 0 || to < 0
+                    || recyclerAdapter.isHidden(to) || recyclerAdapter.isHidden(from)) {
                 return false;
             }
+            // Update tracked position
+            if (dragFrom == -1) {
+                dragFrom = from;
+            }
+            dragTo = to;
             queue.add(to, queue.remove(from));
             recyclerAdapter.notifyItemMoved(from, to);
             return true;

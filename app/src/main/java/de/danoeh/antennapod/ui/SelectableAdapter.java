@@ -36,7 +36,9 @@ public abstract class SelectableAdapter<T extends RecyclerView.ViewHolder> exten
 
         shouldSelectLazyLoadedItems = false;
         selectedIds.clear();
-        selectedIds.add(getItemId(pos));
+        if (pos >= 0 && isSelectable(pos)) {
+            selectedIds.add(getItemId(pos));
+        }
 
         OnBackPressedCallback backPressedCallback = new OnBackPressedCallback(true) {
             @Override
@@ -67,7 +69,7 @@ public abstract class SelectableAdapter<T extends RecyclerView.ViewHolder> exten
             @Override
             public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
                 if (item.getItemId() == R.id.select_toggle) {
-                    boolean selectAll = selectedIds.size() != getItemCount();
+                    boolean selectAll = selectedIds.size() != getSelectableCount();
                     shouldSelectLazyLoadedItems = selectAll;
                     setSelected(0, getItemCount(), selectAll);
                     toggleSelectAllIcon(mode.getMenu());
@@ -139,6 +141,10 @@ public abstract class SelectableAdapter<T extends RecyclerView.ViewHolder> exten
      * @param selected true for selected state and false for unselected
      */
     public void setSelected(int pos, boolean selected) {
+        if (selected && !isSelectable(pos)) {
+            onSelectedItemsUpdated();
+            return;
+        }
         if (selected) {
             selectedIds.add(getItemId(pos));
         } else {
@@ -171,6 +177,20 @@ public abstract class SelectableAdapter<T extends RecyclerView.ViewHolder> exten
         }
     }
 
+    protected boolean isSelectable(int pos) {
+        return true;
+    }
+
+    private int getSelectableCount() {
+        int count = 0;
+        for (int i = 0; i < getItemCount(); i++) {
+            if (isSelectable(i)) {
+                count++;
+            }
+        }
+        return count;
+    }
+
     public boolean inActionMode() {
         return actionMode != null;
     }
@@ -180,7 +200,7 @@ public abstract class SelectableAdapter<T extends RecyclerView.ViewHolder> exten
     }
 
     private void toggleSelectAllIcon(Menu menu) {
-        boolean allSelected = selectedIds.size() == getItemCount();
+        boolean allSelected = selectedIds.size() == getSelectableCount();
         menu.findItem(R.id.select_toggle).setTitle(allSelected
                 ? R.string.deselect_all_label : R.string.select_all_label);
     }

@@ -111,12 +111,12 @@ public class PlayerGlassLayout extends FrameLayout {
 
     @Override
     protected void dispatchDraw(Canvas canvas) {
-        int save = canvas.save();
+        final float inset = borderPaint.getStrokeWidth() / 2f;
+        final int save = canvas.save();
         canvas.clipPath(clipPath);
         canvas.drawColor(Color.rgb(Color.red(baseColor), Color.green(baseColor), Color.blue(baseColor)));
         super.dispatchDraw(canvas);
         canvas.restoreToCount(save);
-        float inset = borderPaint.getStrokeWidth() / 2f;
         canvas.save();
         canvas.clipRect(0, 0, getWidth(), radius);
         canvas.drawRoundRect(inset, inset, getWidth() - inset, getHeight() + radius,

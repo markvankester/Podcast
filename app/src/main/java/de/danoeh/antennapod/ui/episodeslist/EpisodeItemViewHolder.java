@@ -37,6 +37,8 @@ import de.danoeh.antennapod.storage.database.DBWriter;
 import de.danoeh.antennapod.ui.podcast.PodcastFormat;
 import org.greenrobot.eventbus.EventBus;
 
+import java.util.Collections;
+
 /**
  * Holds the view which shows FeedItems.
  */
@@ -173,12 +175,10 @@ public class EpisodeItemViewHolder extends RecyclerView.ViewHolder {
 
     private void configureSecondaryAction() {
         if (rowStyle == EpisodeItemListAdapter.ROW_NEW) {
-            boolean queued = item.isTagged(FeedItem.TAG_QUEUE);
             secondaryActionButton.setVisibility(View.VISIBLE);
-            secondaryActionIcon.setImageResource(queued ? R.drawable.podcast_ic_check : R.drawable.podcast_ic_plus);
-            secondaryActionButton.setContentDescription(activity.getString(
-                    queued ? R.string.podcast_in_queue : R.string.podcast_add_to_queue));
-            secondaryActionButton.setOnClickListener(v -> toggleQueued());
+            secondaryActionIcon.setImageResource(R.drawable.podcast_ic_plus);
+            secondaryActionButton.setContentDescription(activity.getString(R.string.podcast_add_to_queue));
+            secondaryActionButton.setOnClickListener(v -> addToQueue());
         } else if (rowStyle == EpisodeItemListAdapter.ROW_COMPACT) {
             secondaryActionButton.setVisibility(View.VISIBLE);
             secondaryActionIcon.setImageResource(R.drawable.podcast_ic_more);
@@ -191,14 +191,24 @@ public class EpisodeItemViewHolder extends RecyclerView.ViewHolder {
         secondaryActionButton.setFocusable(false);
     }
 
-    private void toggleQueued() {
-        if (item.isTagged(FeedItem.TAG_QUEUE)) {
-            DBWriter.removeQueueItem(activity, false, item);
-        } else if (item.getMedia() == null) {
+    private void addToQueue() {
+        if (item.getMedia() == null) {
             EventBus.getDefault().post(new MessageEvent(activity.getString(R.string.no_media_label)));
-        } else {
-            DBWriter.addQueueItem(activity, item);
+            return;
         }
+        if (item.isTagged(FeedItem.TAG_QUEUE)) {
+            return;
+        }
+        final FeedItem queuedItem = item;
+        final boolean wasNew = queuedItem.isNew();
+        DBWriter.addQueueItem(activity, queuedItem);
+        EventBus.getDefault().post(new MessageEvent(activity.getString(R.string.podcast_added_to_queue),
+                context -> {
+                    DBWriter.removeQueueItem(context, false, queuedItem);
+                    if (wasNew) {
+                        DBWriter.markItemsPlayed(FeedItem.NEW, false, Collections.singletonList(queuedItem));
+                    }
+                }, activity.getString(R.string.undo)));
     }
 
     public void setCompactMeta(boolean compact) {

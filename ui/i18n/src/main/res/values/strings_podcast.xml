@@ -31,7 +31,7 @@
     <string name="podcast_hours_min">%1$d h %2$d min</string>
     <string name="podcast_clear_all">Clear All</string>
     <string name="podcast_add_to_queue">Add to queue</string>
-    <string name="podcast_in_queue">In queue</string>
+    <string name="podcast_added_to_queue">Added to queue</string>
     <string name="podcast_swipe_hint_new">Swipe left to remove an episode from New</string>
     <plurals name="podcast_new_episodes_count">
         <item quantity="one">%d new episode</item>
