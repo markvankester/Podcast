@@ -6,6 +6,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import androidx.annotation.DrawableRes;
+import androidx.annotation.Nullable;
 import androidx.appcompat.content.res.AppCompatResources;
 import androidx.appcompat.widget.Toolbar;
 import de.danoeh.antennapod.R;
@@ -59,9 +60,7 @@ public final class PodcastMenus {
         int lastRank = -1;
         for (MenuItem item : items) {
             int rank = rank(item.getItemId());
-            int iconRes = icon(item.getItemId());
-            Drawable icon = iconRes != 0 ? AppCompatResources.getDrawable(context, iconRes) : item.getIcon();
-            entries.add(new PodcastPopupMenu.Entry(item.getItemId(), icon, item.getTitle(), null,
+            entries.add(new PodcastPopupMenu.Entry(item.getItemId(), iconFor(context, item), item.getTitle(), null,
                     lastRank != -1 && rank / 10 != lastRank / 10)
                     .setChecked(item.isCheckable() ? item.isChecked() : null)
                     .setOpensSubmenu(item.hasSubMenu())
@@ -74,11 +73,37 @@ public final class PodcastMenus {
                 return;
             }
             if (item.hasSubMenu()) {
-                showLevel(anchor, item.getSubMenu(), listener, excluded);
+                showSubMenu(anchor.getContext(), item, listener);
             } else {
                 listener.onMenuItemClick(item);
             }
         });
+    }
+
+    private static void showSubMenu(Context context, MenuItem parent, Toolbar.OnMenuItemClickListener listener) {
+        Menu menu = parent.getSubMenu();
+        List<PodcastPopupMenu.Entry> entries = new ArrayList<>();
+        for (int i = 0; i < menu.size(); i++) {
+            MenuItem item = menu.getItem(i);
+            if (!item.isVisible() || item.getTitle() == null) {
+                continue;
+            }
+            entries.add(new PodcastPopupMenu.Entry(item.getItemId(), null, item.getTitle(), null, false)
+                    .setChecked(item.isCheckable() ? item.isChecked() : null)
+                    .setEnabled(item.isEnabled()));
+        }
+        PodcastPopupMenu.showSheet(context, parent.getTitle(), entries, id -> {
+            MenuItem item = menu.findItem(id);
+            if (item != null) {
+                listener.onMenuItemClick(item);
+            }
+        });
+    }
+
+    @Nullable
+    public static Drawable iconFor(Context context, MenuItem item) {
+        int iconRes = icon(item.getItemId());
+        return iconRes != 0 ? AppCompatResources.getDrawable(context, iconRes) : item.getIcon();
     }
 
     private static int rank(int id) {
@@ -124,8 +149,46 @@ public final class PodcastMenus {
         } else if (id == R.id.refresh_item) {
             return R.drawable.podcast_menu_refresh;
         } else if (id == R.id.clear_queue || id == R.id.action_delete_downloads_played
-                || id == R.id.clear_history_item || id == R.id.remove_all_inbox_item) {
+                || id == R.id.clear_history_item || id == R.id.remove_item || id == R.id.delete_folder_item) {
             return R.drawable.podcast_menu_delete;
+        } else if (id == R.id.add_to_queue_item) {
+            return R.drawable.podcast_menu_queue_add;
+        } else if (id == R.id.remove_from_queue_item) {
+            return R.drawable.podcast_menu_queue_remove;
+        } else if (id == R.id.mark_read_item) {
+            return R.drawable.podcast_menu_played;
+        } else if (id == R.id.mark_unread_item) {
+            return R.drawable.podcast_menu_unplayed;
+        } else if (id == R.id.add_to_favorites_item || id == R.id.remove_from_favorites_item) {
+            return R.drawable.podcast_menu_star;
+        } else if (id == R.id.download_item) {
+            return R.drawable.podcast_menu_download;
+        } else if (id == R.id.share_item || id == R.id.share_feed) {
+            return R.drawable.podcast_menu_share;
+        } else if (id == R.id.remove_inbox_item || id == R.id.remove_all_inbox_item) {
+            return R.drawable.podcast_menu_inbox;
+        } else if (id == R.id.reset_position) {
+            return R.drawable.podcast_menu_reset;
+        } else if (id == R.id.multi_select) {
+            return R.drawable.podcast_menu_select;
+        } else if (id == R.id.move_to_top_item) {
+            return R.drawable.podcast_menu_move_top;
+        } else if (id == R.id.move_to_bottom_item) {
+            return R.drawable.podcast_menu_move_bottom;
+        } else if (id == R.id.edit_tags) {
+            return R.drawable.podcast_menu_tag;
+        } else if (id == R.id.rename_folder_item) {
+            return R.drawable.podcast_menu_edit;
+        } else if (id == R.id.remove_archive_feed || id == R.id.remove_restore_feed) {
+            return R.drawable.podcast_menu_archive;
+        } else if (id == R.id.skip_episode_item) {
+            return R.drawable.podcast_menu_skip;
+        } else if (id == R.id.visit_website_item) {
+            return R.drawable.podcast_menu_website;
+        } else if (id == R.id.open_social_interact_url) {
+            return R.drawable.podcast_menu_comments;
+        } else if (id == R.id.transcript_item) {
+            return R.drawable.podcast_player_notes;
         }
         return 0;
     }

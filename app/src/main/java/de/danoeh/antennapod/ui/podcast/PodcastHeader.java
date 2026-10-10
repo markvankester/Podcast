@@ -57,7 +57,7 @@ public class PodcastHeader extends LinearLayout {
         super.onAttachedToWindow();
         applyStatusBarInset();
         ViewCompat.setOnApplyWindowInsetsListener(this, (v, insets) -> {
-            setTopInset(insets.getInsets(WindowInsetsCompat.Type.statusBars()).top);
+            applyStatusBarInset();
             return insets;
         });
         ViewCompat.requestApplyInsets(this);

@@ -168,10 +168,13 @@ public class SubscriptionFragment extends Fragment
         setColumnNumber(prefs.getInt(PREF_NUM_COLUMNS, getDefaultNumOfColumns()));
         subscriptionAdapter.setOnSelectModeListener(this);
         subscriptionRecycler.setAdapter(subscriptionAdapter);
+        subscriptionRecycler.setItemAnimator(null);
         setupEmptyView();
 
         progressBar = root.findViewById(R.id.progressBar);
         progressBar.setVisibility(View.VISIBLE);
+        progressBar.setAlpha(0f);
+        progressBar.animate().alpha(1f).setStartDelay(400).setDuration(150).start();
 
         setupHeader(root);
 

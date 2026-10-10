@@ -7,6 +7,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.RippleDrawable;
+import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,8 +21,12 @@ import androidx.annotation.Nullable;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.core.graphics.ColorUtils;
 import androidx.core.util.Consumer;
+import androidx.core.widget.NestedScrollView;
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.color.MaterialColors;
 import de.danoeh.antennapod.R;
+import java.util.ArrayList;
 import java.util.List;
 
 public final class PodcastPopupMenu {
@@ -165,6 +170,66 @@ public final class PodcastPopupMenu {
         window.setPivotX(PodcastMetrics.dp(context, WIDTH_DP));
         window.animate().alpha(1f).scaleX(1f).scaleY(1f).setDuration(160).start();
         return popup;
+    }
+
+    public static BottomSheetDialog showSheet(Context context, @Nullable CharSequence title, List<Entry> entries,
+                                              Consumer<Integer> onClick) {
+        Colors colors = Colors.fromTheme(context);
+        BottomSheetDialog dialog = new BottomSheetDialog(context);
+        LinearLayout list = new LinearLayout(context);
+        list.setOrientation(LinearLayout.VERTICAL);
+        list.setPadding(0, PodcastMetrics.dp(context, 8), 0, PodcastMetrics.dp(context, 16));
+        if (title != null) {
+            TextView header = new TextView(context);
+            header.setText(title);
+            header.setTextColor(colors.text);
+            header.setTextSize(20);
+            header.setTypeface(ResourcesCompat.getFont(context, R.font.manrope_extrabold));
+            header.setMaxLines(2);
+            header.setEllipsize(TextUtils.TruncateAt.END);
+            int horizontal = PodcastMetrics.dp(context, 22);
+            header.setPadding(horizontal, PodcastMetrics.dp(context, 12), horizontal, PodcastMetrics.dp(context, 10));
+            list.addView(header);
+        }
+        boolean anyIcon = false;
+        for (Entry entry : entries) {
+            anyIcon |= entry.icon != null;
+        }
+        for (int i = 0; i < entries.size(); i++) {
+            Entry entry = entries.get(i);
+            if (entry.startsGroup && i > 0) {
+                list.addView(createDivider(context, colors));
+            }
+            View row = createRow(context, colors, entry, anyIcon);
+            int horizontal = PodcastMetrics.dp(context, 22);
+            row.setPadding(horizontal, 0, horizontal, 0);
+            if (entry.enabled) {
+                row.setOnClickListener(v -> {
+                    PodcastHaptics.tap(v);
+                    dialog.dismiss();
+                    onClick.accept(entry.id);
+                });
+            } else {
+                row.setAlpha(0.4f);
+            }
+            list.addView(row);
+        }
+        NestedScrollView scroll = new NestedScrollView(context);
+        scroll.addView(list);
+        dialog.setContentView(scroll);
+        dialog.getBehavior().setSkipCollapsed(true);
+        dialog.getBehavior().setState(BottomSheetBehavior.STATE_EXPANDED);
+        dialog.show();
+        return dialog;
+    }
+
+    public static void showChoiceSheet(Context context, CharSequence title, String[] items, int selectedIndex,
+                                       Consumer<Integer> onPick) {
+        List<Entry> entries = new ArrayList<>();
+        for (int i = 0; i < items.length; i++) {
+            entries.add(new Entry(i, null, items[i], null, false).setChecked(i == selectedIndex));
+        }
+        showSheet(context, title, entries, onPick);
     }
 
     private static View createRow(Context context, Colors colors, Entry entry, boolean iconColumn) {
