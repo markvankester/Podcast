@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="podcast_background_light">#FFFFFF</color>
+    <color name="podcast_text_primary_light">#141414</color>
+    <color name="podcast_text_secondary_light">#6B6B6B</color>
+    <color name="podcast_tab_inactive_light">#3D3D3D</color>
+    <color name="podcast_divider_light">#EDEDEA</color>
+    <color name="podcast_subtle_fill_light">#F2F2F0</color>
+    <color name="podcast_accent_light">#C42D49</color>
+    <color name="podcast_accent_soft_light">#1AC42D49</color>
+    <color name="podcast_glass_surface_light">#B8FFFFFF</color>
+    <color name="podcast_glass_surface_fallback_light">#EBFFFFFF</color>
+    <color name="podcast_glass_border_light">#0F000000</color>
+    <color name="podcast_glass_highlight_light">#CCFFFFFF</color>
+    <color name="podcast_tab_highlight_light">#0F000000</color>
+
+    <color name="podcast_background_dark">#121212</color>
+    <color name="podcast_text_primary_dark">#F2F2F0</color>
+    <color name="podcast_text_secondary_dark">#A3A3A3</color>
+    <color name="podcast_tab_inactive_dark">#C8C8C8</color>
+    <color name="podcast_divider_dark">#2A2A2A</color>
+    <color name="podcast_subtle_fill_dark">#242424</color>
+    <color name="podcast_accent_dark">#E0566E</color>
+    <color name="podcast_accent_soft_dark">#26E0566E</color>
+    <color name="podcast_glass_surface_dark">#B8262626</color>
+    <color name="podcast_glass_surface_fallback_dark">#EB262626</color>
+    <color name="podcast_glass_border_dark">#1FFFFFFF</color>
+    <color name="podcast_glass_highlight_dark">#1AFFFFFF</color>
+    <color name="podcast_tab_highlight_dark">#14FFFFFF</color>
+</resources>

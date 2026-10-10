@@ -41,7 +41,7 @@
         android:resizeableActivity="true"
         android:allowAudioPlaybackCapture="true"
         android:enableOnBackInvokedCallback="true"
-        android:localeConfig="@xml/locale_config"
+        android:localeConfig="@xml/locale_config_podcast"
         android:networkSecurityConfig="@xml/network_security_config">
 
         <activity

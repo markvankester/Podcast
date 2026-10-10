@@ -9,7 +9,7 @@
         <item name="android:navigationBarColor">@color/grey600</item>
     </style>
 
-    <style name="Theme.Base.AntennaPod.Dynamic.Light" parent="Theme.Material3.DynamicColors.Light">
+    <style name="Theme.Base.AntennaPod.Dynamic.Light" parent="Theme.Podcast.Base.Light">
         <item name="linearProgressIndicatorStyle">@style/Widget.AntennaPod.LinearProgressIndicator</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:windowLightStatusBar">true</item>
@@ -36,25 +36,26 @@
 
     <style name="Theme.AntennaPod.Light" parent="Theme.AntennaPod.Dynamic.Light">
         <item name="isMaterial3DynamicColorApplied">false</item>
-        <item name="colorPrimary">@color/accent_light</item>
+        <item name="colorPrimary">@color/podcast_accent_light</item>
         <item name="colorOnPrimary">@color/white</item>
-        <item name="colorAccent">@color/accent_light</item>
-        <item name="colorSecondary">@color/accent_light</item>
+        <item name="colorAccent">@color/podcast_accent_light</item>
+        <item name="colorSecondary">@color/podcast_accent_light</item>
         <item name="colorOnSecondary">@color/white</item>
-        <item name="colorPrimaryDark">@color/accent_light</item>
-        <item name="colorPrimaryContainer">#D6E6F3</item>
+        <item name="colorPrimaryDark">@color/podcast_accent_light</item>
+        <item name="colorPrimaryContainer">#F6DCE1</item>
         <item name="colorOnPrimaryContainer">@color/black</item>
-        <item name="android:colorBackground">@color/background_light</item>
-        <item name="colorSurface">@color/background_light</item>
-        <item name="colorOnSurface">@color/black</item>
+        <item name="android:colorBackground">@color/podcast_background_light</item>
+        <item name="background_color">@color/podcast_background_light</item>
+        <item name="colorSurface">@color/podcast_background_light</item>
+        <item name="colorOnSurface">@color/podcast_text_primary_light</item>
         <item name="colorOnContainer">@color/black</item>
         <item name="colorSurfaceVariant">@color/color_surface_variant_light</item>
         <item name="colorOnSurfaceVariant">@color/text_color_secondary_light</item>
-        <item name="colorSurfaceContainer">#EBEEF3</item>
+        <item name="colorSurfaceContainer">@color/podcast_subtle_fill_light</item>
         <item name="colorSecondaryContainer">@color/color_secondary_container_light</item>
         <item name="colorOnSecondaryContainer">@color/black</item>
-        <item name="android:textColorPrimary">@color/black</item>
-        <item name="android:textColorSecondary">@color/text_color_secondary_light</item>
+        <item name="android:textColorPrimary">@color/podcast_text_primary_light</item>
+        <item name="android:textColorSecondary">@color/podcast_text_secondary_light</item>
         <item name="android:textColorTertiary">@color/text_color_secondary_light</item>
         <item name="colorOutline">@color/text_color_secondary_light</item>
         <item name="colorOutlineVariant">@color/text_color_secondary_light</item>
@@ -68,7 +69,7 @@
         <!-- Room for API dependent attributes -->
     </style>
 
-    <style name="Theme.Base.AntennaPod.Dynamic.Dark" parent="Theme.Material3.DynamicColors.Dark">
+    <style name="Theme.Base.AntennaPod.Dynamic.Dark" parent="Theme.Podcast.Base.Dark">
         <item name="linearProgressIndicatorStyle">@style/Widget.AntennaPod.LinearProgressIndicator</item>
         <item name="background_color">@color/background_darktheme</item>
         <item name="background_elevated">@color/background_elevated_darktheme</item>

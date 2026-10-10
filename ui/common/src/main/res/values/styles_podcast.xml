@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.Podcast.Base.Light" parent="Theme.Material3.DynamicColors.Light">
+        <item name="android:fontFamily">@font/manrope</item>
+        <item name="fontFamily">@font/manrope</item>
+        <item name="textAppearanceDisplayLarge">@style/TextAppearance.Podcast.DisplayLarge</item>
+        <item name="textAppearanceDisplayMedium">@style/TextAppearance.Podcast.DisplayMedium</item>
+        <item name="textAppearanceDisplaySmall">@style/TextAppearance.Podcast.DisplaySmall</item>
+        <item name="textAppearanceHeadlineLarge">@style/TextAppearance.Podcast.HeadlineLarge</item>
+        <item name="textAppearanceHeadlineMedium">@style/TextAppearance.Podcast.HeadlineMedium</item>
+        <item name="textAppearanceHeadlineSmall">@style/TextAppearance.Podcast.HeadlineSmall</item>
+        <item name="textAppearanceTitleLarge">@style/TextAppearance.Podcast.TitleLarge</item>
+        <item name="textAppearanceTitleMedium">@style/TextAppearance.Podcast.TitleMedium</item>
+        <item name="textAppearanceTitleSmall">@style/TextAppearance.Podcast.TitleSmall</item>
+        <item name="textAppearanceBodyLarge">@style/TextAppearance.Podcast.BodyLarge</item>
+        <item name="textAppearanceBodyMedium">@style/TextAppearance.Podcast.BodyMedium</item>
+        <item name="textAppearanceBodySmall">@style/TextAppearance.Podcast.BodySmall</item>
+        <item name="textAppearanceLabelLarge">@style/TextAppearance.Podcast.LabelLarge</item>
+        <item name="textAppearanceLabelMedium">@style/TextAppearance.Podcast.LabelMedium</item>
+        <item name="textAppearanceLabelSmall">@style/TextAppearance.Podcast.LabelSmall</item>
+        <item name="podcast_background">@color/podcast_background_light</item>
+        <item name="podcast_text_primary">@color/podcast_text_primary_light</item>
+        <item name="podcast_text_secondary">@color/podcast_text_secondary_light</item>
+        <item name="podcast_tab_inactive">@color/podcast_tab_inactive_light</item>
+        <item name="podcast_divider">@color/podcast_divider_light</item>
+        <item name="podcast_subtle_fill">@color/podcast_subtle_fill_light</item>
+        <item name="podcast_accent">@color/podcast_accent_light</item>
+        <item name="podcast_accent_soft">@color/podcast_accent_soft_light</item>
+        <item name="podcast_glass_surface">@color/podcast_glass_surface_light</item>
+        <item name="podcast_glass_surface_fallback">@color/podcast_glass_surface_fallback_light</item>
+        <item name="podcast_glass_border">@color/podcast_glass_border_light</item>
+        <item name="podcast_glass_highlight">@color/podcast_glass_highlight_light</item>
+        <item name="podcast_tab_highlight">@color/podcast_tab_highlight_light</item>
+    </style>
+
+    <style name="Theme.Podcast.Base.Dark" parent="Theme.Material3.DynamicColors.Dark">
+        <item name="android:fontFamily">@font/manrope</item>
+        <item name="fontFamily">@font/manrope</item>
+        <item name="textAppearanceDisplayLarge">@style/TextAppearance.Podcast.DisplayLarge</item>
+        <item name="textAppearanceDisplayMedium">@style/TextAppearance.Podcast.DisplayMedium</item>
+        <item name="textAppearanceDisplaySmall">@style/TextAppearance.Podcast.DisplaySmall</item>
+        <item name="textAppearanceHeadlineLarge">@style/TextAppearance.Podcast.HeadlineLarge</item>
+        <item name="textAppearanceHeadlineMedium">@style/TextAppearance.Podcast.HeadlineMedium</item>
+        <item name="textAppearanceHeadlineSmall">@style/TextAppearance.Podcast.HeadlineSmall</item>
+        <item name="textAppearanceTitleLarge">@style/TextAppearance.Podcast.TitleLarge</item>
+        <item name="textAppearanceTitleMedium">@style/TextAppearance.Podcast.TitleMedium</item>
+        <item name="textAppearanceTitleSmall">@style/TextAppearance.Podcast.TitleSmall</item>
+        <item name="textAppearanceBodyLarge">@style/TextAppearance.Podcast.BodyLarge</item>
+        <item name="textAppearanceBodyMedium">@style/TextAppearance.Podcast.BodyMedium</item>
+        <item name="textAppearanceBodySmall">@style/TextAppearance.Podcast.BodySmall</item>
+        <item name="textAppearanceLabelLarge">@style/TextAppearance.Podcast.LabelLarge</item>
+        <item name="textAppearanceLabelMedium">@style/TextAppearance.Podcast.LabelMedium</item>
+        <item name="textAppearanceLabelSmall">@style/TextAppearance.Podcast.LabelSmall</item>
+        <item name="podcast_background">@color/podcast_background_dark</item>
+        <item name="podcast_text_primary">@color/podcast_text_primary_dark</item>
+        <item name="podcast_text_secondary">@color/podcast_text_secondary_dark</item>
+        <item name="podcast_tab_inactive">@color/podcast_tab_inactive_dark</item>
+        <item name="podcast_divider">@color/podcast_divider_dark</item>
+        <item name="podcast_subtle_fill">@color/podcast_subtle_fill_dark</item>
+        <item name="podcast_accent">@color/podcast_accent_dark</item>
+        <item name="podcast_accent_soft">@color/podcast_accent_soft_dark</item>
+        <item name="podcast_glass_surface">@color/podcast_glass_surface_dark</item>
+        <item name="podcast_glass_surface_fallback">@color/podcast_glass_surface_fallback_dark</item>
+        <item name="podcast_glass_border">@color/podcast_glass_border_dark</item>
+        <item name="podcast_glass_highlight">@color/podcast_glass_highlight_dark</item>
+        <item name="podcast_tab_highlight">@color/podcast_tab_highlight_dark</item>
+    </style>
+
+    <style name="TextAppearance.Podcast.DisplayLarge" parent="TextAppearance.Material3.DisplayLarge">
+        <item name="android:fontFamily">@font/manrope</item>
+        <item name="fontFamily">@font/manrope</item>
+    </style>
+    <style name="TextAppearance.Podcast.DisplayMedium" parent="TextAppearance.Material3.DisplayMedium">
+        <item name="android:fontFamily">@font/manrope</item>
+        <item name="fontFamily">@font/manrope</item>
+    </style>
+    <style name="TextAppearance.Podcast.DisplaySmall" parent="TextAppearance.Material3.DisplaySmall">
+        <item name="android:fontFamily">@font/manrope</item>
+        <item name="fontFamily">@font/manrope</item>
+    </style>
+    <style name="TextAppearance.Podcast.HeadlineLarge" parent="TextAppearance.Material3.HeadlineLarge">
+        <item name="android:fontFamily">@font/manrope</item>
+        <item name="fontFamily">@font/manrope</item>
+    </style>
+    <style name="TextAppearance.Podcast.HeadlineMedium" parent="TextAppearance.Material3.HeadlineMedium">
+        <item name="android:fontFamily">@font/manrope</item>
+        <item name="fontFamily">@font/manrope</item>
+    </style>
+    <style name="TextAppearance.Podcast.HeadlineSmall" parent="TextAppearance.Material3.HeadlineSmall">
+        <item name="android:fontFamily">@font/manrope</item>
+        <item name="fontFamily">@font/manrope</item>
+    </style>
+    <style name="TextAppearance.Podcast.TitleLarge" parent="TextAppearance.Material3.TitleLarge">
+        <item name="android:fontFamily">@font/manrope</item>
+        <item name="fontFamily">@font/manrope</item>
+    </style>
+    <style name="TextAppearance.Podcast.TitleMedium" parent="TextAppearance.Material3.TitleMedium">
+        <item name="android:fontFamily">@font/manrope_semibold</item>
+        <item name="fontFamily">@font/manrope_semibold</item>
+    </style>
+    <style name="TextAppearance.Podcast.TitleSmall" parent="TextAppearance.Material3.TitleSmall">
+        <item name="android:fontFamily">@font/manrope_semibold</item>
+        <item name="fontFamily">@font/manrope_semibold</item>
+    </style>
+    <style name="TextAppearance.Podcast.BodyLarge" parent="TextAppearance.Material3.BodyLarge">
+        <item name="android:fontFamily">@font/manrope</item>
+        <item name="fontFamily">@font/manrope</item>
+    </style>
+    <style name="TextAppearance.Podcast.BodyMedium" parent="TextAppearance.Material3.BodyMedium">
+        <item name="android:fontFamily">@font/manrope</item>
+        <item name="fontFamily">@font/manrope</item>
+    </style>
+    <style name="TextAppearance.Podcast.BodySmall" parent="TextAppearance.Material3.BodySmall">
+        <item name="android:fontFamily">@font/manrope</item>
+        <item name="fontFamily">@font/manrope</item>
+    </style>
+    <style name="TextAppearance.Podcast.LabelLarge" parent="TextAppearance.Material3.LabelLarge">
+        <item name="android:fontFamily">@font/manrope_semibold</item>
+        <item name="fontFamily">@font/manrope_semibold</item>
+    </style>
+    <style name="TextAppearance.Podcast.LabelMedium" parent="TextAppearance.Material3.LabelMedium">
+        <item name="android:fontFamily">@font/manrope_semibold</item>
+        <item name="fontFamily">@font/manrope_semibold</item>
+    </style>
+    <style name="TextAppearance.Podcast.LabelSmall" parent="TextAppearance.Material3.LabelSmall">
+        <item name="android:fontFamily">@font/manrope_semibold</item>
+        <item name="fontFamily">@font/manrope_semibold</item>
+    </style>
+</resources>
