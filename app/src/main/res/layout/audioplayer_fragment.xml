@@ -99,12 +99,12 @@
 
                     <ImageButton
                         android:id="@+id/podcast_player_favorite"
-                        android:layout_width="44dp"
-                        android:layout_height="44dp"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
                         android:layout_marginEnd="-8dp"
                         android:background="?attr/selectableItemBackgroundBorderless"
                         android:contentDescription="@string/add_to_favorite_label"
-                        android:padding="11dp"
+                        android:padding="13dp"
                         android:src="@drawable/podcast_player_star" />
                 </LinearLayout>
 
@@ -236,8 +236,8 @@
 
                     <ImageButton
                         android:id="@+id/butPrev"
-                        android:layout_width="44dp"
-                        android:layout_height="44dp"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
                         android:background="?attr/selectableItemBackgroundBorderless"
                         android:contentDescription="@string/podcast_player_previous"
                         android:alpha="0.85"
@@ -350,12 +350,12 @@
 
                     <ImageButton
                         android:id="@+id/butSkip"
-                        android:layout_width="44dp"
-                        android:layout_height="44dp"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
                         android:background="?attr/selectableItemBackgroundBorderless"
                         android:contentDescription="@string/skip_episode_label"
                         android:alpha="0.85"
-                        android:padding="10dp"
+                        android:padding="12dp"
                         android:src="@drawable/podcast_player_next" />
                 </LinearLayout>
 
@@ -574,11 +574,11 @@
 
             <ImageButton
                 android:id="@+id/podcast_player_collapse"
-                android:layout_width="44dp"
-                android:layout_height="44dp"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
                 android:background="@drawable/podcast_player_topbar_button"
                 android:contentDescription="@string/podcast_player_collapse"
-                android:padding="11dp"
+                android:padding="13dp"
                 android:src="@drawable/podcast_player_chevron_down" />
 
             <Space
@@ -588,19 +588,19 @@
 
             <FrameLayout
                 android:id="@+id/podcast_player_cast_host"
-                android:layout_width="44dp"
-                android:layout_height="44dp"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
                 android:layout_marginEnd="8dp"
                 android:background="@drawable/podcast_player_topbar_button"
                 android:visibility="gone" />
 
             <ImageButton
                 android:id="@+id/podcast_player_more"
-                android:layout_width="44dp"
-                android:layout_height="44dp"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
                 android:background="@drawable/podcast_player_topbar_button"
                 android:contentDescription="@string/podcast_player_more"
-                android:padding="12dp"
+                android:padding="14dp"
                 android:src="@drawable/podcast_player_more" />
         </LinearLayout>
 

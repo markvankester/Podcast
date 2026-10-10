@@ -7,6 +7,7 @@
     <color name="podcast_divider_light">#EDEDEA</color>
     <color name="podcast_subtle_fill_light">#F2F2F0</color>
     <color name="podcast_accent_light">#C42D49</color>
+    <color name="podcast_on_accent_light">#FFFFFF</color>
     <color name="podcast_accent_soft_light">#1AC42D49</color>
     <color name="podcast_glass_surface_light">#B8FFFFFF</color>
     <color name="podcast_glass_surface_fallback_light">#EBFFFFFF</color>
@@ -20,8 +21,9 @@
     <color name="podcast_tab_inactive_dark">#C8C8C8</color>
     <color name="podcast_divider_dark">#2A2A2A</color>
     <color name="podcast_subtle_fill_dark">#242424</color>
-    <color name="podcast_accent_dark">#E0566E</color>
-    <color name="podcast_accent_soft_dark">#26E0566E</color>
+    <color name="podcast_accent_dark">#E8657B</color>
+    <color name="podcast_on_accent_dark">#141414</color>
+    <color name="podcast_accent_soft_dark">#26E8657B</color>
     <color name="podcast_glass_surface_dark">#B8262626</color>
     <color name="podcast_glass_surface_fallback_dark">#EB262626</color>
     <color name="podcast_glass_border_dark">#1FFFFFFF</color>

@@ -7,6 +7,7 @@
     <attr name="podcast_divider" format="color" />
     <attr name="podcast_subtle_fill" format="color" />
     <attr name="podcast_accent" format="color" />
+    <attr name="podcast_on_accent" format="color" />
     <attr name="podcast_accent_soft" format="color" />
     <attr name="podcast_glass_surface" format="color" />
     <attr name="podcast_glass_surface_fallback" format="color" />

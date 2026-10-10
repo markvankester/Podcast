@@ -23,9 +23,9 @@ import de.danoeh.antennapod.R;
 import de.danoeh.antennapod.ui.common.ThemeUtils;
 
 public class PodcastHeader extends LinearLayout {
-    private static final int BUTTON_SIZE_DP = 44;
-    private static final int PILL_HEIGHT_DP = 40;
-    private static final int ICON_PADDING_DP = 12;
+    private static final int BUTTON_SIZE_DP = 48;
+    private static final int PILL_HEIGHT_DP = 48;
+    private static final int ICON_PADDING_DP = 14;
 
     private final View topRow;
     private final TextView backLink;
