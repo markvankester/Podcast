@@ -12,6 +12,7 @@ import com.google.android.material.bottomsheet.ViewPagerBottomSheetBehavior;
  */
 public class LockableBottomSheetBehavior<V extends View> extends ViewPagerBottomSheetBehavior<V> {
     private boolean isLocked = false;
+    private boolean dragBlocked = false;
 
     public LockableBottomSheetBehavior() {
     }
@@ -24,11 +25,19 @@ public class LockableBottomSheetBehavior<V extends View> extends ViewPagerBottom
         isLocked = locked;
     }
 
+    public void setDragBlocked(boolean blocked) {
+        dragBlocked = blocked;
+    }
+
+    private boolean isBlocked() {
+        return isLocked || dragBlocked;
+    }
+
     @Override
     public boolean onInterceptTouchEvent(CoordinatorLayout parent, V child, MotionEvent event) {
         boolean handled = false;
 
-        if (!isLocked) {
+        if (!isBlocked()) {
             handled = super.onInterceptTouchEvent(parent, child, event);
         }
 
@@ -39,7 +48,7 @@ public class LockableBottomSheetBehavior<V extends View> extends ViewPagerBottom
     public boolean onTouchEvent(CoordinatorLayout parent, V child, MotionEvent event) {
         boolean handled = false;
 
-        if (!isLocked) {
+        if (!isBlocked()) {
             handled = super.onTouchEvent(parent, child, event);
         }
 
@@ -51,7 +60,7 @@ public class LockableBottomSheetBehavior<V extends View> extends ViewPagerBottom
                                        View target, int axes, int type) {
         boolean handled = false;
 
-        if (!isLocked) {
+        if (!isBlocked()) {
             handled = super.onStartNestedScroll(coordinatorLayout, child, directTargetChild, target, axes, type);
         }
 
@@ -61,14 +70,14 @@ public class LockableBottomSheetBehavior<V extends View> extends ViewPagerBottom
     @Override
     public void onNestedPreScroll(CoordinatorLayout coordinatorLayout, V child, View target,
                                   int dx, int dy, int[] consumed, int type) {
-        if (!isLocked) {
+        if (!isBlocked()) {
             super.onNestedPreScroll(coordinatorLayout, child, target, dx, dy, consumed, type);
         }
     }
 
     @Override
     public void onStopNestedScroll(CoordinatorLayout coordinatorLayout, V child, View target, int type) {
-        if (!isLocked) {
+        if (!isBlocked()) {
             super.onStopNestedScroll(coordinatorLayout, child, target, type);
         }
     }
@@ -78,7 +87,7 @@ public class LockableBottomSheetBehavior<V extends View> extends ViewPagerBottom
                                     float velocityX, float velocityY) {
         boolean handled = false;
 
-        if (!isLocked) {
+        if (!isBlocked()) {
             handled = super.onNestedPreFling(coordinatorLayout, child, target, velocityX, velocityY);
         }
 

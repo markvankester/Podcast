@@ -2,7 +2,6 @@
 <resources>
     <style name="Theme.Podcast.Base.Light" parent="Theme.Material3.DynamicColors.Light">
         <item name="android:fontFamily">@font/manrope</item>
-        <item name="fontFamily">@font/manrope</item>
         <item name="textAppearanceDisplayLarge">@style/TextAppearance.Podcast.DisplayLarge</item>
         <item name="textAppearanceDisplayMedium">@style/TextAppearance.Podcast.DisplayMedium</item>
         <item name="textAppearanceDisplaySmall">@style/TextAppearance.Podcast.DisplaySmall</item>
@@ -35,7 +34,6 @@
 
     <style name="Theme.Podcast.Base.Dark" parent="Theme.Material3.DynamicColors.Dark">
         <item name="android:fontFamily">@font/manrope</item>
-        <item name="fontFamily">@font/manrope</item>
         <item name="textAppearanceDisplayLarge">@style/TextAppearance.Podcast.DisplayLarge</item>
         <item name="textAppearanceDisplayMedium">@style/TextAppearance.Podcast.DisplayMedium</item>
         <item name="textAppearanceDisplaySmall">@style/TextAppearance.Podcast.DisplaySmall</item>

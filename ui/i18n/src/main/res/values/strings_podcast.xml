@@ -6,4 +6,21 @@
     <string name="podcast_search_label">Search</string>
     <string name="podcast_settings_label">Settings</string>
     <string name="podcast_queue_label">Queue</string>
+    <string name="podcast_player_collapse">Collapse player</string>
+    <string name="podcast_player_more">More options</string>
+    <string name="podcast_player_previous">Previous</string>
+    <string name="podcast_player_speed">Speed</string>
+    <string name="podcast_player_sleep_timer">Sleep Timer</string>
+    <string name="podcast_player_chapters">Chapters</string>
+    <string name="podcast_player_notes">Notes</string>
+    <string name="podcast_player_up_next">Up Next</string>
+    <string name="podcast_player_up_next_label">UP NEXT</string>
+    <string name="podcast_player_chapter_number">Chapter %1$d</string>
+    <string name="podcast_player_close_panel">Close panel</string>
+    <string name="podcast_player_remove_from_queue">Remove from queue</string>
+    <string name="podcast_player_reorder">Reorder</string>
+    <string name="podcast_player_queue_empty">Nothing queued after this episode</string>
+    <string name="podcast_player_visit_website">Visit podcast website</string>
+    <string name="podcast_player_elapsed_chapter">%1$s · %2$s</string>
+    <string name="podcast_player_no_chapters">This episode has no chapters</string>
 </resources>

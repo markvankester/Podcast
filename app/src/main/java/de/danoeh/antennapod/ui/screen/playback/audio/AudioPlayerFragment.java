@@ -1,26 +1,47 @@
 package de.danoeh.antennapod.ui.screen.playback.audio;
 
+import android.animation.ArgbEvaluator;
+import android.animation.ValueAnimator;
+import android.content.res.ColorStateList;
+import android.graphics.Bitmap;
+import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.PopupMenu;
 import android.widget.ProgressBar;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
+import androidx.activity.OnBackPressedCallback;
+import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.cardview.widget.CardView;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ActionProvider;
+import androidx.core.internal.view.SupportMenuItem;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowCompat;
+import androidx.core.view.WindowInsetsCompat;
+import androidx.core.view.WindowInsetsControllerCompat;
 import androidx.fragment.app.Fragment;
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator;
 import androidx.media3.session.MediaController;
-import androidx.viewpager2.adapter.FragmentStateAdapter;
-import androidx.viewpager2.widget.ViewPager2;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.target.CustomTarget;
+import com.bumptech.glide.request.transition.Transition;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 
@@ -38,7 +59,13 @@ import de.danoeh.antennapod.ui.chapters.ChapterUtils;
 import de.danoeh.antennapod.ui.episodes.PlaybackSpeedUtils;
 import de.danoeh.antennapod.ui.episodes.TimeSpeedConverter;
 import de.danoeh.antennapod.ui.screen.playback.MediaPlayerErrorDialog;
-import de.danoeh.antennapod.ui.screen.playback.PlayButton;
+import de.danoeh.antennapod.ui.podcast.PodcastMetrics;
+import de.danoeh.antennapod.ui.podcast.player.PlayerContentLayout;
+import de.danoeh.antennapod.ui.podcast.player.PlayerCoverView;
+import de.danoeh.antennapod.ui.podcast.player.PlayerGlassLayout;
+import de.danoeh.antennapod.ui.podcast.player.PlayerPalette;
+import de.danoeh.antennapod.ui.podcast.player.PlayerPanel;
+import de.danoeh.antennapod.ui.podcast.player.PlayerSeekBar;
 import de.danoeh.antennapod.ui.screen.playback.SleepTimerDialog;
 import de.danoeh.antennapod.ui.screen.playback.TranscriptDialogFragment;
 import de.danoeh.antennapod.ui.screen.playback.VariableSpeedDialog;
@@ -47,6 +74,8 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.util.Locale;
 import java.text.NumberFormat;
 import java.util.Collections;
 import java.util.List;
@@ -59,12 +88,14 @@ import de.danoeh.antennapod.ui.screen.feed.preferences.SkipPreferenceDialog;
 import de.danoeh.antennapod.event.FeedItemEvent;
 import de.danoeh.antennapod.event.PlayerErrorEvent;
 import de.danoeh.antennapod.event.PlayerStatusEvent;
+import de.danoeh.antennapod.event.QueueEvent;
 import de.danoeh.antennapod.event.playback.BufferUpdateEvent;
 import de.danoeh.antennapod.event.playback.PlaybackPositionEvent;
 import de.danoeh.antennapod.event.playback.PlaybackServiceEvent;
 import de.danoeh.antennapod.event.playback.SleepTimerUpdatedEvent;
 import de.danoeh.antennapod.event.playback.SpeedChangedEvent;
 import de.danoeh.antennapod.ui.episodeslist.FeedItemMenuHandler;
+import de.danoeh.antennapod.ui.episodes.ImageResourceUtils;
 import de.danoeh.antennapod.model.feed.Chapter;
 import de.danoeh.antennapod.model.feed.FeedItem;
 import de.danoeh.antennapod.model.feed.FeedMedia;
@@ -80,20 +111,39 @@ import io.reactivex.rxjava3.schedulers.Schedulers;
  * Shows the audio player.
  */
 public class AudioPlayerFragment extends Fragment implements
-        ChapterSeekBar.OnSeekBarChangeListener, MaterialToolbar.OnMenuItemClickListener {
+        SeekBar.OnSeekBarChangeListener, MaterialToolbar.OnMenuItemClickListener {
     public static final String TAG = "AudioPlayerFragment";
     public static final int POS_COVER = 0;
     public static final int POS_DESCRIPTION = 1;
-    private static final int NUM_CONTENT_FRAGMENTS = 2;
+    private static final int COLOR_ANIMATION_MS = 600;
+    private static final int SHEET_TOP_DP = 352;
+    private static final int SHEET_MIN_CONTENT_DP = 470;
 
+    private View root;
+    private View background;
+    private PlayerCoverView coverView;
+    private PlayerGlassLayout sheet;
+    private View sheetContent;
+    private View topBar;
+    private PlayerContentLayout contentLayout;
+    private TextView txtvShow;
+    private TextView txtvTitle;
+    private ImageButton butFavorite;
+    private View chapterLine;
+    private TextView txtvChapterNumber;
+    private TextView txtvChapterName;
     private TextView txtvPlaybackSpeed;
-    private ViewPager2 pager;
+    private TextView txtvSleepValue;
+    private ImageView imgSleepIcon;
+    private View upNextCard;
+    private TextView txtvUpNextTitle;
+    private ImageView imgUpNextCover;
     private TextView txtvPosition;
     private TextView txtvLength;
-    private ChapterSeekBar sbPosition;
+    private PlayerSeekBar sbPosition;
     private ImageButton butRev;
     private TextView txtvRev;
-    private PlayButton butPlay;
+    private ImageButton butPlay;
     private ImageButton butFF;
     private TextView txtvFF;
     private ImageButton butSkip;
@@ -101,24 +151,36 @@ public class AudioPlayerFragment extends Fragment implements
     private ProgressBar progressIndicator;
     private CardView cardViewSeek;
     private TextView txtvSeek;
+    private FrameLayout castHost;
+    private PlayerPanel panel;
+    private OnBackPressedCallback panelBackCallback;
 
     private FeedMedia currentMedia;
     private Disposable disposable;
     private boolean showTimeLeft;
     private boolean seekedToChapterStart = false;
     private int currentChapterIndex = -1;
+    private boolean isPlaying = false;
+    private boolean sleepTimerActive = false;
+    private boolean castAttached = false;
+    private long coverMediaId = -1;
+    private int displayedColor = PlayerPalette.FALLBACK_COLOR;
+    private ValueAnimator colorAnimator;
+    private CustomTarget<Bitmap> coverTarget;
+    private boolean systemBarsExpanded = false;
+    private boolean savedLightStatusBars = false;
+    private boolean savedLightNavigationBars = false;
+    private int statusInset = 0;
+    private int navigationInset = 0;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
-        View root = inflater.inflate(R.layout.audioplayer_fragment, container, false);
+        root = inflater.inflate(R.layout.audioplayer_fragment, container, false);
         root.setOnTouchListener((v, event) -> true); // Avoid clicks going through player to fragments below
         toolbar = root.findViewById(R.id.toolbar);
-        toolbar.setTitle("");
-        toolbar.setNavigationOnClickListener(v ->
-                ((MainActivity) getActivity()).getBottomSheet().setState(BottomSheetBehavior.STATE_COLLAPSED));
         toolbar.setOnMenuItemClickListener(this);
         toolbar.inflateMenu(R.menu.mediaplayer);
 
@@ -127,6 +189,24 @@ public class AudioPlayerFragment extends Fragment implements
                 .replace(R.id.playerFragment, externalPlayerFragment, ExternalPlayerFragment.TAG)
                 .commit();
 
+        background = root.findViewById(R.id.podcast_player_background);
+        coverView = root.findViewById(R.id.podcast_player_cover);
+        sheet = root.findViewById(R.id.podcast_player_sheet);
+        sheetContent = root.findViewById(R.id.podcast_player_sheet_content);
+        topBar = root.findViewById(R.id.podcast_player_topbar);
+        contentLayout = root.findViewById(R.id.playerContent);
+        txtvShow = root.findViewById(R.id.podcast_player_show);
+        txtvTitle = root.findViewById(R.id.podcast_player_title);
+        butFavorite = root.findViewById(R.id.podcast_player_favorite);
+        chapterLine = root.findViewById(R.id.podcast_player_chapter_line);
+        txtvChapterNumber = root.findViewById(R.id.podcast_player_chapter_number);
+        txtvChapterName = root.findViewById(R.id.podcast_player_chapter_name);
+        txtvSleepValue = root.findViewById(R.id.podcast_player_sleep_value);
+        imgSleepIcon = root.findViewById(R.id.podcast_player_sleep_icon);
+        upNextCard = root.findViewById(R.id.podcast_player_up_next_card);
+        txtvUpNextTitle = root.findViewById(R.id.podcast_player_up_next_title);
+        imgUpNextCover = root.findViewById(R.id.podcast_player_up_next_cover);
+        castHost = root.findViewById(R.id.podcast_player_cast_host);
         txtvPlaybackSpeed = root.findViewById(R.id.txtvPlaybackSpeed);
         sbPosition = root.findViewById(R.id.sbPosition);
         txtvPosition = root.findViewById(R.id.txtvPosition);
@@ -141,29 +221,180 @@ public class AudioPlayerFragment extends Fragment implements
         cardViewSeek = root.findViewById(R.id.cardViewSeek);
         txtvSeek = root.findViewById(R.id.txtvSeek);
 
-        setupLengthTextView();
-        setupControlButtons();
-        final ImageButton butPlaybackSpeed = root.findViewById(R.id.butPlaybackSpeed);
-        butPlaybackSpeed.setOnClickListener(v -> new VariableSpeedDialog().show(getChildFragmentManager(), null));
-        sbPosition.setOnSeekBarChangeListener(this);
+        root.findViewById(R.id.podcast_player_collapse).setOnClickListener(v ->
+                ((MainActivity) getActivity()).getBottomSheet().setState(BottomSheetBehavior.STATE_COLLAPSED));
+        root.findViewById(R.id.podcast_player_more).setOnClickListener(this::showMoreMenu);
+        butFavorite.setOnClickListener(v -> toggleFavorite());
 
-        pager = root.findViewById(R.id.pager);
-        pager.setAdapter(new AudioPlayerPagerAdapter(this));
-        //noinspection WrongConstant
-        pager.setOffscreenPageLimit(NUM_CONTENT_FRAGMENTS);
-        pager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
+        panel = new PlayerPanel(this, root, new PlayerPanel.Callbacks() {
             @Override
-            public void onPageSelected(int position) {
-                pager.post(() -> {
-                    if (getActivity() != null) {
-                        // By the time this is posted, the activity might be closed again.
-                        ((MainActivity) getActivity()).getBottomSheet().updateScrollingChild();
+            public void onTogglePlayback() {
+                togglePlayback();
+            }
+
+            @Override
+            public void onPlayItem(FeedItem item) {
+                if (item.getMedia() != null) {
+                    new PlaybackServiceStarter(getContext(), item.getMedia())
+                            .callEvenIfRunning(true)
+                            .start();
+                }
+            }
+
+            @Override
+            public void onSeekToChapter(Chapter chapter) {
+                PlaybackController.bindToMedia3Service(getContext(), controller -> {
+                    if (!controller.isPlaying()) {
+                        controller.play();
                     }
+                    controller.seekTo(chapter.getStart());
                 });
             }
+
+            @Override
+            public void onTimecodeSelected(int time) {
+                PlaybackController.bindToMedia3Service(getContext(), controller -> controller.seekTo(time));
+            }
+
+            @Override
+            public void onOpenStateChanged(boolean open) {
+                onPanelOpenChanged(open);
+            }
+
+            @Override
+            public void onUpNextChanged(@Nullable FeedItem next) {
+                showUpNext(next);
+            }
+        });
+        panelBackCallback = new OnBackPressedCallback(false) {
+            @Override
+            public void handleOnBackPressed() {
+                panel.close(true);
+            }
+        };
+        contentLayout.bind(new PlayerContentLayout.SwipeHost() {
+            @Override
+            public boolean canSwipeUp() {
+                return getActivity() != null && currentMedia != null
+                        && ((MainActivity) getActivity()).getBottomSheet().getState()
+                        == BottomSheetBehavior.STATE_EXPANDED;
+            }
+
+            @Override
+            public void onSwipeUpStarted() {
+                panel.onSwipeStarted();
+            }
+        }, panel.getLayer(), sbPosition);
+        upNextCard.setOnClickListener(v -> panel.open(PlayerPanel.TAB_QUEUE));
+        root.findViewById(R.id.podcast_player_open_chapters).setOnClickListener(v ->
+                panel.open(PlayerPanel.TAB_CHAPTERS));
+        root.findViewById(R.id.podcast_player_open_notes).setOnClickListener(v ->
+                panel.open(PlayerPanel.TAB_NOTES));
+        root.findViewById(R.id.podcast_player_sleep).setOnClickListener(v ->
+                new SleepTimerDialog().show(getChildFragmentManager(), "SleepTimerDialog"));
+        root.findViewById(R.id.podcast_player_speed).setOnClickListener(v -> cycleSpeed());
+        root.findViewById(R.id.podcast_player_speed).setOnLongClickListener(v -> {
+            new VariableSpeedDialog().show(getChildFragmentManager(), null);
+            return true;
         });
 
+        setupLengthTextView();
+        setupControlButtons();
+        sbPosition.setOnSeekBarChangeListener(this);
+        showUpNext(null);
+        setPlayingState(false);
+        showSleepTimer(false, 0);
+
+        ViewCompat.setOnApplyWindowInsetsListener(root, (v, insets) -> {
+            applyInsets();
+            return insets;
+        });
+        root.addOnLayoutChangeListener((v, l, t, r, b, ol, ot, or, ob) -> {
+            if (b - t != ob - ot) {
+                updateSheetTop();
+            }
+        });
+        root.post(this::applyInsets);
         return root;
+    }
+
+    private void applyInsets() {
+        if (root == null) {
+            return;
+        }
+        WindowInsetsCompat rootInsets = ViewCompat.getRootWindowInsets(root);
+        if (rootInsets == null) {
+            return;
+        }
+        Insets bars = rootInsets.getInsets(WindowInsetsCompat.Type.systemBars());
+        statusInset = bars.top;
+        navigationInset = bars.bottom;
+        topBar.setPadding(topBar.getPaddingLeft(), PodcastMetrics.dp(getContext(), 14) + statusInset,
+                topBar.getPaddingRight(), 0);
+        sheetContent.setPadding(sheetContent.getPaddingLeft(), sheetContent.getPaddingTop(),
+                sheetContent.getPaddingRight(), PodcastMetrics.dp(getContext(), 20) + navigationInset);
+        panel.getLayer().setTopInset(statusInset);
+        panel.setBottomInset(navigationInset);
+        updateSheetTop();
+    }
+
+    private void updateSheetTop() {
+        int height = root.getHeight();
+        if (height <= 0) {
+            return;
+        }
+        int wanted = PodcastMetrics.dp(getContext(), SHEET_TOP_DP);
+        int needed = PodcastMetrics.dp(getContext(), SHEET_MIN_CONTENT_DP) + navigationInset;
+        int top = Math.max(statusInset + PodcastMetrics.dp(getContext(), 72), Math.min(wanted, height - needed));
+        ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) sheet.getLayoutParams();
+        if (params.topMargin != top) {
+            params.topMargin = top;
+            sheet.setLayoutParams(params);
+        }
+    }
+
+    private void onPanelOpenChanged(boolean open) {
+        if (getActivity() == null) {
+            return;
+        }
+        ((MainActivity) getActivity()).getBottomSheet().setDragBlocked(open);
+        panelBackCallback.setEnabled(open);
+        if (open) {
+            panelBackCallback.remove();
+            requireActivity().getOnBackPressedDispatcher().addCallback(getViewLifecycleOwner(), panelBackCallback);
+        }
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        if (getActivity() instanceof MainActivity) {
+            ((MainActivity) getActivity()).getBottomSheet().setDragBlocked(false);
+        }
+        if (colorAnimator != null) {
+            colorAnimator.cancel();
+        }
+        if (coverTarget != null) {
+            Glide.with(this).clear(coverTarget);
+            coverTarget = null;
+        }
+        panelBackCallback.remove();
+        panel.onDestroyView();
+    }
+
+    private void showUpNext(@Nullable FeedItem next) {
+        if (next == null) {
+            upNextCard.setVisibility(View.GONE);
+            return;
+        }
+        upNextCard.setVisibility(View.VISIBLE);
+        txtvUpNextTitle.setText(next.getTitle());
+        Glide.with(imgUpNextCover)
+                .load(ImageResourceUtils.getEpisodeListImageLocation(next))
+                .error(Glide.with(imgUpNextCover).load(ImageResourceUtils.getFallbackImageLocation(next)))
+                .centerCrop()
+                .dontAnimate()
+                .into(imgUpNextCover);
     }
 
     private void setChapterDividers() {
@@ -187,7 +418,67 @@ public class AudioPlayerFragment extends Fragment implements
         sbPosition.setDividerPos(dividerPos);
     }
 
+    private void togglePlayback() {
+        if (PlaybackService.isRunning
+                && PlaybackPreferences.getCurrentPlayerStatus() == PlaybackPreferences.PLAYER_STATUS_PLAYING) {
+            if (BuildConfig.USE_MEDIA3_PLAYBACK_SERVICE) {
+                PlaybackController.bindToMedia3Service(getContext(), MediaController::pause);
+            } else {
+                getActivity().sendBroadcast(
+                        MediaButtonStarter.createIntent(getContext(), KeyEvent.KEYCODE_MEDIA_PAUSE));
+            }
+        } else {
+            new PlaybackServiceStarter(getContext(), currentMedia)
+                    .callEvenIfRunning(true)
+                    .start();
+        }
+    }
+
+    private void seekToPreviousChapterOrStart() {
+        final FeedMedia media = currentMedia;
+        PlaybackController.bindToMedia3Service(getContext(), controller -> {
+            long position = controller.getCurrentPosition();
+            List<Chapter> chapters = media != null ? media.getChapters() : null;
+            if (chapters != null && !chapters.isEmpty()) {
+                int index = Chapter.getAfterPosition(chapters, (int) position);
+                if (index >= 0) {
+                    long start = chapters.get(index).getStart();
+                    if (position - start > 3000) {
+                        controller.seekTo(start);
+                    } else if (index > 0) {
+                        controller.seekTo(chapters.get(index - 1).getStart());
+                    } else {
+                        controller.seekTo(0);
+                    }
+                    return;
+                }
+            }
+            controller.seekTo(0);
+        });
+    }
+
+    private void cycleSpeed() {
+        List<Float> speeds = UserPreferences.getPlaybackSpeedArray();
+        if (speeds == null || speeds.isEmpty() || currentMedia == null) {
+            new VariableSpeedDialog().show(getChildFragmentManager(), null);
+            return;
+        }
+        float current = PlaybackSpeedUtils.getCurrentPlaybackSpeed(currentMedia);
+        float next = speeds.get(0);
+        for (float speed : speeds) {
+            if (speed > current + 0.001f) {
+                next = speed;
+                break;
+            }
+        }
+        final float newSpeed = next;
+        UserPreferences.setPlaybackSpeed(newSpeed);
+        PlaybackController.bindToMedia3Service(getContext(), controller -> controller.setPlaybackSpeed(newSpeed));
+        updatePlaybackSpeedButton(new SpeedChangedEvent(newSpeed));
+    }
+
     private void setupControlButtons() {
+        root.findViewById(R.id.butPrev).setOnClickListener(v -> seekToPreviousChapterOrStart());
         butRev.setOnClickListener(v -> {
             if (BuildConfig.USE_MEDIA3_PLAYBACK_SERVICE) {
                 final FeedMedia media = currentMedia;
@@ -210,21 +501,7 @@ public class AudioPlayerFragment extends Fragment implements
                     SkipPreferenceDialog.SkipDirection.SKIP_REWIND, txtvRev);
             return true;
         });
-        butPlay.setOnClickListener(v -> {
-            if (PlaybackService.isRunning
-                    && PlaybackPreferences.getCurrentPlayerStatus() == PlaybackPreferences.PLAYER_STATUS_PLAYING) {
-                if (BuildConfig.USE_MEDIA3_PLAYBACK_SERVICE) {
-                    PlaybackController.bindToMedia3Service(getContext(), MediaController::pause);
-                } else {
-                    getActivity().sendBroadcast(
-                            MediaButtonStarter.createIntent(getContext(), KeyEvent.KEYCODE_MEDIA_PAUSE));
-                }
-            } else {
-                new PlaybackServiceStarter(getContext(), currentMedia)
-                        .callEvenIfRunning(true)
-                        .start();
-            }
-        });
+        butPlay.setOnClickListener(v -> togglePlayback());
         butFF.setOnClickListener(v -> {
             if (BuildConfig.USE_MEDIA3_PLAYBACK_SERVICE) {
                 final FeedMedia media = currentMedia;
@@ -273,6 +550,11 @@ public class AudioPlayerFragment extends Fragment implements
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onQueueChanged(QueueEvent event) {
+        panel.reloadQueue();
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
     public void onPlaybackServiceChanged(PlaybackServiceEvent event) {
         if (event.action == PlaybackServiceEvent.Action.SERVICE_SHUT_DOWN) {
             ((MainActivity) getActivity()).getBottomSheet().setState(BottomSheetBehavior.STATE_COLLAPSED);
@@ -294,7 +576,8 @@ public class AudioPlayerFragment extends Fragment implements
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void updatePlaybackSpeedButton(SpeedChangedEvent event) {
-        String speedStr = new DecimalFormat("0.00").format(event.getNewSpeed());
+        DecimalFormat format = new DecimalFormat("0.##", DecimalFormatSymbols.getInstance(Locale.US));
+        String speedStr = format.format(event.getNewSpeed()) + "×";
         txtvPlaybackSpeed.setText(speedStr);
     }
 
@@ -328,13 +611,87 @@ public class AudioPlayerFragment extends Fragment implements
         if (currentMedia == null) {
             return;
         }
+        txtvShow.setText(currentMedia.getFeedTitle());
+        txtvTitle.setText(currentMedia.getEpisodeTitle());
         updatePosition(new PlaybackPositionEvent(currentMedia.getPosition(), currentMedia.getDuration()));
         updatePlaybackSpeedButton(new SpeedChangedEvent(PlaybackSpeedUtils.getCurrentPlaybackSpeed(currentMedia)));
         setChapterDividers();
         setupOptionsMenu();
-        boolean isPlaying = PlaybackService.isRunning
+        boolean playing = PlaybackService.isRunning
                 && PlaybackPreferences.getCurrentPlayerStatus() == PlaybackPreferences.PLAYER_STATUS_PLAYING;
-        butPlay.setIsShowPlay(!isPlaying);
+        setPlayingState(playing);
+        boolean favorite = currentMedia.getItem() != null && currentMedia.getItem().isTagged(FeedItem.TAG_FAVORITE);
+        butFavorite.setImageResource(favorite ? R.drawable.podcast_player_star_filled : R.drawable.podcast_player_star);
+        butFavorite.setContentDescription(getString(favorite
+                ? R.string.remove_from_favorite_label : R.string.add_to_favorite_label));
+        panel.bindMedia(currentMedia);
+        if (coverMediaId != currentMedia.getId()) {
+            coverMediaId = currentMedia.getId();
+            loadCover(currentMedia);
+        }
+    }
+
+    private void setPlayingState(boolean playing) {
+        isPlaying = playing;
+        butPlay.setImageResource(playing ? R.drawable.podcast_player_pause : R.drawable.podcast_player_play);
+        butPlay.setContentDescription(getString(playing ? R.string.pause_label : R.string.play_label));
+        int padding = PodcastMetrics.dp(getContext(), 28);
+        butPlay.setPadding(playing ? padding : padding + PodcastMetrics.dp(getContext(), 2), padding, padding, padding);
+        butPlay.setImageTintList(ColorStateList.valueOf(displayedColor));
+        panel.setPlaying(playing);
+    }
+
+    private void loadCover(FeedMedia media) {
+        if (coverTarget != null) {
+            Glide.with(this).clear(coverTarget);
+        }
+        coverTarget = new CustomTarget<Bitmap>(900, 900) {
+            @Override
+            public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
+                coverView.setImageBitmap(resource);
+                sheet.setBlurBitmap(resource);
+                panel.setBlurBitmap(resource);
+                PlayerPalette.extract(resource, color -> animateColor(color));
+            }
+
+            @Override
+            public void onLoadFailed(@Nullable Drawable errorDrawable) {
+                coverView.setImageDrawable(null);
+                sheet.setBlurBitmap(null);
+                panel.setBlurBitmap(null);
+                animateColor(PlayerPalette.FALLBACK_COLOR);
+            }
+
+            @Override
+            public void onLoadCleared(@Nullable Drawable placeholder) {
+            }
+        };
+        Glide.with(this)
+                .asBitmap()
+                .load(media.getImageLocation())
+                .error(Glide.with(this).asBitmap().load(ImageResourceUtils.getFallbackImageLocation(media)))
+                .into(coverTarget);
+    }
+
+    private void animateColor(@ColorInt int target) {
+        if (colorAnimator != null) {
+            colorAnimator.cancel();
+        }
+        if (root == null) {
+            return;
+        }
+        colorAnimator = ValueAnimator.ofObject(new ArgbEvaluator(), displayedColor, target);
+        colorAnimator.setDuration(COLOR_ANIMATION_MS);
+        colorAnimator.addUpdateListener(animator -> applyColor((int) animator.getAnimatedValue()));
+        colorAnimator.start();
+    }
+
+    private void applyColor(@ColorInt int color) {
+        displayedColor = color;
+        background.setBackgroundColor(color);
+        sheet.setBaseColor(color);
+        panel.setColor(color);
+        butPlay.setImageTintList(ColorStateList.valueOf(color));
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -346,10 +703,18 @@ public class AudioPlayerFragment extends Fragment implements
     @SuppressWarnings("unused")
     public void sleepTimerUpdate(SleepTimerUpdatedEvent event) {
         boolean timerActive = !event.isCancelled() && !event.isOver();
-        toolbar.getMenu().findItem(R.id.set_sleeptimer_item).setVisible(!timerActive);
-        toolbar.getMenu().findItem(R.id.disable_sleeptimer_item).setVisible(timerActive);
+        showSleepTimer(timerActive, event.getDisplayTimeLeft());
         if (event.isCancelled() || event.wasJustEnabled() || event.isOver()) {
             AudioPlayerFragment.this.loadMediaInfo(false);
+        }
+    }
+
+    private void showSleepTimer(boolean active, long displayTimeLeft) {
+        sleepTimerActive = active;
+        imgSleepIcon.setVisibility(active ? View.INVISIBLE : View.VISIBLE);
+        txtvSleepValue.setVisibility(active ? View.VISIBLE : View.GONE);
+        if (active) {
+            txtvSleepValue.setText(Converter.getDurationStringLong((int) displayTimeLeft));
         }
     }
 
@@ -360,6 +725,7 @@ public class AudioPlayerFragment extends Fragment implements
         EventBus.getDefault().register(this);
         txtvRev.setText(NumberFormat.getInstance().format(UserPreferences.getRewindSecs()));
         txtvFF.setText(NumberFormat.getInstance().format(UserPreferences.getFastForwardSecs()));
+        panel.reloadQueue();
     }
 
     @Override
@@ -398,21 +764,22 @@ public class AudioPlayerFragment extends Fragment implements
         int convertedDuration = converter.convert(event.getDuration());
         int remainingTime = converter.convert(Math.max(event.getDuration() - event.getPosition(), 0));
         if (currentMedia != null) {
-            currentChapterIndex = Chapter.getAfterPosition(currentMedia.getChapters(), convertedPosition);
+            currentChapterIndex = Chapter.getAfterPosition(currentMedia.getChapters(), event.getPosition());
         }
         Log.d(TAG, "currentPosition " + Converter.getDurationStringLong(convertedPosition));
         if (convertedPosition == Playable.INVALID_TIME || convertedDuration == Playable.INVALID_TIME) {
             Log.w(TAG, "Could not react to position observer update because of invalid time");
             return;
         }
-        txtvPosition.setText(Converter.getDurationStringLong(convertedPosition));
+        String elapsed = Converter.getDurationStringLong(convertedPosition);
+        txtvPosition.setText(elapsed);
         txtvPosition.setContentDescription(getString(R.string.position,
                 Converter.getDurationStringLocalized(getContext(), convertedPosition)));
         showTimeLeft = UserPreferences.shouldShowRemainingTime();
         if (showTimeLeft) {
             txtvLength.setContentDescription(getString(R.string.remaining_time,
                     Converter.getDurationStringLocalized(getContext(), remainingTime)));
-            txtvLength.setText(((remainingTime > 0) ? "-" : "") + Converter.getDurationStringLong(remainingTime));
+            txtvLength.setText(((remainingTime > 0) ? "−" : "") + Converter.getDurationStringLong(remainingTime));
         } else {
             txtvLength.setContentDescription(getString(R.string.chapter_duration,
                     Converter.getDurationStringLocalized(getContext(), convertedDuration)));
@@ -423,6 +790,22 @@ public class AudioPlayerFragment extends Fragment implements
             float progress = ((float) event.getPosition()) / event.getDuration();
             sbPosition.setProgress((int) (progress * sbPosition.getMax()));
         }
+        updateChapterLine(elapsed);
+    }
+
+    private void updateChapterLine(String elapsed) {
+        List<Chapter> chapters = currentMedia != null ? currentMedia.getChapters() : null;
+        String chapterName = null;
+        if (chapters != null && !chapters.isEmpty() && currentChapterIndex >= 0
+                && currentChapterIndex < chapters.size()) {
+            chapterLine.setVisibility(View.VISIBLE);
+            chapterName = chapters.get(currentChapterIndex).getTitle();
+            txtvChapterNumber.setText(getString(R.string.podcast_player_chapter_number, currentChapterIndex + 1));
+            txtvChapterName.setText(chapterName);
+        } else {
+            chapterLine.setVisibility(View.GONE);
+        }
+        panel.updateProgress(elapsed, chapterName, currentChapterIndex);
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -514,10 +897,64 @@ public class AudioPlayerFragment extends Fragment implements
     }
 
     public void setupOptionsMenu() {
+        if (currentMedia == null || currentMedia.getItem() == null) {
+            return;
+        }
         toolbar.getMenu().findItem(R.id.open_feed_item).setVisible(true);
         FeedItemMenuHandler.onPrepareMenu(toolbar.getMenu(),
                 Collections.singletonList(currentMedia.getItem()));
         ((CastEnabledActivity) getActivity()).requestCastButton(toolbar.getMenu());
+        attachCastButton();
+    }
+
+    private void attachCastButton() {
+        if (castAttached) {
+            return;
+        }
+        Menu menu = toolbar.getMenu();
+        for (int i = 0; i < menu.size(); i++) {
+            MenuItem item = menu.getItem(i);
+            if (item instanceof SupportMenuItem) {
+                ActionProvider provider = ((SupportMenuItem) item).getSupportActionProvider();
+                if (provider != null) {
+                    View button = provider.onCreateActionView();
+                    if (button != null) {
+                        castHost.removeAllViews();
+                        castHost.addView(button, new FrameLayout.LayoutParams(
+                                ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT,
+                                Gravity.CENTER));
+                        castHost.setVisibility(View.VISIBLE);
+                        castAttached = true;
+                    }
+                    return;
+                }
+            }
+        }
+    }
+
+    private void showMoreMenu(View anchor) {
+        if (currentMedia == null || currentMedia.getItem() == null) {
+            return;
+        }
+        PopupMenu popup = new PopupMenu(requireContext(), anchor, Gravity.END);
+        popup.inflate(R.menu.mediaplayer);
+        Menu menu = popup.getMenu();
+        menu.findItem(R.id.open_feed_item).setVisible(true);
+        FeedItemMenuHandler.onPrepareMenu(menu, Collections.singletonList(currentMedia.getItem()));
+        menu.findItem(R.id.set_sleeptimer_item).setVisible(!sleepTimerActive);
+        menu.findItem(R.id.disable_sleeptimer_item).setVisible(sleepTimerActive);
+        popup.setOnMenuItemClickListener(this::onMenuItemClick);
+        popup.show();
+    }
+
+    private void toggleFavorite() {
+        if (currentMedia == null || currentMedia.getItem() == null) {
+            return;
+        }
+        FeedItem item = currentMedia.getItem();
+        boolean favorite = item.isTagged(FeedItem.TAG_FAVORITE);
+        FeedItemMenuHandler.onMenuItemClicked(this,
+                favorite ? R.id.remove_from_favorites_item : R.id.add_to_favorites_item, item);
     }
 
     @Override
@@ -564,48 +1001,38 @@ public class AudioPlayerFragment extends Fragment implements
         View player = getView().findViewById(R.id.playerFragment);
         player.setAlpha(1 - playerFadeProgress);
         player.setVisibility(playerFadeProgress > 0.99f ? View.INVISIBLE : View.VISIBLE);
-        float toolbarFadeProgress = Math.max(0.0f, Math.min(0.2f, slideOffset - 0.6f)) / 0.2f;
-        toolbar.setAlpha(toolbarFadeProgress);
-        toolbar.setVisibility(toolbarFadeProgress < 0.01f ? View.INVISIBLE : View.VISIBLE);
+        if (slideOffset < 0.02f && panel.isOpen()) {
+            panel.closeImmediately();
+        }
+        updateSystemBars(slideOffset > 0.5f);
     }
 
-    private static class AudioPlayerPagerAdapter extends FragmentStateAdapter {
-        private static final String TAG = "AudioPlayerPagerAdapter";
-
-        public AudioPlayerPagerAdapter(@NonNull Fragment fragment) {
-            super(fragment);
+    private void updateSystemBars(boolean expanded) {
+        if (expanded == systemBarsExpanded || getActivity() == null) {
+            return;
         }
-
-        @NonNull
-        @Override
-        public Fragment createFragment(int position) {
-            Log.d(TAG, "getItem(" + position + ")");
-
-            switch (position) {
-                case POS_COVER:
-                    return new CoverFragment();
-                default:
-                case POS_DESCRIPTION:
-                    return new ItemDescriptionFragment();
-            }
-        }
-
-        @Override
-        public int getItemCount() {
-            return NUM_CONTENT_FRAGMENTS;
+        systemBarsExpanded = expanded;
+        WindowInsetsControllerCompat controller = WindowCompat.getInsetsController(
+                getActivity().getWindow(), getActivity().getWindow().getDecorView());
+        if (expanded) {
+            savedLightStatusBars = controller.isAppearanceLightStatusBars();
+            savedLightNavigationBars = controller.isAppearanceLightNavigationBars();
+            controller.setAppearanceLightStatusBars(false);
+            controller.setAppearanceLightNavigationBars(false);
+        } else {
+            controller.setAppearanceLightStatusBars(savedLightStatusBars);
+            controller.setAppearanceLightNavigationBars(savedLightNavigationBars);
         }
     }
 
     public void scrollToPage(int page, boolean smoothScroll) {
-        if (pager == null) {
+        if (panel == null) {
             return;
         }
-
-        pager.setCurrentItem(page, smoothScroll);
-
-        Fragment visibleChild = getChildFragmentManager().findFragmentByTag("f" + POS_DESCRIPTION);
-        if (visibleChild instanceof ItemDescriptionFragment) {
-            ((ItemDescriptionFragment) visibleChild).scrollToTop();
+        if (page == POS_DESCRIPTION) {
+            panel.open(PlayerPanel.TAB_NOTES);
+        } else if (panel.isOpen()) {
+            panel.close(smoothScroll);
         }
     }
 

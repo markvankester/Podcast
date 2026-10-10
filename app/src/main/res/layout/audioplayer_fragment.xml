@@ -18,271 +18,599 @@
         android:clipChildren="false"
         tools:layout_height="@dimen/external_player_height" />
 
-    <RelativeLayout
+    <de.danoeh.antennapod.ui.podcast.player.PlayerContentLayout
         android:id="@+id/playerContent"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <com.google.android.material.appbar.MaterialToolbar
-            android:id="@+id/toolbar"
+        <View
+            android:id="@+id/podcast_player_background"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="#2B2B2B" />
+
+        <de.danoeh.antennapod.ui.podcast.player.PlayerCoverView
+            android:id="@+id/podcast_player_cover"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_alignParentTop="true"
-            android:minHeight="?attr/actionBarSize"
-            app:navigationContentDescription="@string/toolbar_back_button_content_description"
-            app:navigationIcon="@drawable/ic_arrow_down" />
+            android:layout_gravity="top"
+            android:contentDescription="@null"
+            android:scaleType="centerCrop" />
 
-        <androidx.viewpager2.widget.ViewPager2
-            android:id="@+id/pager"
+        <de.danoeh.antennapod.ui.podcast.player.PlayerGlassLayout
+            android:id="@+id/podcast_player_sheet"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_above="@id/playtime_layout"
-            android:layout_below="@id/toolbar"
-            android:layout_marginBottom="12dp"
-            android:foreground="?android:windowContentOverlay"
-            android:orientation="vertical" />
+            android:layout_height="match_parent"
+            android:layout_gravity="top"
+            android:layout_marginTop="352dp"
+            app:glassBlurDp="36"
+            app:glassRadiusDp="34"
+            app:glassTintAlpha="0.42">
 
-        <ImageView
-            android:layout_width="match_parent"
-            android:layout_height="8dp"
-            android:layout_alignBottom="@id/pager"
-            android:importantForAccessibility="no"
-            app:srcCompat="@drawable/bg_gradient"
-            app:tint="?android:attr/colorBackground" />
+            <LinearLayout
+                android:id="@+id/podcast_player_sheet_content"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:paddingLeft="22dp"
+                android:paddingTop="22dp"
+                android:paddingRight="22dp"
+                android:paddingBottom="20dp">
 
-        <androidx.cardview.widget.CardView
-            android:id="@+id/cardViewSeek"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignBottom="@+id/pager"
-            android:layout_centerHorizontal="true"
-            android:layout_marginLeft="16dp"
-            android:layout_marginRight="16dp"
-            android:layout_marginBottom="12dp"
-            android:alpha="0"
-            app:cardBackgroundColor="?attr/seek_background"
-            app:cardCornerRadius="8dp"
-            app:cardElevation="0dp"
-            tools:alpha="1">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="top"
+                    android:orientation="horizontal">
 
-            <TextView
-                android:id="@+id/txtvSeek"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:paddingLeft="24dp"
-                android:paddingTop="4dp"
-                android:paddingRight="24dp"
-                android:paddingBottom="4dp"
-                android:textColor="@color/white"
-                android:textSize="16sp"
-                tools:text="1:06:29" />
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
 
-        </androidx.cardview.widget.CardView>
+                        <TextView
+                            android:id="@+id/podcast_player_show"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:ellipsize="end"
+                            android:fontFamily="@font/manrope_bold"
+                            android:letterSpacing="0.08"
+                            android:maxLines="1"
+                            android:textAllCaps="true"
+                            android:textColor="#C7FFFFFF"
+                            android:textSize="12sp"
+                            tools:text="HET LANGE GESPREK" />
+
+                        <TextView
+                            android:id="@+id/podcast_player_title"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="5dp"
+                            android:ellipsize="end"
+                            android:fontFamily="@font/manrope_extrabold"
+                            android:letterSpacing="-0.02"
+                            android:lineSpacingMultiplier="1.05"
+                            android:maxLines="3"
+                            android:textColor="#FFFFFF"
+                            android:textSize="24sp"
+                            tools:text="Een avond met een vuurtorenwachter" />
+                    </LinearLayout>
+
+                    <ImageButton
+                        android:id="@+id/podcast_player_favorite"
+                        android:layout_width="44dp"
+                        android:layout_height="44dp"
+                        android:layout_marginEnd="-8dp"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:contentDescription="@string/add_to_favorite_label"
+                        android:padding="11dp"
+                        android:src="@drawable/podcast_player_star" />
+                </LinearLayout>
+
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="18dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layoutDirection="ltr"
+                        android:orientation="vertical">
+
+                        <LinearLayout
+                            android:id="@+id/podcast_player_chapter_line"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal"
+                            android:visibility="gone"
+                            tools:visibility="visible">
+
+                            <ImageView
+                                android:layout_width="14dp"
+                                android:layout_height="14dp"
+                                android:contentDescription="@null"
+                                android:src="@drawable/podcast_player_chapters" />
+
+                            <TextView
+                                android:id="@+id/podcast_player_chapter_number"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="6dp"
+                                android:fontFamily="@font/manrope_bold"
+                                android:textColor="#BFFFFFFF"
+                                android:textSize="13sp"
+                                tools:text="Chapter 2" />
+
+                            <TextView
+                                android:id="@+id/podcast_player_chapter_name"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="6dp"
+                                android:layout_weight="1"
+                                android:ellipsize="end"
+                                android:fontFamily="@font/manrope_bold"
+                                android:maxLines="1"
+                                android:textColor="#FFFFFF"
+                                android:textSize="13sp"
+                                tools:text="Een leven op het eiland" />
+                        </LinearLayout>
+
+                        <de.danoeh.antennapod.ui.podcast.player.PlayerSeekBar
+                            android:id="@+id/sbPosition"
+                            android:layout_width="match_parent"
+                            android:layout_height="32dp"
+                            android:layout_marginLeft="-8dp"
+                            android:layout_marginTop="2dp"
+                            android:layout_marginRight="-8dp"
+                            android:max="500"
+                            android:paddingLeft="8dp"
+                            android:paddingRight="8dp"
+                            tools:progress="100" />
+
+                        <RelativeLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content">
+
+                            <de.danoeh.antennapod.ui.screen.playback.audio.NoRelayoutTextView
+                                android:id="@+id/txtvPosition"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_alignParentStart="true"
+                                android:fontFamily="@font/manrope_semibold"
+                                android:text="@string/position_default_label"
+                                android:textColor="#CCFFFFFF"
+                                android:textSize="12sp" />
+
+                            <de.danoeh.antennapod.ui.screen.playback.audio.NoRelayoutTextView
+                                android:id="@+id/txtvLength"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_alignParentEnd="true"
+                                android:background="?android:attr/selectableItemBackground"
+                                android:fontFamily="@font/manrope_semibold"
+                                android:text="@string/position_default_label"
+                                android:textAlignment="textEnd"
+                                android:textColor="#CCFFFFFF"
+                                android:textSize="12sp" />
+                        </RelativeLayout>
+                    </LinearLayout>
+
+                    <androidx.cardview.widget.CardView
+                        android:id="@+id/cardViewSeek"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="top|center_horizontal"
+                        android:alpha="0"
+                        app:cardBackgroundColor="#CC000000"
+                        app:cardCornerRadius="10dp"
+                        app:cardElevation="0dp"
+                        tools:alpha="1">
+
+                        <TextView
+                            android:id="@+id/txtvSeek"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/manrope_bold"
+                            android:gravity="center"
+                            android:paddingLeft="20dp"
+                            android:paddingTop="4dp"
+                            android:paddingRight="20dp"
+                            android:paddingBottom="4dp"
+                            android:textColor="#FFFFFF"
+                            android:textSize="14sp"
+                            tools:text="1:06:29" />
+                    </androidx.cardview.widget.CardView>
+                </FrameLayout>
+
+                <LinearLayout
+                    android:id="@+id/player_control"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:gravity="center_vertical"
+                    android:layoutDirection="ltr"
+                    android:orientation="horizontal">
+
+                    <ImageButton
+                        android:id="@+id/butPrev"
+                        android:layout_width="44dp"
+                        android:layout_height="44dp"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:contentDescription="@string/podcast_player_previous"
+                        android:alpha="0.85"
+                        android:padding="10dp"
+                        android:src="@drawable/podcast_player_prev" />
+
+                    <Space
+                        android:layout_width="0dp"
+                        android:layout_height="1dp"
+                        android:layout_weight="1" />
+
+                    <FrameLayout
+                        android:layout_width="62dp"
+                        android:layout_height="62dp">
+
+                        <ImageButton
+                            android:id="@+id/butRev"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:background="@drawable/podcast_player_glass_circle"
+                            android:contentDescription="@string/rewind_label"
+                            android:foreground="@drawable/podcast_player_ripple_circle"
+                            android:padding="14dp"
+                            android:src="@drawable/podcast_player_rewind" />
+
+                        <TextView
+                            android:id="@+id/txtvRev"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:clickable="false"
+                            android:fontFamily="@font/manrope_extrabold"
+                            android:gravity="center"
+                            android:paddingTop="2dp"
+                            android:textColor="#FFFFFF"
+                            android:textSize="10sp"
+                            tools:text="10" />
+                    </FrameLayout>
+
+                    <Space
+                        android:layout_width="0dp"
+                        android:layout_height="1dp"
+                        android:layout_weight="1" />
+
+                    <FrameLayout
+                        android:layout_width="108dp"
+                        android:layout_height="108dp"
+                        android:background="@drawable/podcast_player_halo"
+                        android:clipChildren="false"
+                        android:clipToPadding="false"
+                        android:padding="8dp">
+
+                        <ImageButton
+                            android:id="@+id/butPlay"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:background="@drawable/podcast_player_play_button"
+                            android:contentDescription="@string/pause_label"
+                            android:elevation="6dp"
+                            android:padding="28dp"
+                            android:scaleType="fitCenter"
+                            android:src="@drawable/podcast_player_play" />
+
+                        <ProgressBar
+                            android:id="@+id/progLoading"
+                            style="?android:attr/progressBarStyle"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:elevation="7dp"
+                            android:indeterminateTint="#33000000"
+                            android:padding="4dp"
+                            android:visibility="gone" />
+                    </FrameLayout>
+
+                    <Space
+                        android:layout_width="0dp"
+                        android:layout_height="1dp"
+                        android:layout_weight="1" />
+
+                    <FrameLayout
+                        android:layout_width="62dp"
+                        android:layout_height="62dp">
+
+                        <ImageButton
+                            android:id="@+id/butFF"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:background="@drawable/podcast_player_glass_circle"
+                            android:contentDescription="@string/fast_forward_label"
+                            android:foreground="@drawable/podcast_player_ripple_circle"
+                            android:padding="14dp"
+                            android:src="@drawable/podcast_player_forward" />
+
+                        <TextView
+                            android:id="@+id/txtvFF"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:clickable="false"
+                            android:fontFamily="@font/manrope_extrabold"
+                            android:gravity="center"
+                            android:paddingTop="2dp"
+                            android:textColor="#FFFFFF"
+                            android:textSize="10sp"
+                            tools:text="30" />
+                    </FrameLayout>
+
+                    <Space
+                        android:layout_width="0dp"
+                        android:layout_height="1dp"
+                        android:layout_weight="1" />
+
+                    <ImageButton
+                        android:id="@+id/butSkip"
+                        android:layout_width="44dp"
+                        android:layout_height="44dp"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:contentDescription="@string/skip_episode_label"
+                        android:alpha="0.85"
+                        android:padding="10dp"
+                        android:src="@drawable/podcast_player_next" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="54dp"
+                    android:background="@drawable/podcast_player_strip"
+                    android:orientation="horizontal"
+                    >
+
+                    <LinearLayout
+                        android:id="@+id/podcast_player_speed"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:background="?attr/selectableItemBackground"
+                        android:contentDescription="@string/playback_speed"
+                        android:gravity="center"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/txtvPlaybackSpeed"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/manrope_extrabold"
+                            android:text="1×"
+                            android:textColor="#FFFFFF"
+                            android:textSize="15sp" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:fontFamily="@font/manrope_semibold"
+                            android:text="@string/podcast_player_speed"
+                            android:textColor="#BFFFFFFF"
+                            android:textSize="10sp" />
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="1dp"
+                        android:layout_height="match_parent"
+                        android:background="#24FFFFFF" />
+
+                    <LinearLayout
+                        android:id="@+id/podcast_player_sleep"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:background="?attr/selectableItemBackground"
+                        android:gravity="center"
+                        android:orientation="vertical">
+
+                        <FrameLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="19dp">
+
+                            <ImageView
+                                android:id="@+id/podcast_player_sleep_icon"
+                                android:layout_width="19dp"
+                                android:layout_height="19dp"
+                                android:layout_gravity="center"
+                                android:contentDescription="@null"
+                                android:src="@drawable/podcast_player_moon" />
+
+                            <TextView
+                                android:id="@+id/podcast_player_sleep_value"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center"
+                                android:fontFamily="@font/manrope_extrabold"
+                                android:textColor="#FFFFFF"
+                                android:textSize="15sp"
+                                android:visibility="gone" />
+                        </FrameLayout>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:fontFamily="@font/manrope_semibold"
+                            android:text="@string/podcast_player_sleep_timer"
+                            android:textColor="#BFFFFFFF"
+                            android:textSize="10sp" />
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="1dp"
+                        android:layout_height="match_parent"
+                        android:background="#24FFFFFF" />
+
+                    <LinearLayout
+                        android:id="@+id/podcast_player_open_chapters"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:background="?attr/selectableItemBackground"
+                        android:gravity="center"
+                        android:orientation="vertical">
+
+                        <ImageView
+                            android:layout_width="19dp"
+                            android:layout_height="19dp"
+                            android:contentDescription="@null"
+                            android:src="@drawable/podcast_player_chapters" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:fontFamily="@font/manrope_semibold"
+                            android:text="@string/podcast_player_chapters"
+                            android:textColor="#BFFFFFFF"
+                            android:textSize="10sp" />
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="1dp"
+                        android:layout_height="match_parent"
+                        android:background="#24FFFFFF" />
+
+                    <LinearLayout
+                        android:id="@+id/podcast_player_open_notes"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:background="?attr/selectableItemBackground"
+                        android:gravity="center"
+                        android:orientation="vertical">
+
+                        <ImageView
+                            android:layout_width="19dp"
+                            android:layout_height="19dp"
+                            android:contentDescription="@null"
+                            android:src="@drawable/podcast_player_notes" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:fontFamily="@font/manrope_semibold"
+                            android:text="@string/podcast_player_notes"
+                            android:textColor="#BFFFFFFF"
+                            android:textSize="10sp" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/podcast_player_up_next_card"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="18dp"
+                    android:background="@drawable/podcast_player_up_next"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:paddingLeft="12dp"
+                    android:paddingTop="10dp"
+                    android:paddingRight="12dp"
+                    android:paddingBottom="10dp">
+
+                    <ImageView
+                        android:id="@+id/podcast_player_up_next_cover"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:background="@drawable/podcast_player_cover_placeholder"
+                        android:contentDescription="@null"
+                        android:scaleType="centerCrop" />
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="12dp"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/manrope_bold"
+                            android:letterSpacing="0.06"
+                            android:text="@string/podcast_player_up_next_label"
+                            android:textColor="#B8FFFFFF"
+                            android:textSize="11sp" />
+
+                        <TextView
+                            android:id="@+id/podcast_player_up_next_title"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="1dp"
+                            android:ellipsize="end"
+                            android:fontFamily="@font/manrope_bold"
+                            android:maxLines="1"
+                            android:textColor="#FFFFFF"
+                            android:textSize="14sp" />
+                    </LinearLayout>
+
+                    <ImageView
+                        android:layout_width="18dp"
+                        android:layout_height="18dp"
+                        android:layout_marginStart="8dp"
+                        android:contentDescription="@null"
+                        android:src="@drawable/podcast_player_chevron_up" />
+                </LinearLayout>
+            </LinearLayout>
+        </de.danoeh.antennapod.ui.podcast.player.PlayerGlassLayout>
 
         <LinearLayout
-            android:id="@+id/playtime_layout"
+            android:id="@+id/podcast_player_topbar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:layoutDirection="ltr"
-            android:orientation="vertical">
+            android:layout_gravity="top"
+            android:orientation="horizontal"
+            android:paddingLeft="16dp"
+            android:paddingTop="14dp"
+            android:paddingRight="16dp">
 
-            <de.danoeh.antennapod.ui.screen.playback.audio.ChapterSeekBar
-                android:id="@+id/sbPosition"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="8dp"
-                android:layout_marginRight="8dp"
-                android:clickable="true"
-                android:max="500"
-                tools:progress="100" />
+            <ImageButton
+                android:id="@+id/podcast_player_collapse"
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:background="@drawable/podcast_player_topbar_button"
+                android:contentDescription="@string/podcast_player_collapse"
+                android:padding="11dp"
+                android:src="@drawable/podcast_player_chevron_down" />
 
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:layout_marginBottom="4dp"
-                android:paddingLeft="8dp"
-                android:paddingRight="8dp">
+            <Space
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="1" />
 
-                <de.danoeh.antennapod.ui.screen.playback.audio.NoRelayoutTextView
-                    android:id="@+id/txtvPosition"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentStart="true"
-                    android:layout_alignParentLeft="true"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginLeft="16dp"
-                    android:text="@string/position_default_label"
-                    android:textColor="?android:attr/textColorSecondary"
-                    android:textSize="@dimen/text_size_micro" />
+            <FrameLayout
+                android:id="@+id/podcast_player_cast_host"
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:layout_marginEnd="8dp"
+                android:background="@drawable/podcast_player_topbar_button"
+                android:visibility="gone" />
 
-                <de.danoeh.antennapod.ui.screen.playback.audio.NoRelayoutTextView
-                    android:id="@+id/txtvLength"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentEnd="true"
-                    android:layout_alignParentRight="true"
-                    android:layout_marginEnd="16dp"
-                    android:layout_marginRight="16dp"
-                    android:textAlignment="textEnd"
-                    android:background="?android:attr/selectableItemBackground"
-                    android:text="@string/position_default_label"
-                    android:textColor="?android:attr/textColorSecondary"
-                    android:textSize="@dimen/text_size_micro" />
-
-            </RelativeLayout>
-
-            <RelativeLayout
-                android:id="@+id/player_control"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="24dp">
-
-                <de.danoeh.antennapod.ui.screen.playback.PlayButton
-                    android:id="@+id/butPlay"
-                    android:layout_width="@dimen/audioplayer_playercontrols_length_big"
-                    android:layout_height="@dimen/audioplayer_playercontrols_length_big"
-                    android:layout_centerHorizontal="true"
-                    android:layout_centerVertical="true"
-                    android:layout_marginStart="@dimen/audioplayer_playercontrols_margin"
-                    android:layout_marginLeft="@dimen/audioplayer_playercontrols_margin"
-                    android:layout_marginEnd="@dimen/audioplayer_playercontrols_margin"
-                    android:layout_marginRight="@dimen/audioplayer_playercontrols_margin"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    android:contentDescription="@string/pause_label"
-                    android:padding="8dp"
-                    android:scaleType="fitCenter"
-                    app:srcCompat="@drawable/ic_play_48dp"
-                    tools:srcCompat="@drawable/ic_play_48dp" />
-
-                <de.danoeh.antennapod.ui.common.CircularProgressBar
-                    android:layout_width="@dimen/audioplayer_playercontrols_length_big"
-                    android:layout_height="@dimen/audioplayer_playercontrols_length_big"
-                    android:layout_centerHorizontal="true"
-                    android:layout_centerVertical="true"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginLeft="16dp"
-                    android:layout_marginEnd="16dp"
-                    android:layout_marginRight="16dp"
-                    app:foregroundColor="?attr/action_icon_color" />
-
-                <ProgressBar
-                    android:id="@+id/progLoading"
-                    android:layout_width="@dimen/audioplayer_playercontrols_length_big"
-                    android:layout_height="@dimen/audioplayer_playercontrols_length_big"
-                    android:layout_centerHorizontal="true"
-                    android:layout_centerVertical="true"
-                    android:visibility="gone"
-                    style="?android:attr/progressBarStyle" />
-
-                <ImageButton
-                    android:id="@+id/butRev"
-                    android:layout_width="@dimen/audioplayer_playercontrols_length"
-                    android:layout_height="@dimen/audioplayer_playercontrols_length"
-                    android:layout_centerVertical="true"
-                    android:layout_marginStart="@dimen/audioplayer_playercontrols_margin"
-                    android:layout_marginLeft="@dimen/audioplayer_playercontrols_margin"
-                    android:layout_toStartOf="@id/butPlay"
-                    android:layout_toLeftOf="@id/butPlay"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    android:contentDescription="@string/rewind_label"
-                    android:scaleType="fitCenter"
-                    app:srcCompat="@drawable/ic_fast_rewind"
-                    tools:srcCompat="@drawable/ic_fast_rewind" />
-
-                <TextView
-                    android:id="@+id/txtvRev"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@id/butRev"
-                    android:layout_alignStart="@id/butRev"
-                    android:layout_alignLeft="@id/butRev"
-                    android:layout_alignEnd="@id/butRev"
-                    android:layout_alignRight="@id/butRev"
-                    android:clickable="false"
-                    android:gravity="center"
-                    android:text="30"
-                    android:textColor="?android:attr/textColorSecondary"
-                    android:textSize="12sp" />
-
-                <ImageButton
-                    android:id="@+id/butPlaybackSpeed"
-                    android:layout_width="@dimen/audioplayer_playercontrols_length"
-                    android:layout_height="@dimen/audioplayer_playercontrols_length"
-                    android:padding="8dp"
-                    android:layout_centerVertical="true"
-                    android:layout_toStartOf="@id/butRev"
-                    android:layout_toLeftOf="@id/butRev"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    android:contentDescription="@string/playback_speed"
-                    android:scaleType="fitCenter"
-                    app:foregroundColor="?attr/action_icon_color"
-                    app:srcCompat="@drawable/ic_playback_speed" />
-
-                <TextView
-                    android:id="@+id/txtvPlaybackSpeed"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@id/butPlaybackSpeed"
-                    android:layout_alignStart="@id/butPlaybackSpeed"
-                    android:layout_alignLeft="@id/butPlaybackSpeed"
-                    android:layout_alignEnd="@id/butPlaybackSpeed"
-                    android:layout_alignRight="@id/butPlaybackSpeed"
-                    android:clickable="false"
-                    android:gravity="center"
-                    android:text="1.00"
-                    android:textColor="?android:attr/textColorSecondary"
-                    android:textSize="12sp" />
-
-                <ImageButton
-                    android:id="@+id/butFF"
-                    android:layout_width="@dimen/audioplayer_playercontrols_length"
-                    android:layout_height="@dimen/audioplayer_playercontrols_length"
-                    android:layout_centerVertical="true"
-                    android:layout_marginEnd="@dimen/audioplayer_playercontrols_margin"
-                    android:layout_marginRight="@dimen/audioplayer_playercontrols_margin"
-                    android:layout_toEndOf="@id/butPlay"
-                    android:layout_toRightOf="@id/butPlay"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    android:contentDescription="@string/fast_forward_label"
-                    android:scaleType="fitCenter"
-                    app:srcCompat="@drawable/ic_fast_forward"
-                    tools:srcCompat="@drawable/ic_fast_forward" />
-
-                <TextView
-                    android:id="@+id/txtvFF"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@id/butFF"
-                    android:layout_alignStart="@id/butFF"
-                    android:layout_alignLeft="@id/butFF"
-                    android:layout_alignEnd="@id/butFF"
-                    android:layout_alignRight="@id/butFF"
-                    android:clickable="false"
-                    android:gravity="center"
-                    android:text="30"
-                    android:textColor="?android:attr/textColorSecondary"
-                    android:textSize="12sp" />
-
-                <ImageButton
-                    android:id="@+id/butSkip"
-                    android:layout_width="@dimen/audioplayer_playercontrols_length"
-                    android:layout_height="@dimen/audioplayer_playercontrols_length"
-                    android:layout_centerVertical="true"
-                    android:layout_toEndOf="@id/butFF"
-                    android:layout_toRightOf="@id/butFF"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    android:contentDescription="@string/skip_episode_label"
-                    android:scaleType="fitCenter"
-                    app:srcCompat="@drawable/ic_skip_48dp"
-                    tools:srcCompat="@drawable/ic_skip_48dp" />
-
-            </RelativeLayout>
-
+            <ImageButton
+                android:id="@+id/podcast_player_more"
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:background="@drawable/podcast_player_topbar_button"
+                android:contentDescription="@string/podcast_player_more"
+                android:padding="12dp"
+                android:src="@drawable/podcast_player_more" />
         </LinearLayout>
 
-    </RelativeLayout>
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbar"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:visibility="gone" />
+
+        <include layout="@layout/podcast_player_panel" />
+    </de.danoeh.antennapod.ui.podcast.player.PlayerContentLayout>
 
 </FrameLayout>
