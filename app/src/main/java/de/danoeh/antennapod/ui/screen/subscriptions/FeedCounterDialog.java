@@ -20,8 +20,8 @@ public class FeedCounterDialog {
         final int selectedIndex = entryValues.indexOf("" + selected);
 
         String[] items = context.getResources().getStringArray(R.array.nav_drawer_feed_counter_options);
-        PodcastPopupMenu.showChoiceSheet(context, context.getString(R.string.pref_nav_drawer_feed_counter_title),
-                items, selectedIndex, which -> {
+        String title = context.getString(R.string.pref_nav_drawer_feed_counter_title);
+        PodcastPopupMenu.showChoiceSheet(context, title, items, selectedIndex, which -> {
             if (selectedIndex != which) {
                 UserPreferences.setFeedCounterSetting(
                         FeedCounter.fromOrdinal(Integer.parseInt(entryValues.get(which))));
