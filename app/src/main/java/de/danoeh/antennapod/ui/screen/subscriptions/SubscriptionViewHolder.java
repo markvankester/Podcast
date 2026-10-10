@@ -1,6 +1,7 @@
 package de.danoeh.antennapod.ui.screen.subscriptions;
 
 import android.app.Activity;
+import android.graphics.Color;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -9,12 +10,9 @@ import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 import de.danoeh.antennapod.R;
 import de.danoeh.antennapod.model.feed.Feed;
-import de.danoeh.antennapod.storage.preferences.UserPreferences;
 import de.danoeh.antennapod.ui.CoverLoader;
-import de.danoeh.antennapod.ui.common.ThemeUtils;
 
 import java.lang.ref.WeakReference;
-import java.text.NumberFormat;
 
 public class SubscriptionViewHolder extends RecyclerView.ViewHolder {
     public final TextView title;
@@ -45,7 +43,7 @@ public class SubscriptionViewHolder extends RecyclerView.ViewHolder {
         fallbackTitle.setText(feed.getTitle());
         coverImage.setContentDescription(feed.getTitle());
         if (counter > 0) {
-            count.setText(NumberFormat.getInstance().format(counter));
+            count.setText(count.getContext().getString(R.string.podcast_new_count, counter));
             count.setVisibility(View.VISIBLE);
         } else {
             count.setVisibility(View.GONE);
@@ -57,7 +55,7 @@ public class SubscriptionViewHolder extends RecyclerView.ViewHolder {
         coverLoader.withUri(feed.getImageUrl());
         errorIcon.setVisibility(feed.hasLastUpdateFailed() ? View.VISIBLE : View.GONE);
 
-        if (UserPreferences.shouldShowSubscriptionTitle() || columnCount == 1) {
+        if (columnCount == 1) {
             // No need for fallback title when already showing title
             fallbackTitle.setVisibility(View.GONE);
         } else {
@@ -67,13 +65,14 @@ public class SubscriptionViewHolder extends RecyclerView.ViewHolder {
         coverLoader.load();
 
         if (card != null) {
-            card.setCardBackgroundColor(ThemeUtils.getColorFromAttr(
-                    mainActivityRef.get(), R.attr.colorSurfaceContainer));
+            card.setCardBackgroundColor(Color.TRANSPARENT);
         }
 
         int textPadding = columnCount <= 3 ? 16 : 8;
-        title.setPadding(textPadding, textPadding, textPadding, textPadding);
         fallbackTitle.setPadding(textPadding, textPadding, textPadding, textPadding);
+        if (selectIcon == null) {
+            title.setPadding(textPadding, textPadding, textPadding, textPadding);
+        }
 
         int textSize = 14;
         if (columnCount == 3) {
@@ -81,7 +80,9 @@ public class SubscriptionViewHolder extends RecyclerView.ViewHolder {
         } else if (columnCount == 2) {
             textSize = 16;
         }
-        title.setTextSize(textSize);
+        if (selectIcon == null) {
+            title.setTextSize(textSize);
+        }
         fallbackTitle.setTextSize(textSize);
     }
 }

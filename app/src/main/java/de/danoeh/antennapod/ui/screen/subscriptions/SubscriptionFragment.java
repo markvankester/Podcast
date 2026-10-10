@@ -9,9 +9,12 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.core.util.Pair;
+import androidx.core.util.Supplier;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -20,10 +23,18 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
 import com.google.android.material.appbar.MaterialToolbar;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import de.danoeh.antennapod.R;
 import de.danoeh.antennapod.activity.MainActivity;
+import de.danoeh.antennapod.event.QueueEvent;
+import de.danoeh.antennapod.ui.podcast.PodcastHeader;
+import de.danoeh.antennapod.ui.podcast.PodcastSelectMode;
+import de.danoeh.antennapod.ui.screen.AllEpisodesFragment;
+import de.danoeh.antennapod.ui.screen.FavoritesFragment;
+import de.danoeh.antennapod.ui.screen.PlaybackHistoryFragment;
+import de.danoeh.antennapod.ui.screen.download.CompletedDownloadsFragment;
+import de.danoeh.antennapod.ui.screen.download.DownloadLogFragment;
 import de.danoeh.antennapod.ui.screen.queue.QueueFragment;
+import de.danoeh.antennapod.ui.statistics.StatisticsFragment;
 import de.danoeh.antennapod.event.FeedItemEvent;
 import de.danoeh.antennapod.event.FeedListUpdateEvent;
 import de.danoeh.antennapod.event.FeedUpdateRunningEvent;
@@ -42,7 +53,6 @@ import de.danoeh.antennapod.ui.screen.SearchFragment;
 import de.danoeh.antennapod.ui.common.EmptyViewHandler;
 import de.danoeh.antennapod.ui.view.FloatingSelectMenu;
 import de.danoeh.antennapod.ui.common.ItemOffsetDecoration;
-import de.danoeh.antennapod.ui.common.LiftOnScrollListener;
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.disposables.Disposable;
@@ -54,6 +64,7 @@ import org.greenrobot.eventbus.ThreadMode;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+
 
 /**
  * Fragment for displaying feed subscriptions
@@ -86,6 +97,11 @@ public class SubscriptionFragment extends Fragment
     private SwipeRefreshLayout swipeRefreshLayout;
     private ProgressBar progressBar;
     private CollapsingToolbarLayout collapsingContainer;
+    private PodcastHeader header;
+    private View libraryRows;
+    private View showsHeading;
+    private View addButton;
+    private Disposable countDisposable;
     private boolean displayUpArrow;
     private boolean shouldShowTags = false;
 
@@ -93,7 +109,6 @@ public class SubscriptionFragment extends Fragment
     private SharedPreferences prefs;
     private static Pair<Integer, Integer> scrollPosition = null;
 
-    private FloatingActionButton subscriptionAddButton;
     private FloatingSelectMenu floatingSelectMenu;
     private RecyclerView.ItemDecoration itemDecoration;
     private List<Feed> feeds;
@@ -143,8 +158,6 @@ public class SubscriptionFragment extends Fragment
         collapsingContainer = root.findViewById(R.id.collapsing_container);
         subscriptionRecycler = root.findViewById(R.id.subscriptions_grid);
         registerForContextMenu(subscriptionRecycler);
-        subscriptionRecycler.addOnScrollListener(new LiftOnScrollListener(root.findViewById(R.id.appbar)));
-        subscriptionRecycler.addOnScrollListener(new LiftOnScrollListener(collapsingContainer));
         subscriptionAdapter = new SubscriptionsRecyclerAdapter((MainActivity) getActivity()) {
             @Override
             protected void onSelectedItemsUpdated() {
@@ -161,12 +174,7 @@ public class SubscriptionFragment extends Fragment
         progressBar = root.findViewById(R.id.progressBar);
         progressBar.setVisibility(View.VISIBLE);
 
-        subscriptionAddButton = root.findViewById(R.id.subscriptions_add);
-        subscriptionAddButton.setOnClickListener(view -> {
-            if (getActivity() instanceof MainActivity) {
-                ((MainActivity) getActivity()).loadChildFragment(new AddFeedFragment());
-            }
-        });
+        setupHeader(root);
 
         feedsFilteredMsg = root.findViewById(R.id.feeds_filtered_message);
         feedsFilteredMsg.setOnClickListener((l) ->
@@ -188,12 +196,18 @@ public class SubscriptionFragment extends Fragment
             toolbar.getMenu().removeItem(R.id.refresh_item);
             toolbar.getMenu().removeItem(R.id.subscriptions_counter);
             toolbar.getMenu().removeItem(R.id.show_archive);
+            toolbar.getMenu().removeItem(R.id.podcast_all_episodes_item);
+            toolbar.getMenu().removeItem(R.id.podcast_statistics_item);
+            toolbar.getMenu().removeItem(R.id.podcast_download_log_item);
             floatingSelectMenu.getMenu().removeItem(R.id.keep_updated);
             floatingSelectMenu.getMenu().removeItem(R.id.notify_new_episodes);
             floatingSelectMenu.getMenu().removeItem(R.id.autodownload);
             floatingSelectMenu.getMenu().removeItem(R.id.autoDeleteDownload);
             floatingSelectMenu.getMenu().removeItem(R.id.playback_speed);
-            subscriptionAddButton.setVisibility(View.GONE);
+            addButton.setVisibility(View.GONE);
+            libraryRows.setVisibility(View.GONE);
+            showsHeading.setVisibility(View.GONE);
+            header.setTitle(getString(R.string.archive_feed_label_noun));
         }
         floatingSelectMenu.setOnMenuItemClickListener(menuItem -> {
             List<Feed> selection = subscriptionAdapter.getSelectedItems();
@@ -240,7 +254,7 @@ public class SubscriptionFragment extends Fragment
     private void refreshToolbarState() {
         int columns = prefs.getInt(PREF_NUM_COLUMNS, getDefaultNumOfColumns());
         toolbar.getMenu().findItem(COLUMN_CHECKBOX_IDS[columns - MIN_NUM_COLUMNS]).setChecked(true);
-        toolbar.getMenu().findItem(R.id.pref_show_subscription_title).setVisible(columns > 1);
+        toolbar.getMenu().findItem(R.id.pref_show_subscription_title).setVisible(false);
         toolbar.getMenu().findItem(R.id.pref_show_subscription_title)
                 .setChecked(UserPreferences.shouldShowSubscriptionTitle());
     }
@@ -253,8 +267,14 @@ public class SubscriptionFragment extends Fragment
     @Override
     public boolean onMenuItemClick(MenuItem item) {
         final int itemId = item.getItemId();
-        if (itemId == R.id.podcast_queue_item) {
-            ((MainActivity) requireActivity()).loadChildFragment(new QueueFragment(), SubscriptionFragment.TAG);
+        if (itemId == R.id.podcast_all_episodes_item) {
+            ((MainActivity) requireActivity()).loadChildFragment(new AllEpisodesFragment(), TAG);
+            return true;
+        } else if (itemId == R.id.podcast_statistics_item) {
+            ((MainActivity) requireActivity()).loadChildFragment(new StatisticsFragment(), TAG);
+            return true;
+        } else if (itemId == R.id.podcast_download_log_item) {
+            new DownloadLogFragment().show(getParentFragmentManager(), DownloadLogFragment.TAG);
             return true;
         } else if (itemId == R.id.refresh_item) {
             FeedUpdateManager.getInstance().runOnceOrAsk(requireContext());
@@ -349,6 +369,7 @@ public class SubscriptionFragment extends Fragment
         super.onStart();
         EventBus.getDefault().register(this);
         loadSubscriptionsAndTags();
+        loadLibraryCounts();
     }
 
     @Override
@@ -366,6 +387,9 @@ public class SubscriptionFragment extends Fragment
         EventBus.getDefault().unregister(this);
         if (disposable != null) {
             disposable.dispose();
+        }
+        if (countDisposable != null) {
+            countDisposable.dispose();
         }
         if (subscriptionAdapter != null) {
             subscriptionAdapter.endSelectMode();
@@ -503,6 +527,12 @@ public class SubscriptionFragment extends Fragment
         if (event.unreadStatusChanged) {
             loadSubscriptionsAndTags();
         }
+        loadLibraryCounts();
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onQueueChanged(QueueEvent event) {
+        loadLibraryCounts();
     }
 
     private void setCollapsingToolbarFlags(int flags) {
@@ -513,23 +543,74 @@ public class SubscriptionFragment extends Fragment
 
     @Override
     public void onEndSelectMode() {
-        floatingSelectMenu.setVisibility(View.GONE);
-        subscriptionAddButton.setVisibility(View.VISIBLE);
+        PodcastSelectMode.end(requireActivity(), floatingSelectMenu, subscriptionRecycler);
         tagsRecycler.setVisibility(shouldShowTags ? View.VISIBLE : View.GONE);
         updateFilterVisibility();
-        setCollapsingToolbarFlags(AppBarLayout.LayoutParams.SCROLL_FLAG_SCROLL
-                | AppBarLayout.LayoutParams.SCROLL_FLAG_ENTER_ALWAYS
-                | AppBarLayout.LayoutParams.SCROLL_FLAG_EXIT_UNTIL_COLLAPSED);
+        setCollapsingToolbarFlags(AppBarLayout.LayoutParams.SCROLL_FLAG_SCROLL);
     }
 
     @Override
     public void onStartSelectMode() {
-        floatingSelectMenu.setVisibility(View.VISIBLE);
-        subscriptionAddButton.setVisibility(View.GONE);
+        PodcastSelectMode.start(requireActivity(), floatingSelectMenu, subscriptionRecycler);
         tagsRecycler.setVisibility(shouldShowTags ? View.INVISIBLE : View.GONE);
         updateFilterVisibility();
-        setCollapsingToolbarFlags(AppBarLayout.LayoutParams.SCROLL_FLAG_SCROLL
-                | AppBarLayout.LayoutParams.SCROLL_FLAG_EXIT_UNTIL_COLLAPSED);
+        setCollapsingToolbarFlags(AppBarLayout.LayoutParams.SCROLL_FLAG_SCROLL);
+    }
+
+    private void setupHeader(View root) {
+        header = root.findViewById(R.id.podcast_header);
+        libraryRows = root.findViewById(R.id.library_rows);
+        showsHeading = root.findViewById(R.id.library_shows_heading);
+        header.setTitle(getString(R.string.subscriptions_label));
+        if (displayUpArrow) {
+            header.setBackLink(getString(R.string.podcast_back_to_library),
+                    v -> getParentFragmentManager().popBackStack());
+        }
+        addButton = header.addIconButton(R.drawable.podcast_ic_plus, R.string.podcast_add_podcast, true, v -> {
+            if (getActivity() instanceof MainActivity) {
+                ((MainActivity) getActivity()).loadChildFragment(new AddFeedFragment(), TAG);
+            }
+        });
+        header.addOverflowButton(toolbar.getMenu(), this);
+        setupLibraryRow(R.id.library_row_queue, R.drawable.podcast_ic_row_queue, R.string.queue_label,
+                QueueFragment::new);
+        setupLibraryRow(R.id.library_row_downloads, R.drawable.podcast_ic_row_downloads,
+                R.string.podcast_library_downloads, CompletedDownloadsFragment::new);
+        setupLibraryRow(R.id.library_row_favorites, R.drawable.podcast_ic_row_favorites,
+                R.string.podcast_library_favorites, FavoritesFragment::new);
+        setupLibraryRow(R.id.library_row_history, R.drawable.podcast_ic_row_history,
+                R.string.podcast_library_history, PlaybackHistoryFragment::new);
+    }
+
+    private void setupLibraryRow(int rowId, int icon, int label, Supplier<Fragment> target) {
+        View row = libraryRows.findViewById(rowId);
+        ((ImageView) row.findViewById(R.id.podcast_row_icon)).setImageResource(icon);
+        ((TextView) row.findViewById(R.id.podcast_row_label)).setText(label);
+        row.findViewById(R.id.podcast_row_count).setVisibility(View.GONE);
+        row.setOnClickListener(v -> ((MainActivity) requireActivity()).loadChildFragment(target.get(), TAG));
+    }
+
+    private void loadLibraryCounts() {
+        if (countDisposable != null) {
+            countDisposable.dispose();
+        }
+        countDisposable = Observable.fromCallable(() -> new int[] {
+                        DBReader.getTotalEpisodeCount(new FeedItemFilter(FeedItemFilter.QUEUED)),
+                        DBReader.getTotalEpisodeCount(new FeedItemFilter(FeedItemFilter.DOWNLOADED)),
+                        DBReader.getTotalEpisodeCount(new FeedItemFilter(FeedItemFilter.IS_FAVORITE))})
+                .subscribeOn(Schedulers.computation())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(counts -> {
+                    setRowCount(R.id.library_row_queue, counts[0]);
+                    setRowCount(R.id.library_row_downloads, counts[1]);
+                    setRowCount(R.id.library_row_favorites, counts[2]);
+                }, error -> Log.e(TAG, Log.getStackTraceString(error)));
+    }
+
+    private void setRowCount(int rowId, int count) {
+        TextView view = libraryRows.findViewById(rowId).findViewById(R.id.podcast_row_count);
+        view.setText(String.format(Locale.getDefault(), "%d", count));
+        view.setVisibility(View.VISIBLE);
     }
 
     public Pair<Integer, Integer> getScrollPosition() {

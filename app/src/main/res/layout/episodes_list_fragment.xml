@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
+<androidx.coordinatorlayout.widget.CoordinatorLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -10,14 +10,24 @@
         android:id="@+id/appbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:fitsSystemWindows="true">
+        android:background="?attr/podcast_background"
+        android:fitsSystemWindows="true"
+        app:liftOnScroll="false"
+        android:elevation="0dp">
 
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
+            android:visibility="gone"
             app:navigationContentDescription="@string/toolbar_back_button_content_description"
             app:navigationIcon="?homeAsUpIndicator" />
+
+        <de.danoeh.antennapod.ui.podcast.PodcastHeader
+            android:id="@+id/podcast_header"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_scrollFlags="scroll" />
 
         <TextView
             android:id="@+id/txtvInformation"
@@ -25,10 +35,11 @@
             android:layout_height="wrap_content"
             android:background="?attr/selectableItemBackground"
             android:text="@string/filtered_label"
-            android:layout_marginTop="-16dp"
             android:paddingVertical="4dp"
-            android:paddingHorizontal="16dp"
+            android:paddingHorizontal="20dp"
+            android:textColor="?attr/podcast_text_secondary"
             android:visibility="gone"
+            app:layout_scrollFlags="scroll"
             tools:visibility="visible" />
 
     </com.google.android.material.appbar.AppBarLayout>
@@ -37,7 +48,7 @@
         android:id="@+id/swipeRefresh"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/appbar">
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <de.danoeh.antennapod.ui.episodeslist.EpisodeItemListRecyclerView
             android:id="@+id/recyclerView"
@@ -51,16 +62,15 @@
         android:id="@+id/progressBar"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:gravity="center"
+        android:layout_gravity="center"
         android:indeterminateOnly="true"
         android:visibility="gone"
-        android:layout_centerInParent="true"
         tools:background="@android:color/holo_red_light" />
 
     <de.danoeh.antennapod.ui.view.FloatingSelectMenu
         android:id="@+id/floatingSelectMenu"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true" />
+        android:layout_gravity="bottom" />
 
-</RelativeLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

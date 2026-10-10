@@ -32,6 +32,10 @@ import de.danoeh.antennapod.net.common.NetworkUtils;
 import de.danoeh.antennapod.model.playback.Playable;
 import de.danoeh.antennapod.ui.common.CircularProgressBar;
 import de.danoeh.antennapod.ui.episodes.ImageResourceUtils;
+import de.danoeh.antennapod.event.MessageEvent;
+import de.danoeh.antennapod.storage.database.DBWriter;
+import de.danoeh.antennapod.ui.podcast.PodcastFormat;
+import org.greenrobot.eventbus.EventBus;
 
 /**
  * Holds the view which shows FeedItems.
@@ -59,13 +63,27 @@ public class EpisodeItemViewHolder extends RecyclerView.ViewHolder {
     private final TextView separatorIcons;
     private final View leftPadding;
     public final CardView coverHolder;
+    private final TextView showLabel;
+    private final View dateSeparator;
+    private final View durationSeparator;
+    private final ImageView isDownloaded;
+    private final int rowStyle;
 
     private final Activity activity;
     private FeedItem item;
 
     public EpisodeItemViewHolder(Activity activity, ViewGroup parent) {
-        super(LayoutInflater.from(activity).inflate(R.layout.feeditemlist_item, parent, false));
+        this(activity, parent, EpisodeItemListAdapter.ROW_DEFAULT);
+    }
+
+    public EpisodeItemViewHolder(Activity activity, ViewGroup parent, int rowStyle) {
+        super(LayoutInflater.from(activity).inflate(getLayoutRes(rowStyle), parent, false));
         this.activity = activity;
+        this.rowStyle = rowStyle;
+        showLabel = itemView.findViewById(R.id.txtvShow);
+        dateSeparator = itemView.findViewById(R.id.podcast_sep_date);
+        durationSeparator = itemView.findViewById(R.id.podcast_sep_duration);
+        isDownloaded = itemView.findViewById(R.id.ivDownloaded);
         container = itemView.findViewById(R.id.container);
         dragHandle = itemView.findViewById(R.id.drag_handle);
         placeholder = itemView.findViewById(R.id.txtvPlaceholder);
@@ -90,6 +108,17 @@ public class EpisodeItemViewHolder extends RecyclerView.ViewHolder {
         itemView.setTag(this);
     }
 
+    private static int getLayoutRes(int rowStyle) {
+        switch (rowStyle) {
+            case EpisodeItemListAdapter.ROW_NEW:
+                return R.layout.podcast_episode_row_new;
+            case EpisodeItemListAdapter.ROW_COMPACT:
+                return R.layout.podcast_episode_row_home;
+            default:
+                return R.layout.feeditemlist_item;
+        }
+    }
+
     public void bind(FeedItem item) {
         this.item = item;
         placeholder.setText(item.getFeed().getTitle());
@@ -99,22 +128,32 @@ public class EpisodeItemViewHolder extends RecyclerView.ViewHolder {
         } else {
             leftPadding.setContentDescription(item.getTitle());
         }
-        pubDate.setText(DateFormatter.formatAbbrev(activity, item.getPubDate()));
+        if (rowStyle == EpisodeItemListAdapter.ROW_DEFAULT) {
+            pubDate.setText(DateFormatter.formatAbbrev(activity, item.getPubDate()));
+        } else {
+            pubDate.setText(PodcastFormat.dayLabel(activity, item.getPubDate()));
+        }
+        if (rowStyle == EpisodeItemListAdapter.ROW_COMPACT) {
+            showLabel.setText(activity.getString(R.string.podcast_meta_separator,
+                    item.getFeed().getTitle(), PodcastFormat.dayLabel(activity, item.getPubDate())));
+        } else {
+            showLabel.setText(item.getFeed().getTitle());
+        }
+        pubDate.setVisibility(View.VISIBLE);
         pubDate.setContentDescription(DateFormatter.formatForAccessibility(item.getPubDate()));
         isInbox.setVisibility(item.isNew() ? View.VISIBLE : View.GONE);
         isFavorite.setVisibility(item.isTagged(FeedItem.TAG_FAVORITE) ? View.VISIBLE : View.GONE);
         isInQueue.setVisibility(item.isTagged(FeedItem.TAG_QUEUE) ? View.VISIBLE : View.GONE);
         container.setAlpha(item.isPlayed() ? 0.5f : 1.0f);
 
-        ItemActionButton actionButton = ItemActionButton.forItem(item);
-        actionButton.configure(secondaryActionButton, secondaryActionIcon, activity);
-        secondaryActionButton.setFocusable(false);
+        configureSecondaryAction();
 
         if (item.getMedia() != null) {
             bind(item.getMedia());
         } else {
             secondaryActionProgress.setPercentage(0, item);
             secondaryActionProgress.setIndeterminate(false);
+            isDownloaded.setVisibility(View.GONE);
             isVideo.setVisibility(View.GONE);
             progressBar.setVisibility(View.GONE);
             duration.setVisibility(View.GONE);
@@ -132,7 +171,44 @@ public class EpisodeItemViewHolder extends RecyclerView.ViewHolder {
         }
     }
 
+    private void configureSecondaryAction() {
+        if (rowStyle == EpisodeItemListAdapter.ROW_NEW) {
+            boolean queued = item.isTagged(FeedItem.TAG_QUEUE);
+            secondaryActionButton.setVisibility(View.VISIBLE);
+            secondaryActionIcon.setImageResource(queued ? R.drawable.podcast_ic_check : R.drawable.podcast_ic_plus);
+            secondaryActionButton.setContentDescription(activity.getString(
+                    queued ? R.string.podcast_in_queue : R.string.podcast_add_to_queue));
+            secondaryActionButton.setOnClickListener(v -> toggleQueued());
+        } else if (rowStyle == EpisodeItemListAdapter.ROW_COMPACT) {
+            secondaryActionButton.setVisibility(View.VISIBLE);
+            secondaryActionIcon.setImageResource(R.drawable.podcast_ic_more);
+            secondaryActionButton.setContentDescription(activity.getString(R.string.podcast_more_options));
+            secondaryActionButton.setOnClickListener(v -> itemView.performLongClick());
+        } else {
+            ItemActionButton actionButton = ItemActionButton.forItem(item);
+            actionButton.configure(secondaryActionButton, secondaryActionIcon, activity);
+        }
+        secondaryActionButton.setFocusable(false);
+    }
+
+    private void toggleQueued() {
+        if (item.isTagged(FeedItem.TAG_QUEUE)) {
+            DBWriter.removeQueueItem(activity, false, item);
+        } else if (item.getMedia() == null) {
+            EventBus.getDefault().post(new MessageEvent(activity.getString(R.string.no_media_label)));
+        } else {
+            DBWriter.addQueueItem(activity, item);
+        }
+    }
+
+    public void setCompactMeta(boolean compact) {
+        if (rowStyle == EpisodeItemListAdapter.ROW_DEFAULT) {
+            pubDate.setVisibility(compact ? View.GONE : View.VISIBLE);
+        }
+    }
+
     private void bind(FeedMedia media) {
+        isDownloaded.setVisibility(media.isDownloaded() ? View.VISIBLE : View.GONE);
         isVideo.setVisibility(media.getMediaType() == MediaType.VIDEO ? View.VISIBLE : View.GONE);
         duration.setVisibility(media.getDuration() > 0 ? View.VISIBLE : View.GONE);
 
@@ -151,12 +227,11 @@ public class EpisodeItemViewHolder extends RecyclerView.ViewHolder {
             secondaryActionProgress.setIndeterminate(false);
         }
 
-        duration.setText(Converter.getDurationStringLong(media.getDuration()));
+        duration.setText(PodcastFormat.duration(activity, media.getDuration()));
         duration.setContentDescription(activity.getString(R.string.chapter_duration,
                 Converter.getDurationStringLocalized(activity, media.getDuration())));
         if (PlaybackStatus.isPlaying(item.getMedia()) || item.isInProgress()) {
             int progress = (int) (100.0 * media.getPosition() / media.getDuration());
-            int remainingTime = Math.max(media.getDuration() - media.getPosition(), 0);
             progressBar.setProgress(progress);
             position.setText(Converter.getDurationStringLong(media.getPosition()));
             position.setContentDescription(activity.getString(R.string.position,
@@ -164,7 +239,7 @@ public class EpisodeItemViewHolder extends RecyclerView.ViewHolder {
             progressBar.setVisibility(View.VISIBLE);
             position.setVisibility(View.VISIBLE);
             if (UserPreferences.shouldShowRemainingTime()) {
-                duration.setText(((remainingTime > 0) ? "-" : "") + Converter.getDurationStringLong(remainingTime));
+                duration.setText(PodcastFormat.timeLeft(activity, media.getDuration(), media.getPosition()));
                 duration.setContentDescription(activity.getString(R.string.chapter_duration,
                         Converter.getDurationStringLocalized(activity, (media.getDuration() - media.getPosition()))));
             }
@@ -199,6 +274,9 @@ public class EpisodeItemViewHolder extends RecyclerView.ViewHolder {
         container.setAlpha(0.1f);
         secondaryActionIcon.setImageDrawable(null);
         isInbox.setVisibility(View.VISIBLE);
+        isDownloaded.setVisibility(View.GONE);
+        showLabel.setText("████");
+        pubDate.setVisibility(View.VISIBLE);
         isVideo.setVisibility(View.GONE);
         isFavorite.setVisibility(View.GONE);
         isInQueue.setVisibility(View.GONE);
@@ -229,16 +307,15 @@ public class EpisodeItemViewHolder extends RecyclerView.ViewHolder {
         }
         int currentPosition = event.getPosition();
         int timeDuration = event.getDuration();
-        int remainingTime = Math.max(timeDuration - currentPosition, 0);
         Log.d(TAG, "currentPosition " + Converter.getDurationStringLong(currentPosition));
         if (currentPosition == Playable.INVALID_TIME || timeDuration == Playable.INVALID_TIME) {
             Log.w(TAG, "Could not react to position observer update because of invalid time");
             return;
         }
         if (UserPreferences.shouldShowRemainingTime()) {
-            duration.setText(((remainingTime > 0) ? "-" : "") + Converter.getDurationStringLong(remainingTime));
+            duration.setText(PodcastFormat.timeLeft(activity, timeDuration, currentPosition));
         } else {
-            duration.setText(Converter.getDurationStringLong(timeDuration));
+            duration.setText(PodcastFormat.duration(activity, timeDuration));
         }
     }
 
@@ -267,5 +344,10 @@ public class EpisodeItemViewHolder extends RecyclerView.ViewHolder {
                 || isFavorite.getVisibility() == View.VISIBLE
                 || isInbox.getVisibility() == View.VISIBLE;
         separatorIcons.setVisibility(hasIcons ? View.VISIBLE : View.GONE);
+        dateSeparator.setVisibility(pubDate.getVisibility() == View.VISIBLE
+                && showLabel.getVisibility() == View.VISIBLE ? View.VISIBLE : View.GONE);
+        durationSeparator.setVisibility(duration.getVisibility() == View.VISIBLE
+                && (pubDate.getVisibility() == View.VISIBLE || showLabel.getVisibility() == View.VISIBLE)
+                ? View.VISIBLE : View.GONE);
     }
 }

@@ -75,7 +75,8 @@ public class SwipeActions extends ItemTouchHelper.SimpleCallback implements Life
 
     @OnLifecycleEvent(Lifecycle.Event.ON_START)
     public void reloadPreference() {
-        actions = getPrefs(fragment.requireContext(), tag);
+        actions = InboxFragment.TAG.equals(tag)
+                ? getPrefsWithDefaults(fragment.requireContext(), tag) : getPrefs(fragment.requireContext(), tag);
     }
 
     public void setFilter(FeedItemFilter filter) {

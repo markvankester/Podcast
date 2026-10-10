@@ -13,6 +13,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -26,6 +27,7 @@ import androidx.recyclerview.widget.SimpleItemAnimator;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.google.android.material.appbar.MaterialToolbar;
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import de.danoeh.antennapod.event.MessageEvent;
@@ -49,7 +51,6 @@ import de.danoeh.antennapod.ui.common.ConfirmationDialog;
 import de.danoeh.antennapod.ui.MenuItemUtils;
 import de.danoeh.antennapod.storage.database.DBReader;
 import de.danoeh.antennapod.storage.database.DBWriter;
-import de.danoeh.antennapod.ui.common.Converter;
 import de.danoeh.antennapod.ui.screen.feed.ItemSortDialog;
 import de.danoeh.antennapod.event.EpisodeDownloadEvent;
 import de.danoeh.antennapod.event.FeedItemEvent;
@@ -58,6 +59,13 @@ import de.danoeh.antennapod.event.PlayerStatusEvent;
 import de.danoeh.antennapod.event.QueueEvent;
 import de.danoeh.antennapod.event.playback.PlaybackPositionEvent;
 import de.danoeh.antennapod.ui.episodeslist.EpisodeMultiSelectActionHandler;
+import de.danoeh.antennapod.playback.service.PlaybackStatus;
+import de.danoeh.antennapod.storage.preferences.PlaybackPreferences;
+import de.danoeh.antennapod.ui.CoverLoader;
+import de.danoeh.antennapod.ui.episodes.ImageResourceUtils;
+import de.danoeh.antennapod.ui.podcast.PodcastFormat;
+import de.danoeh.antennapod.ui.podcast.PodcastHeader;
+import de.danoeh.antennapod.ui.podcast.PodcastSelectMode;
 import de.danoeh.antennapod.ui.swipeactions.SwipeActions;
 import de.danoeh.antennapod.ui.episodeslist.FeedItemMenuHandler;
 import de.danoeh.antennapod.model.feed.FeedItem;
@@ -66,7 +74,6 @@ import de.danoeh.antennapod.model.feed.SortOrder;
 import de.danoeh.antennapod.storage.preferences.UserPreferences;
 import de.danoeh.antennapod.ui.common.EmptyViewHandler;
 import de.danoeh.antennapod.ui.episodeslist.EpisodeItemListRecyclerView;
-import de.danoeh.antennapod.ui.common.LiftOnScrollListener;
 import de.danoeh.antennapod.ui.episodeslist.EpisodeItemViewHolder;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
@@ -83,7 +90,14 @@ public class QueueFragment extends Fragment implements MaterialToolbar.OnMenuIte
     private static final String SCROLL_POSITION_KEY = "scroll_position";
     private static final String SCROLL_OFFSET_KEY = "scroll_offset";
 
-    private TextView infoBar;
+    private PodcastHeader header;
+    private View nowPlayingBlock;
+    private View upNextLabel;
+    private ImageView nowPlayingCover;
+    private TextView nowPlayingTitle;
+    private TextView nowPlayingMeta;
+    private ProgressBar nowPlayingProgress;
+    private FeedItem nowPlayingItem;
     private EpisodeItemListRecyclerView recyclerView;
     private QueueRecyclerAdapter recyclerAdapter;
     private EmptyViewHandler emptyView;
@@ -224,6 +238,10 @@ public class QueueFragment extends Fragment implements MaterialToolbar.OnMenuIte
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEventMainThread(PlaybackPositionEvent event) {
+        if (nowPlayingItem != null && nowPlayingItem.getMedia() != null
+                && PlaybackStatus.isPlaying(nowPlayingItem.getMedia())) {
+            updateNowPlayingProgress(event.getPosition(), event.getDuration());
+        }
         if (recyclerAdapter != null) {
             for (int i = 0; i < recyclerAdapter.getItemCount(); i++) {
                 EpisodeItemViewHolder holder = (EpisodeItemViewHolder)
@@ -425,10 +443,22 @@ public class QueueFragment extends Fragment implements MaterialToolbar.OnMenuIte
         progressBar = root.findViewById(R.id.progressBar);
         progressBar.setVisibility(View.VISIBLE);
 
-        infoBar = root.findViewById(R.id.info_bar);
-        boolean largePadding = displayUpArrow || !UserPreferences.isBottomNavigationEnabled();
-        int paddingHorizontal = (int) (getResources().getDisplayMetrics().density * (largePadding ? 60 : 16));
-        infoBar.setPadding(paddingHorizontal, 0, paddingHorizontal, 0);
+        header = root.findViewById(R.id.podcast_header);
+        header.setTitle(getString(R.string.queue_label));
+        if (displayUpArrow) {
+            header.setBackLink(getString(R.string.podcast_back_to_library),
+                    v -> getParentFragmentManager().popBackStack());
+        }
+        header.addPillButton(R.string.podcast_edit, v -> startEditing());
+        header.addOverflowButton(toolbar.getMenu(), this);
+        nowPlayingBlock = root.findViewById(R.id.queue_now_playing);
+        upNextLabel = root.findViewById(R.id.queue_up_next_label);
+        nowPlayingCover = root.findViewById(R.id.queue_now_playing_cover);
+        nowPlayingTitle = root.findViewById(R.id.queue_now_playing_title);
+        nowPlayingMeta = root.findViewById(R.id.queue_now_playing_meta);
+        nowPlayingProgress = root.findViewById(R.id.queue_now_playing_progress);
+        root.findViewById(R.id.queue_now_playing_card).setOnClickListener(v ->
+                ((MainActivity) requireActivity()).getBottomSheet().setState(BottomSheetBehavior.STATE_EXPANDED));
 
         recyclerView = root.findViewById(R.id.recyclerView);
         RecyclerView.ItemAnimator animator = recyclerView.getItemAnimator();
@@ -436,7 +466,6 @@ public class QueueFragment extends Fragment implements MaterialToolbar.OnMenuIte
             ((SimpleItemAnimator) animator).setSupportsChangeAnimations(false);
         }
         registerForContextMenu(recyclerView);
-        recyclerView.addOnScrollListener(new LiftOnScrollListener(root.findViewById(R.id.appbar)));
 
         swipeActions = new QueueSwipeActions();
         swipeActions.setFilter(new FeedItemFilter(FeedItemFilter.QUEUED));
@@ -499,6 +528,14 @@ public class QueueFragment extends Fragment implements MaterialToolbar.OnMenuIte
         super.onSaveInstanceState(outState);
     }
 
+    private void startEditing() {
+        if (recyclerAdapter == null || recyclerAdapter.getItemCount() == 0 || recyclerAdapter.inActionMode()) {
+            return;
+        }
+        recyclerAdapter.startSelectMode(0);
+        recyclerAdapter.setSelected(0, 1, false);
+    }
+
     private void refreshInfoBar() {
         long timeLeft = 0;
         for (FeedItem item : queue) {
@@ -512,14 +549,50 @@ public class QueueFragment extends Fragment implements MaterialToolbar.OnMenuIte
             }
         }
         String episodes = getResources().getQuantityString(R.plurals.num_episodes, queue.size(), queue.size());
-        String time = Converter.getDurationStringLocalized(getResources(), timeLeft, false);
-        infoBar.setText(getString(R.string.queue_time_left_label, episodes, time));
+        String time = PodcastFormat.duration(requireContext(), timeLeft);
+        header.setSubtitle(getString(R.string.podcast_queue_summary, episodes, time));
+        refreshNowPlaying();
+    }
 
-        if (recyclerAdapter.inActionMode()) {
-            infoBar.setVisibility(View.INVISIBLE);
-        } else {
-            infoBar.setVisibility(View.VISIBLE);
+    private void refreshNowPlaying() {
+        long mediaId = PlaybackPreferences.getCurrentlyPlayingFeedMediaId();
+        nowPlayingItem = null;
+        for (FeedItem item : queue) {
+            if (item.getMedia() != null && item.getMedia().getId() == mediaId) {
+                nowPlayingItem = item;
+                break;
+            }
         }
+        if (recyclerAdapter != null) {
+            long hiddenId = nowPlayingItem != null && queue.get(0) == nowPlayingItem ? nowPlayingItem.getId() : -1;
+            if (recyclerAdapter.setHiddenItemId(hiddenId)) {
+                recyclerAdapter.notifyDataSetChanged();
+            }
+        }
+        boolean hasNowPlaying = nowPlayingItem != null && queue.get(0) == nowPlayingItem;
+        nowPlayingBlock.setVisibility(hasNowPlaying ? View.VISIBLE : View.GONE);
+        upNextLabel.setVisibility(queue.size() > (hasNowPlaying ? 1 : 0) ? View.VISIBLE : View.GONE);
+        if (hasNowPlaying) {
+            nowPlayingTitle.setText(nowPlayingItem.getTitle());
+            new CoverLoader()
+                    .withUri(ImageResourceUtils.getEpisodeListImageLocation(nowPlayingItem))
+                    .withFallbackUri(nowPlayingItem.getFeed().getImageUrl())
+                    .withCoverView(nowPlayingCover)
+                    .load();
+            updateNowPlayingProgress(nowPlayingItem.getMedia().getPosition(),
+                    nowPlayingItem.getMedia().getDuration());
+        }
+    }
+
+    private void updateNowPlayingProgress(int position, int duration) {
+        if (nowPlayingItem == null || duration <= 0) {
+            nowPlayingProgress.setProgress(0);
+            nowPlayingMeta.setText(nowPlayingItem == null ? "" : nowPlayingItem.getFeed().getTitle());
+            return;
+        }
+        nowPlayingProgress.setProgress((int) (1000L * position / duration));
+        nowPlayingMeta.setText(getString(R.string.podcast_meta_separator, nowPlayingItem.getFeed().getTitle(),
+                PodcastFormat.timeLeft(requireContext(), duration, position)));
     }
 
     private void loadItems() {
@@ -561,20 +634,14 @@ public class QueueFragment extends Fragment implements MaterialToolbar.OnMenuIte
     @Override
     public void onStartSelectMode() {
         swipeActions.detach();
-        floatingSelectMenu.setVisibility(View.VISIBLE);
-        recyclerView.setPadding(recyclerView.getPaddingLeft(), recyclerView.getPaddingTop(),
-                recyclerView.getPaddingRight(),
-                (int) getResources().getDimension(R.dimen.floating_select_menu_height));
+        PodcastSelectMode.start(requireActivity(), floatingSelectMenu, recyclerView);
         refreshToolbarState();
         refreshInfoBar();
     }
 
     @Override
     public void onEndSelectMode() {
-        floatingSelectMenu.setVisibility(View.GONE);
-        recyclerView.setPadding(recyclerView.getPaddingLeft(), recyclerView.getPaddingTop(),
-                recyclerView.getPaddingRight(), 0);
-        infoBar.setVisibility(View.VISIBLE);
+        PodcastSelectMode.end(requireActivity(), floatingSelectMenu, recyclerView);
         swipeActions.attachTo(recyclerView);
         refreshInfoBar();
     }

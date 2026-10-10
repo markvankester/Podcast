@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/podcast_hidden"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:visibility="gone">
+
+    <ImageView
+        android:id="@+id/statusInbox"
+        android:layout_width="14dp"
+        android:layout_height="14dp"
+        android:importantForAccessibility="no"
+        app:srcCompat="@drawable/ic_inbox" />
+
+    <ImageView
+        android:id="@+id/ivIsVideo"
+        android:layout_width="14dp"
+        android:layout_height="14dp"
+        android:importantForAccessibility="no"
+        app:srcCompat="@drawable/ic_videocam" />
+
+    <ImageView
+        android:id="@+id/isFavorite"
+        android:layout_width="14dp"
+        android:layout_height="14dp"
+        android:importantForAccessibility="no"
+        app:srcCompat="@drawable/ic_star" />
+
+    <ImageView
+        android:id="@+id/ivInPlaylist"
+        android:layout_width="14dp"
+        android:layout_height="14dp"
+        android:importantForAccessibility="no"
+        app:srcCompat="@drawable/ic_playlist_play" />
+
+    <ImageView
+        android:id="@+id/ivDownloaded"
+        android:layout_width="14dp"
+        android:layout_height="14dp"
+        android:importantForAccessibility="no"
+        app:srcCompat="@drawable/podcast_ic_downloaded" />
+
+    <TextView
+        android:id="@+id/separatorIcons"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <TextView
+        android:id="@+id/podcast_sep_date"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <TextView
+        android:id="@+id/size"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <TextView
+        android:id="@+id/txtvPosition"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <com.google.android.material.progressindicator.LinearProgressIndicator
+        android:id="@+id/progressBar"
+        android:layout_width="40dp"
+        android:layout_height="wrap_content"
+        android:max="100" />
+
+    <ImageView
+        android:id="@+id/drag_handle"
+        android:layout_width="14dp"
+        android:layout_height="14dp"
+        android:importantForAccessibility="no"
+        app:srcCompat="@drawable/podcast_ic_drag_handle" />
+
+</LinearLayout>

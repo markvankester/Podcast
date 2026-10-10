@@ -52,7 +52,7 @@ public class PodcastDock {
 
     public PodcastDock(View root, Listener listener) {
         this.root = root;
-        Context context = root.getContext();
+        final Context context = root.getContext();
         capsule = root.findViewById(R.id.podcast_tab_capsule);
         highlight = root.findViewById(R.id.podcast_tab_highlight);
         tabsContainer = root.findViewById(R.id.podcast_tabs);

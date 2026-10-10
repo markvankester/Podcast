@@ -1,0 +1,134 @@
+package de.danoeh.antennapod.ui.podcast;
+
+import android.content.Context;
+import android.content.res.ColorStateList;
+import android.view.Gravity;
+import android.view.Menu;
+import android.util.AttributeSet;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+import androidx.annotation.DrawableRes;
+import androidx.annotation.Nullable;
+import androidx.annotation.StringRes;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.res.ResourcesCompat;
+import androidx.core.widget.ImageViewCompat;
+import de.danoeh.antennapod.R;
+import de.danoeh.antennapod.ui.common.ThemeUtils;
+
+public class PodcastHeader extends LinearLayout {
+    private static final int BUTTON_SIZE_DP = 44;
+    private static final int PILL_HEIGHT_DP = 40;
+    private static final int ICON_PADDING_DP = 12;
+
+    private final View topRow;
+    private final TextView backLink;
+    private final View titleRow;
+    private final TextView title;
+    private final TextView subtitle;
+    private final LinearLayout actions;
+    private final LinearLayout topRowContainer;
+
+    public PodcastHeader(Context context) {
+        this(context, null);
+    }
+
+    public PodcastHeader(Context context, @Nullable AttributeSet attrs) {
+        super(context, attrs);
+        setOrientation(VERTICAL);
+        LayoutInflater.from(context).inflate(R.layout.podcast_header, this);
+        topRow = findViewById(R.id.podcast_header_top);
+        topRowContainer = (LinearLayout) topRow;
+        backLink = findViewById(R.id.podcast_header_back);
+        titleRow = findViewById(R.id.podcast_header_title_row);
+        title = findViewById(R.id.podcast_header_title);
+        subtitle = findViewById(R.id.podcast_header_subtitle);
+        actions = findViewById(R.id.podcast_header_actions);
+    }
+
+    public void setTitle(CharSequence text) {
+        title.setText(text);
+    }
+
+    public void setSubtitle(@Nullable CharSequence text) {
+        subtitle.setText(text);
+        subtitle.setVisibility(text == null || text.length() == 0 ? GONE : VISIBLE);
+    }
+
+    public void setBackLink(@Nullable CharSequence label, @Nullable OnClickListener listener) {
+        boolean visible = label != null;
+        backLink.setText(label);
+        backLink.setOnClickListener(listener);
+        topRow.setVisibility(visible ? VISIBLE : GONE);
+        titleRow.setPadding(titleRow.getPaddingLeft(), visible ? 0 : PodcastMetrics.dp(getContext(), 32),
+                titleRow.getPaddingRight(), titleRow.getPaddingBottom());
+        ViewGroup current = (ViewGroup) actions.getParent();
+        ViewGroup wanted = visible ? topRowContainer : (ViewGroup) titleRow;
+        if (current != wanted) {
+            current.removeView(actions);
+            wanted.addView(actions);
+        }
+    }
+
+    public void clearActions() {
+        actions.removeAllViews();
+    }
+
+    public void addAction(View view) {
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                view.getLayoutParams() != null ? view.getLayoutParams().width : LayoutParams.WRAP_CONTENT,
+                view.getLayoutParams() != null ? view.getLayoutParams().height : LayoutParams.WRAP_CONTENT);
+        if (actions.getChildCount() > 0) {
+            params.setMarginStart(PodcastMetrics.dp(getContext(), 8));
+        }
+        actions.addView(view, params);
+    }
+
+    public View addIconButton(@DrawableRes int icon, @StringRes int description, boolean accent,
+                              OnClickListener listener) {
+        ImageView button = new ImageView(getContext());
+        int size = PodcastMetrics.dp(getContext(), BUTTON_SIZE_DP);
+        button.setLayoutParams(new LayoutParams(size, size));
+        int padding = PodcastMetrics.dp(getContext(), ICON_PADDING_DP);
+        button.setPadding(padding, padding, padding, padding);
+        button.setScaleType(ImageView.ScaleType.FIT_CENTER);
+        button.setImageResource(icon);
+        button.setBackgroundResource(accent
+                ? R.drawable.podcast_bg_round_accent_soft : R.drawable.podcast_bg_round_fill);
+        int tint = ThemeUtils.getColorFromAttr(getContext(),
+                accent ? R.attr.podcast_accent : R.attr.podcast_text_primary);
+        ImageViewCompat.setImageTintList(button, ColorStateList.valueOf(tint));
+        button.setContentDescription(getContext().getString(description));
+        button.setOnClickListener(listener);
+        addAction(button);
+        return button;
+    }
+
+    public View addPillButton(@StringRes int text, OnClickListener listener) {
+        TextView button = new TextView(getContext());
+        button.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT,
+                PodcastMetrics.dp(getContext(), PILL_HEIGHT_DP)));
+        int padding = PodcastMetrics.dp(getContext(), 16);
+        button.setPadding(padding, 0, padding, 0);
+        button.setGravity(Gravity.CENTER);
+        button.setText(text);
+        button.setTextSize(14);
+        button.setTypeface(ResourcesCompat.getFont(getContext(), R.font.manrope_bold));
+        button.setTextColor(ThemeUtils.getColorFromAttr(getContext(), R.attr.podcast_accent));
+        button.setBackgroundResource(R.drawable.podcast_bg_pill_fill);
+        button.setOnClickListener(listener);
+        addAction(button);
+        return button;
+    }
+
+    public View addOverflowButton(Menu menu, Toolbar.OnMenuItemClickListener listener, int... excludedIds) {
+        View[] holder = new View[1];
+        holder[0] = addIconButton(R.drawable.podcast_ic_more, R.string.podcast_more_options, false,
+                v -> PodcastMenus.showPopup(holder[0], menu, listener, excludedIds));
+        return holder[0];
+    }
+}

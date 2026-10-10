@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Podcast.Text" parent="">
+        <item name="android:textColor">?attr/podcast_text_primary</item>
+        <item name="android:fontFamily">@font/manrope</item>
+        <item name="android:includeFontPadding">false</item>
+    </style>
+
+    <style name="Podcast.Text.Title">
+        <item name="android:textSize">34sp</item>
+        <item name="android:fontFamily">@font/manrope_extrabold</item>
+        <item name="android:letterSpacing">-0.025</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:ellipsize">end</item>
+    </style>
+
+    <style name="Podcast.Text.Subtitle">
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">?attr/podcast_text_secondary</item>
+    </style>
+
+    <style name="Podcast.Text.Section">
+        <item name="android:textSize">21sp</item>
+        <item name="android:fontFamily">@font/manrope_extrabold</item>
+        <item name="android:letterSpacing">-0.01</item>
+    </style>
+
+    <style name="Podcast.Text.Link">
+        <item name="android:textSize">14sp</item>
+        <item name="android:fontFamily">@font/manrope_bold</item>
+        <item name="android:textColor">?attr/podcast_accent</item>
+    </style>
+
+    <style name="Podcast.Text.Caps">
+        <item name="android:textSize">12sp</item>
+        <item name="android:fontFamily">@font/manrope_bold</item>
+        <item name="android:letterSpacing">0.05</item>
+        <item name="android:textAllCaps">true</item>
+        <item name="android:textColor">?attr/podcast_text_secondary</item>
+    </style>
+
+    <style name="Podcast.Text.RowTitle">
+        <item name="android:textSize">15sp</item>
+        <item name="android:fontFamily">@font/manrope_semibold</item>
+        <item name="android:maxLines">2</item>
+        <item name="android:ellipsize">end</item>
+        <item name="android:lineSpacingMultiplier">1.05</item>
+    </style>
+
+    <style name="Podcast.Text.RowTitleBold">
+        <item name="android:textSize">15sp</item>
+        <item name="android:fontFamily">@font/manrope_bold</item>
+        <item name="android:maxLines">2</item>
+        <item name="android:ellipsize">end</item>
+        <item name="android:lineSpacingMultiplier">1.05</item>
+    </style>
+
+    <style name="Podcast.Text.RowMeta">
+        <item name="android:textSize">13sp</item>
+        <item name="android:textColor">?attr/podcast_text_secondary</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:ellipsize">end</item>
+    </style>
+
+    <style name="Podcast.Text.CardTitle">
+        <item name="android:textSize">14sp</item>
+        <item name="android:fontFamily">@font/manrope_bold</item>
+        <item name="android:maxLines">2</item>
+        <item name="android:ellipsize">end</item>
+    </style>
+</resources>
