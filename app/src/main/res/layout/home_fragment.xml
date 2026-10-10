@@ -10,7 +10,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="?attr/podcast_background"
-        android:fitsSystemWindows="true"
         app:liftOnScroll="false"
         android:elevation="0dp">
 

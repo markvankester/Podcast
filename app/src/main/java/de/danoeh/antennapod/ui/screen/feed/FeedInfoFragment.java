@@ -2,7 +2,6 @@ package de.danoeh.antennapod.ui.screen.feed;
 
 import android.content.Intent;
 import android.content.res.Configuration;
-import android.graphics.LightingColorFilter;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -31,7 +30,6 @@ import de.danoeh.antennapod.ui.share.ShareUtils;
 import de.danoeh.antennapod.ui.cleaner.HtmlToPlainText;
 import de.danoeh.antennapod.model.feed.Feed;
 import de.danoeh.antennapod.model.feed.FeedFunding;
-import de.danoeh.antennapod.ui.glide.FastBlurTransformation;
 import de.danoeh.antennapod.ui.statistics.StatisticsFragment;
 import de.danoeh.antennapod.ui.statistics.feed.FeedStatisticsDialogFragment;
 import de.danoeh.antennapod.ui.statistics.feed.FeedStatisticsFragment;
@@ -86,15 +84,9 @@ public class FeedInfoFragment extends Fragment implements MaterialToolbar.OnMenu
         viewBinding.toolbar.setOnMenuItemClickListener(this);
         refreshToolbarState();
 
-        ToolbarIconTintManager iconTintManager =
-                new ToolbarIconTintManager(viewBinding.toolbar, viewBinding.collapsingToolbar);
-        viewBinding.appBar.addOnOffsetChangedListener(iconTintManager);
-
         viewBinding.header.butShowInfo.setVisibility(View.INVISIBLE);
         viewBinding.header.butShowSettings.setVisibility(View.INVISIBLE);
         viewBinding.header.butFilter.setVisibility(View.INVISIBLE);
-        // https://github.com/bumptech/glide/issues/529
-        viewBinding.imgvBackground.setColorFilter(new LightingColorFilter(0xff828282, 0x000000));
         viewBinding.urlLabel.setOnClickListener(copyUrlToClipboard);
 
         long feedId = getArguments().getLong(EXTRA_FEED_ID);
@@ -163,14 +155,6 @@ public class FeedInfoFragment extends Fragment implements MaterialToolbar.OnMenu
                         .fitCenter()
                         .dontAnimate())
                 .into(viewBinding.header.imgvCover);
-        Glide.with(this)
-                .load(feed.getImageUrl())
-                .apply(new RequestOptions()
-                        .placeholder(R.color.image_readability_tint)
-                        .error(R.color.image_readability_tint)
-                        .transform(new FastBlurTransformation())
-                        .dontAnimate())
-                .into(viewBinding.imgvBackground);
 
         viewBinding.header.txtvTitle.setText(feed.getTitle());
         viewBinding.header.txtvTitle.setMaxLines(6);

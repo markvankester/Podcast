@@ -73,8 +73,11 @@
         android:layout_height="wrap_content"
         android:visibility="gone"
         android:paddingHorizontal="20dp"
-        android:paddingVertical="8dp"
-        android:textAlignment="viewStart"
+        android:paddingTop="0dp"
+        android:paddingBottom="4dp"
+        android:gravity="center_horizontal"
+        android:textAlignment="center"
+        android:textSize="13sp"
         style="@style/Podcast.Text.Subtitle" />
 
 </LinearLayout>

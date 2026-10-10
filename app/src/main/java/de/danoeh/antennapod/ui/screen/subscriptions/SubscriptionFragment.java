@@ -561,7 +561,7 @@ public class SubscriptionFragment extends Fragment
         header = root.findViewById(R.id.podcast_header);
         libraryRows = root.findViewById(R.id.library_rows);
         showsHeading = root.findViewById(R.id.library_shows_heading);
-        header.setTitle(getString(R.string.subscriptions_label));
+        header.setTitle(getString(R.string.podcast_library_title));
         if (displayUpArrow) {
             header.setBackLink(getString(R.string.podcast_back_to_library),
                     v -> getParentFragmentManager().popBackStack());

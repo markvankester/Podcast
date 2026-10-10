@@ -60,7 +60,7 @@
         <item name="colorOutline">@color/text_color_secondary_light</item>
         <item name="colorOutlineVariant">@color/text_color_secondary_light</item>
         <item name="colorSurfaceContainerHigh">@color/color_surface_variant_light</item>
-        <item name="colorSurfaceContainerHighest">#C0CFD3</item>
+        <item name="colorSurfaceContainerHighest">#E4E4E1</item>
         <item name="colorSurfaceContainerLow">@color/color_surface_variant_light</item>
         <item name="colorSurfaceContainerLowest">@color/color_surface_variant_light</item>
     </style>
@@ -267,6 +267,7 @@
 
     <style name="Style.AntennaPod.Toolbar" parent="Widget.Material3.Toolbar">
         <item name="materialThemeOverlay">@style/Theme.AntennaPod.Toolbar</item>
+        <item name="titleTextAppearance">@style/TextAppearance.Podcast.ToolbarTitle</item>
     </style>
 
     <style name="Theme.AntennaPod.Toolbar" parent="ThemeOverlay.MaterialComponents.Toolbar.Surface">

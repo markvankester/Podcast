@@ -10,24 +10,19 @@
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appBar"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:background="?attr/podcast_background"
+        app:liftOnScroll="false"
+        android:elevation="0dp">
 
         <com.google.android.material.appbar.CollapsingToolbarLayout
             android:id="@+id/collapsing_toolbar"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            app:contentScrim="?attr/podcast_background"
             app:scrimAnimationDuration="200"
             app:titleEnabled="false"
             app:layout_scrollFlags="scroll|exitUntilCollapsed">
-
-            <ImageView
-                android:id="@+id/imgvBackground"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="@color/image_readability_tint"
-                android:scaleType="fitStart"
-                app:layout_collapseMode="parallax"
-                app:layout_collapseParallaxMultiplier="0.6" />
 
             <include
                 android:id="@+id/header"

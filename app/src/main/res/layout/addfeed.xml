@@ -4,22 +4,29 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:background="?attr/podcast_background">
 
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:fitsSystemWindows="true">
+        android:background="?attr/podcast_background"
+        app:liftOnScroll="false"
+        android:elevation="0dp">
 
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:minHeight="?attr/actionBarSize"
-            app:title="@string/add_feed_label"
+            android:layout_height="?attr/actionBarSize"
+            android:visibility="gone"
             app:navigationContentDescription="@string/toolbar_back_button_content_description"
             app:navigationIcon="?homeAsUpIndicator" />
+
+        <de.danoeh.antennapod.ui.podcast.PodcastHeader
+            android:id="@+id/podcast_header"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
 
     </com.google.android.material.appbar.AppBarLayout>
 
@@ -36,116 +43,129 @@
             android:orientation="vertical"
             android:paddingBottom="16dp">
 
-            <androidx.cardview.widget.CardView
+            <LinearLayout
+                android:id="@+id/searchbar"
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginHorizontal="20dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:background="@drawable/podcast_bg_search_field">
+
+                <ImageView
+                    android:id="@+id/searchButton"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:padding="13dp"
+                    android:contentDescription="@string/podcast_search_hint"
+                    android:scaleType="fitCenter"
+                    app:tint="?attr/podcast_text_secondary"
+                    app:srcCompat="@drawable/podcast_ic_search" />
+
+                <EditText
+                    android:id="@+id/combinedFeedSearchEditText"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:inputType="text"
+                    android:imeOptions="actionSearch"
+                    android:importantForAutofill="no"
+                    android:layout_marginEnd="12dp"
+                    android:hint="@string/podcast_search_hint"
+                    android:textSize="17sp"
+                    android:textColorHint="?attr/podcast_text_secondary"
+                    android:background="@null"
+                    style="@style/Podcast.Text" />
+
+            </LinearLayout>
+
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:layout_marginBottom="8dp"
-                android:layout_marginHorizontal="16dp"
-                app:cardCornerRadius="28dp"
-                app:cardElevation="0dp">
+                android:layout_marginTop="12dp"
+                android:layout_marginHorizontal="20dp"
+                android:orientation="horizontal">
 
-                <LinearLayout
-                    android:id="@+id/searchbar"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical"
-                    android:background="?attr/colorSurfaceContainer">
+                <TextView
+                    android:id="@+id/searchPodcastsPill"
+                    android:layout_width="0dp"
+                    android:layout_height="44dp"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:text="@string/podcast_search_find_podcasts"
+                    android:textSize="15sp"
+                    android:textColor="@android:color/white"
+                    android:fontFamily="@font/manrope_bold"
+                    android:background="@drawable/podcast_bg_pill_accent"
+                    android:clickable="true"
+                    android:focusable="true" />
 
-                    <ImageView
-                        android:id="@+id/searchButton"
-                        android:layout_width="48dp"
-                        android:layout_height="48dp"
-                        android:padding="12dp"
-                        android:layout_marginLeft="8dp"
-                        android:layout_marginRight="8dp"
-                        android:contentDescription="@string/search_podcast_hint"
-                        android:scaleType="center"
-                        app:srcCompat="@drawable/ic_search" />
+                <TextView
+                    android:id="@+id/searchEpisodesPill"
+                    android:layout_width="0dp"
+                    android:layout_height="44dp"
+                    android:layout_marginStart="10dp"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:text="@string/podcast_search_your_episodes"
+                    android:textSize="15sp"
+                    android:textColor="?attr/podcast_accent"
+                    android:fontFamily="@font/manrope_bold"
+                    android:background="@drawable/podcast_bg_pill_fill"
+                    android:clickable="true"
+                    android:focusable="true" />
 
-                    <EditText
-                        android:id="@+id/combinedFeedSearchEditText"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:inputType="text"
-                        android:imeOptions="actionSearch"
-                        android:importantForAutofill="no"
-                        android:layout_marginStart="0dp"
-                        android:layout_marginLeft="0dp"
-                        android:layout_marginRight="8dp"
-                        android:layout_marginEnd="8dp"
-                        android:paddingTop="16dp"
-                        android:paddingBottom="16dp"
-                        android:hint="@string/search_podcast_hint"
-                        android:background="@null" />
+            </LinearLayout>
 
-                </LinearLayout>
-
-            </androidx.cardview.widget.CardView>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="28dp"
+                android:paddingHorizontal="20dp"
+                android:text="@string/podcast_discover"
+                android:accessibilityHeading="true"
+                style="@style/Podcast.Text.Section" />
 
             <androidx.fragment.app.FragmentContainerView
                 android:id="@+id/quickFeedDiscovery"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginVertical="16dp"
+                android:layout_marginVertical="8dp"
                 android:layout_marginHorizontal="16dp"
                 android:name="de.danoeh.antennapod.ui.discovery.QuickFeedDiscoveryFragment" />
 
-            <TextView
-                android:id="@+id/addViaUrlButton"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/add_podcast_by_url"
-                app:drawableStartCompat="@drawable/ic_feed"
-                app:drawableLeftCompat="@drawable/ic_feed"
-                style="@style/AddPodcastTextView" />
+                android:orientation="vertical"
+                android:paddingHorizontal="20dp">
 
-            <TextView
-                android:id="@+id/addLocalFolderButton"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/add_local_folder"
-                app:drawableStartCompat="@drawable/ic_folder"
-                app:drawableLeftCompat="@drawable/ic_folder"
-                style="@style/AddPodcastTextView" />
+                <include
+                    android:id="@+id/addViaUrlButton"
+                    layout="@layout/podcast_library_row" />
 
-            <TextView
-                android:id="@+id/searchItunesButton"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/search_itunes_label"
-                app:drawableStartCompat="@drawable/ic_search"
-                app:drawableLeftCompat="@drawable/ic_search"
-                style="@style/AddPodcastTextView" />
+                <include
+                    android:id="@+id/opmlImportButton"
+                    layout="@layout/podcast_library_row" />
 
-            <TextView
-                android:id="@+id/searchFyydButton"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/search_fyyd_label"
-                app:drawableStartCompat="@drawable/ic_search"
-                app:drawableLeftCompat="@drawable/ic_search"
-                style="@style/AddPodcastTextView" />
+                <include
+                    android:id="@+id/searchItunesButton"
+                    layout="@layout/podcast_library_row" />
 
-            <TextView
-                android:id="@+id/searchPodcastIndexButton"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/search_podcastindex_label"
-                app:drawableStartCompat="@drawable/ic_search"
-                app:drawableLeftCompat="@drawable/ic_search"
-                style="@style/AddPodcastTextView" />
+                <include
+                    android:id="@+id/searchFyydButton"
+                    layout="@layout/podcast_library_row" />
 
-            <TextView
-                android:id="@+id/opmlImportButton"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/opml_add_podcast_label"
-                app:drawableStartCompat="@drawable/ic_download"
-                app:drawableLeftCompat="@drawable/ic_download"
-                style="@style/AddPodcastTextView" />
+                <include
+                    android:id="@+id/searchPodcastIndexButton"
+                    layout="@layout/podcast_library_row" />
+
+                <include
+                    android:id="@+id/addLocalFolderButton"
+                    layout="@layout/podcast_library_row" />
+
+            </LinearLayout>
 
         </LinearLayout>
 

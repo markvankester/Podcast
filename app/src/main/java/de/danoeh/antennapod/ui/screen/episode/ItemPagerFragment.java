@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.google.android.material.appbar.MaterialToolbar;
+import androidx.core.view.ViewCompat;
 import androidx.fragment.app.Fragment;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 import androidx.viewpager2.widget.ViewPager2;
@@ -115,6 +116,7 @@ public class ItemPagerFragment extends Fragment implements MaterialToolbar.OnMen
         });
 
         EventBus.getDefault().register(this);
+        layout.post(() -> ViewCompat.requestApplyInsets(layout));
         return layout;
     }
 

@@ -124,4 +124,10 @@
         <item name="android:fontFamily">@font/manrope_semibold</item>
         <item name="fontFamily">@font/manrope_semibold</item>
     </style>
+    <style name="TextAppearance.Podcast.ToolbarTitle" parent="TextAppearance.Material3.TitleLarge">
+        <item name="android:textSize">24sp</item>
+        <item name="android:fontFamily">@font/manrope_extrabold</item>
+        <item name="fontFamily">@font/manrope_extrabold</item>
+        <item name="android:letterSpacing">-0.02</item>
+    </style>
 </resources>

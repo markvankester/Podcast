@@ -16,6 +16,8 @@ import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.res.ResourcesCompat;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.core.widget.ImageViewCompat;
 import de.danoeh.antennapod.R;
 import de.danoeh.antennapod.ui.common.ThemeUtils;
@@ -48,6 +50,31 @@ public class PodcastHeader extends LinearLayout {
         title = findViewById(R.id.podcast_header_title);
         subtitle = findViewById(R.id.podcast_header_subtitle);
         actions = findViewById(R.id.podcast_header_actions);
+    }
+
+    @Override
+    protected void onAttachedToWindow() {
+        super.onAttachedToWindow();
+        applyStatusBarInset();
+        ViewCompat.setOnApplyWindowInsetsListener(this, (v, insets) -> {
+            setTopInset(insets.getInsets(WindowInsetsCompat.Type.statusBars()).top);
+            return insets;
+        });
+        ViewCompat.requestApplyInsets(this);
+        post(this::applyStatusBarInset);
+    }
+
+    private void applyStatusBarInset() {
+        WindowInsetsCompat insets = ViewCompat.getRootWindowInsets(this);
+        if (insets != null) {
+            setTopInset(insets.getInsets(WindowInsetsCompat.Type.statusBars()).top);
+        }
+    }
+
+    private void setTopInset(int top) {
+        if (getPaddingTop() != top) {
+            setPadding(getPaddingLeft(), top, getPaddingRight(), getPaddingBottom());
+        }
     }
 
     public void setTitle(CharSequence text) {

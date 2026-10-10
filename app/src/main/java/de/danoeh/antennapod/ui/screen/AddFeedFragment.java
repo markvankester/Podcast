@@ -15,6 +15,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -38,6 +40,7 @@ import de.danoeh.antennapod.net.download.serviceinterface.FeedUpdateManager;
 import de.danoeh.antennapod.storage.database.FeedDatabaseWriter;
 import de.danoeh.antennapod.model.feed.SortOrder;
 import de.danoeh.antennapod.databinding.AddfeedBinding;
+import de.danoeh.antennapod.databinding.PodcastLibraryRowBinding;
 import de.danoeh.antennapod.ui.common.databinding.EditTextDialogBinding;
 import de.danoeh.antennapod.net.discovery.CombinedSearcher;
 import de.danoeh.antennapod.net.discovery.FyydPodcastSearcher;
@@ -48,6 +51,7 @@ import de.danoeh.antennapod.ui.common.Keyboard;
 import de.danoeh.antennapod.ui.discovery.OnlineSearchFragment;
 import de.danoeh.antennapod.ui.screen.feed.FeedItemlistFragment;
 import de.danoeh.antennapod.ui.common.LiftOnScrollListener;
+import de.danoeh.antennapod.ui.podcast.PodcastHeader;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.disposables.Disposable;
@@ -89,25 +93,33 @@ public class AddFeedFragment extends Fragment {
         }
         ((MainActivity) getActivity()).setupToolbarToggle(viewBinding.toolbar, displayUpArrow);
 
+        PodcastHeader header = viewBinding.podcastHeader;
+        header.setTitle(getString(R.string.podcast_search_title));
+        if (displayUpArrow) {
+            header.setBackLink(getString(R.string.podcast_back),
+                    v -> getParentFragmentManager().popBackStack());
+        }
+
         NestedScrollView scrollView = viewBinding.getRoot().findViewById(R.id.scrollView);
         scrollView.setOnScrollChangeListener(new LiftOnScrollListener(viewBinding.appbar));
 
-        viewBinding.searchItunesButton.setOnClickListener(v
+        bindRow(viewBinding.searchItunesButton, R.drawable.podcast_ic_search, R.string.search_itunes_label, v
                 -> activity.loadChildFragment(OnlineSearchFragment.newInstance(ItunesPodcastSearcher.class)));
-        viewBinding.searchFyydButton.setOnClickListener(v
+        bindRow(viewBinding.searchFyydButton, R.drawable.podcast_ic_search, R.string.search_fyyd_label, v
                 -> activity.loadChildFragment(OnlineSearchFragment.newInstance(FyydPodcastSearcher.class)));
-        viewBinding.searchPodcastIndexButton.setOnClickListener(v
-                -> activity.loadChildFragment(OnlineSearchFragment.newInstance(PodcastIndexPodcastSearcher.class)));
+        bindRow(viewBinding.searchPodcastIndexButton, R.drawable.podcast_ic_search,
+                R.string.search_podcastindex_label, v -> activity.loadChildFragment(
+                        OnlineSearchFragment.newInstance(PodcastIndexPodcastSearcher.class)));
 
         viewBinding.combinedFeedSearchEditText.setOnEditorActionListener((v, actionId, event) -> {
             performSearch();
             return true;
         });
 
-        viewBinding.addViaUrlButton.setOnClickListener(v
+        bindRow(viewBinding.addViaUrlButton, R.drawable.ic_feed, R.string.add_podcast_by_url, v
                 -> showAddViaUrlDialog());
 
-        viewBinding.opmlImportButton.setOnClickListener(v -> {
+        bindRow(viewBinding.opmlImportButton, R.drawable.ic_download, R.string.opml_add_podcast_label, v -> {
             try {
                 chooseOpmlImportPathLauncher.launch("*/*");
             } catch (ActivityNotFoundException e) {
@@ -116,7 +128,7 @@ public class AddFeedFragment extends Fragment {
             }
         });
 
-        viewBinding.addLocalFolderButton.setOnClickListener(v -> {
+        bindRow(viewBinding.addLocalFolderButton, R.drawable.ic_folder, R.string.add_local_folder, v -> {
             try {
                 addLocalFolderLauncher.launch(null);
             } catch (ActivityNotFoundException e) {
@@ -125,6 +137,8 @@ public class AddFeedFragment extends Fragment {
             }
         });
         viewBinding.searchButton.setOnClickListener(view -> performSearch());
+        viewBinding.searchPodcastsPill.setOnClickListener(view -> performSearch());
+        viewBinding.searchEpisodesPill.setOnClickListener(view -> searchEpisodes());
 
         return viewBinding.getRoot();
     }
@@ -192,6 +206,20 @@ public class AddFeedFragment extends Fragment {
             addUrl(inputText.toString());
             alertDialog.dismiss();
         });
+    }
+
+    private void bindRow(PodcastLibraryRowBinding row, int icon, int label, View.OnClickListener listener) {
+        ((ImageView) row.getRoot().findViewById(R.id.podcast_row_icon)).setImageResource(icon);
+        ((TextView) row.getRoot().findViewById(R.id.podcast_row_label)).setText(label);
+        row.podcastRowCount.setVisibility(View.GONE);
+        row.getRoot().setOnClickListener(listener);
+    }
+
+    private void searchEpisodes() {
+        Keyboard.hide(getActivity());
+        viewBinding.combinedFeedSearchEditText.clearFocus();
+        String query = viewBinding.combinedFeedSearchEditText.getText().toString().trim();
+        activity.loadChildFragment(query.isEmpty() ? SearchFragment.newInstance() : SearchFragment.newInstance(query));
     }
 
     private void addUrl(String url) {

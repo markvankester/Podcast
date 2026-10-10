@@ -169,6 +169,7 @@ public class EpisodesSurpriseSection extends HomeSection {
                     viewBinding.shuffleButton.setVisibility(isShuffleable ? View.VISIBLE : View.GONE);
                     viewBinding.recyclerView.setVisibility(isShuffleable ? View.VISIBLE : View.GONE);
                     viewBinding.emptyLabel.setVisibility(!isShuffleable ? View.VISIBLE : View.GONE);
+                    viewBinding.recyclerView.setVisibility(!isShuffleable ? View.GONE : View.VISIBLE);
                 }, error -> Log.e(TAG, Log.getStackTraceString(error)));
     }
 }

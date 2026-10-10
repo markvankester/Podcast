@@ -1,7 +1,6 @@
 package de.danoeh.antennapod.ui.screen.feed;
 
 import android.content.res.Configuration;
-import android.graphics.LightingColorFilter;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.ContextMenu;
@@ -14,6 +13,7 @@ import android.widget.AdapterView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.util.Pair;
+import androidx.core.view.ViewCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.recyclerview.widget.RecyclerView;
@@ -53,7 +53,6 @@ import de.danoeh.antennapod.ui.episodeslist.EpisodeItemViewHolder;
 import de.danoeh.antennapod.ui.episodeslist.EpisodeMultiSelectActionHandler;
 import de.danoeh.antennapod.ui.episodeslist.FeedItemMenuHandler;
 import de.danoeh.antennapod.ui.episodeslist.MoreContentListFooterUtil;
-import de.danoeh.antennapod.ui.glide.FastBlurTransformation;
 import de.danoeh.antennapod.ui.screen.SearchFragment;
 import de.danoeh.antennapod.ui.screen.download.DownloadLogDetailsDialog;
 import de.danoeh.antennapod.ui.screen.download.DownloadLogFragment;
@@ -157,9 +156,6 @@ public class FeedItemlistFragment extends Fragment implements AdapterView.OnItem
         swipeActions = new SwipeActions(this, TAG).attachTo(viewBinding.recyclerView);
         viewBinding.progressBar.setVisibility(View.VISIBLE);
 
-        ToolbarIconTintManager iconTintManager =
-                new ToolbarIconTintManager(viewBinding.toolbar, viewBinding.collapsingToolbar);
-        viewBinding.appBar.addOnOffsetChangedListener(iconTintManager);
         viewBinding.appBar.addOnOffsetChangedListener(new OnCollapseChangeListener(viewBinding.collapsingToolbar) {
             @Override
             public void onCollapseChanged(boolean isCollapsed) {
@@ -207,7 +203,9 @@ public class FeedItemlistFragment extends Fragment implements AdapterView.OnItem
                             error -> Log.e(TAG, Log.getStackTraceString(error)));
             return true;
         });
-        return viewBinding.getRoot();
+        View root = viewBinding.getRoot();
+        root.post(() -> ViewCompat.requestApplyInsets(root));
+        return root;
     }
 
     private void handleActionForAllSelectedItems(EpisodeMultiSelectActionHandler handler) {
@@ -540,8 +538,6 @@ public class FeedItemlistFragment extends Fragment implements AdapterView.OnItem
     }
 
     private void setupHeaderView() {
-        // https://github.com/bumptech/glide/issues/529
-        viewBinding.imgvBackground.setColorFilter(new LightingColorFilter(0xff666666, 0x000000));
         viewBinding.header.butShowInfo.setOnClickListener(v -> showFeedInfo());
         viewBinding.header.imgvCover.setOnClickListener(v -> showFeedInfo());
         viewBinding.header.headerDescriptionLabel.setOnClickListener(v -> showFeedInfo());
@@ -619,15 +615,6 @@ public class FeedItemlistFragment extends Fragment implements AdapterView.OnItem
     }
 
     private void loadFeedImage() {
-        Glide.with(this)
-                .load(feed.getImageUrl())
-                .apply(new RequestOptions()
-                    .placeholder(R.color.image_readability_tint)
-                    .error(R.color.image_readability_tint)
-                    .transform(new FastBlurTransformation())
-                    .dontAnimate())
-                .into(viewBinding.imgvBackground);
-
         Glide.with(this)
                 .load(feed.getImageUrl())
                 .apply(new RequestOptions()

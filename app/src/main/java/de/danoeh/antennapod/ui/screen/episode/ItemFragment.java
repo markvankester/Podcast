@@ -272,7 +272,7 @@ public class ItemFragment extends Fragment {
             viewBinding.nonSubscribedWarningLabel.setVisibility(View.VISIBLE);
             viewBinding.nonSubscribedWarningLabel.setOnClickListener(v -> openPodcast());
         }
-        float radius = 8 * getResources().getDisplayMetrics().density;
+        float radius = 14 * getResources().getDisplayMetrics().density;
         RequestOptions options = new RequestOptions()
                 .error(ImagePlaceholder.getDrawable(getContext(), radius))
                 .transform(new FitCenter(),

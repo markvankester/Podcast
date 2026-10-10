@@ -142,6 +142,7 @@ public class DownloadsSection extends HomeSection {
                     adapter.setDummyViews(0);
                     adapter.updateItems(items);
                     viewBinding.emptyLabel.setVisibility(items.isEmpty() ? View.VISIBLE : View.GONE);
+                    viewBinding.recyclerView.setVisibility(items.isEmpty() ? View.GONE : View.VISIBLE);
                 }, error -> Log.e(TAG, Log.getStackTraceString(error)));
     }
 }

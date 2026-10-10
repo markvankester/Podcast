@@ -165,6 +165,7 @@ public class QueueSection extends HomeSection {
                     listAdapter.setDummyViews(0);
                     listAdapter.updateData(queue);
                     viewBinding.emptyLabel.setVisibility(queue.isEmpty() ? View.VISIBLE : View.GONE);
+                    viewBinding.recyclerView.setVisibility(queue.isEmpty() ? View.GONE : View.VISIBLE);
                 }, error -> Log.e(TAG, Log.getStackTraceString(error)));
 
     }

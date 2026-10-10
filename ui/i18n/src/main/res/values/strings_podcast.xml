@@ -42,6 +42,7 @@
     <string name="podcast_yesterday">Yesterday</string>
     <string name="podcast_library_downloads">Downloads</string>
     <string name="podcast_library_favorites">Favorites</string>
+    <string name="podcast_library_title">Library</string>
     <string name="podcast_library_history">History</string>
     <string name="podcast_shows">Shows</string>
     <string name="podcast_add_podcast">Add podcast</string>
@@ -61,4 +62,13 @@
     <string name="podcast_drag_to_reorder">Drag to reorder</string>
     <string name="podcast_left_suffix">left</string>
     <string name="podcast_downloaded">Downloaded</string>
+    <string name="podcast_back">Back</string>
+    <string name="podcast_search_title">Search</string>
+    <string name="podcast_search_hint">Podcasts and episodes</string>
+    <string name="podcast_search_find_podcasts">Find podcasts</string>
+    <string name="podcast_search_your_episodes">Your episodes</string>
+    <string name="podcast_discover">Discover</string>
+    <string name="podcast_subscribe">Subscribe</string>
+    <string name="podcast_settings">Settings</string>
+    <string name="podcast_show_notes">Show notes</string>
 </resources>

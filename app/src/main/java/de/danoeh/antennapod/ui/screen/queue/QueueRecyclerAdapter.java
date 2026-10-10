@@ -79,6 +79,7 @@ public class QueueRecyclerAdapter extends EpisodeItemListAdapter {
         }
 
         holder.isInQueue.setVisibility(View.GONE);
+        holder.secondaryActionButton.setVisibility(View.GONE);
         holder.setCompactMeta(true);
         boolean hidden = pos < getItemCount() && getItem(pos).getId() == hiddenItemId;
         ViewGroup.LayoutParams params = holder.itemView.getLayoutParams();
