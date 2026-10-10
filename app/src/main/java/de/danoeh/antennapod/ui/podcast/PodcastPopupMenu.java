@@ -7,6 +7,7 @@ import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.RippleDrawable;
 import android.text.TextUtils;
 import android.view.Gravity;
@@ -88,6 +89,8 @@ public final class PodcastPopupMenu {
         final int ripple;
         @ColorInt
         final int accent;
+        @ColorInt
+        int accentSoft = Color.argb(36, 255, 255, 255);
         boolean themed = false;
 
         public Colors(@ColorInt int background, @ColorInt int border, @ColorInt int text,
@@ -117,6 +120,7 @@ public final class PodcastPopupMenu {
                     ColorUtils.setAlphaComponent(text, 31),
                     MaterialColors.getColor(context, R.attr.podcast_accent, Color.RED));
             colors.themed = true;
+            colors.accentSoft = MaterialColors.getColor(context, R.attr.podcast_accent_soft, Color.LTGRAY);
             return colors;
         }
     }
@@ -213,7 +217,7 @@ public final class PodcastPopupMenu {
                 list.addView(createDivider(context, colors));
             }
             View row = createRow(context, colors, entry, anyIcon);
-            int horizontal = PodcastMetrics.dp(context, 22);
+            int horizontal = PodcastMetrics.dp(context, 22) - rowMargin(context);
             row.setPadding(horizontal, 0, horizontal, 0);
             if (entry.enabled) {
                 row.setOnClickListener(v -> {
@@ -288,13 +292,23 @@ public final class PodcastPopupMenu {
         LinearLayout row = new LinearLayout(context);
         row.setOrientation(LinearLayout.HORIZONTAL);
         row.setGravity(Gravity.CENTER_VERTICAL);
-        int horizontal = PodcastMetrics.dp(context, 18);
+        final boolean selected = Boolean.TRUE.equals(entry.checked);
+        int margin = rowMargin(context);
+        int horizontal = PodcastMetrics.dp(context, 18) - margin;
         row.setPadding(horizontal, 0, horizontal, 0);
         row.setMinimumHeight(PodcastMetrics.dp(context, 50));
-        row.setBackground(new RippleDrawable(ColorStateList.valueOf(colors.ripple),
-                null, new ColorDrawable(Color.WHITE)));
-        row.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT));
+        GradientDrawable shape = new GradientDrawable();
+        shape.setCornerRadius(PodcastMetrics.dp(context, 14));
+        shape.setColor(selected ? colors.accentSoft : Color.TRANSPARENT);
+        GradientDrawable mask = new GradientDrawable();
+        mask.setCornerRadius(PodcastMetrics.dp(context, 14));
+        mask.setColor(Color.WHITE);
+        row.setBackground(new RippleDrawable(ColorStateList.valueOf(colors.ripple), shape, mask));
+        LinearLayout.LayoutParams rowParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT);
+        rowParams.setMargins(margin, selected ? PodcastMetrics.dp(context, 2) : 0, margin,
+                selected ? PodcastMetrics.dp(context, 2) : 0);
+        row.setLayoutParams(rowParams);
 
         int iconSize = PodcastMetrics.dp(context, 20);
         if (iconColumn) {
@@ -311,9 +325,10 @@ public final class PodcastPopupMenu {
 
         TextView label = new TextView(context);
         label.setText(entry.label);
-        label.setTextColor(colors.text);
+        label.setTextColor(selected ? colors.accent : colors.text);
         label.setTextSize(15);
-        label.setTypeface(ResourcesCompat.getFont(context, R.font.manrope_semibold));
+        label.setTypeface(ResourcesCompat.getFont(context,
+                selected ? R.font.manrope_extrabold : R.font.manrope_semibold));
         label.setMaxLines(2);
         int vertical = PodcastMetrics.dp(context, 12);
         label.setPadding(0, vertical, 0, vertical);
@@ -347,6 +362,10 @@ public final class PodcastPopupMenu {
             row.addView(end, endParams);
         }
         return row;
+    }
+
+    private static int rowMargin(Context context) {
+        return PodcastMetrics.dp(context, 8);
     }
 
     private static View createDivider(Context context, Colors colors) {

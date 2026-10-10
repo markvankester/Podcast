@@ -171,6 +171,10 @@
         <item name="android:textSize">16sp</item>
         <item name="android:textAllCaps">false</item>
     </style>
+    <style name="TextAppearance.Podcast.SheetRow.Active">
+        <item name="android:fontFamily">@font/manrope_extrabold</item>
+        <item name="fontFamily">@font/manrope_extrabold</item>
+    </style>
     <style name="Widget.Podcast.SheetRow" parent="Widget.Material3.Button.TextButton">
         <item name="android:textColor">?attr/podcast_text_primary</item>
         <item name="android:textAppearance">@style/TextAppearance.Podcast.SheetRow</item>
@@ -178,10 +182,10 @@
         <item name="android:minHeight">52dp</item>
         <item name="android:insetTop">0dp</item>
         <item name="android:insetBottom">0dp</item>
-        <item name="android:paddingStart">4dp</item>
-        <item name="android:paddingLeft">4dp</item>
-        <item name="android:paddingEnd">4dp</item>
-        <item name="android:paddingRight">4dp</item>
+        <item name="android:paddingStart">14dp</item>
+        <item name="android:paddingLeft">14dp</item>
+        <item name="android:paddingEnd">14dp</item>
+        <item name="android:paddingRight">14dp</item>
         <item name="cornerRadius">14dp</item>
         <item name="rippleColor">?attr/podcast_divider</item>
         <item name="iconGravity">end</item>
@@ -189,6 +193,8 @@
     </style>
     <style name="Widget.Podcast.SheetRow.Active">
         <item name="android:textColor">?attr/podcast_accent</item>
+        <item name="backgroundTint">?attr/podcast_accent_soft</item>
+        <item name="android:textAppearance">@style/TextAppearance.Podcast.SheetRow.Active</item>
         <item name="icon">@drawable/podcast_ic_check</item>
         <item name="iconTint">?attr/podcast_accent</item>
     </style>

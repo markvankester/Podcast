@@ -6,9 +6,9 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:paddingLeft="20dp"
+    android:paddingLeft="10dp"
     android:paddingTop="10dp"
-    android:paddingRight="20dp"
+    android:paddingRight="10dp"
     android:paddingBottom="24dp">
 
     <include layout="@layout/podcast_sheet_handle" />
@@ -16,7 +16,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="4dp"
+        android:layout_marginStart="14dp"
         android:layout_marginBottom="8dp"
         android:text="@string/sort"
         style="@style/Podcast.SheetTitle" />
