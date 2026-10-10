@@ -6,7 +6,20 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:padding="16dp">
+    android:paddingLeft="16dp"
+    android:paddingTop="8dp"
+    android:paddingRight="16dp"
+    android:paddingBottom="24dp">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="4dp"
+        android:layout_marginBottom="8dp"
+        android:fontFamily="@font/manrope_extrabold"
+        android:text="@string/sort"
+        android:textColor="?attr/podcast_text_primary"
+        android:textSize="22sp" />
 
     <androidx.gridlayout.widget.GridLayout
         android:id="@+id/gridLayout"

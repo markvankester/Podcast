@@ -69,9 +69,4 @@
         android:id="@+id/podcast_statistics_item"
         android:title="@string/podcast_statistics"
         custom:showAsAction="never" />
-
-    <item
-        android:id="@+id/podcast_download_log_item"
-        android:title="@string/podcast_download_log"
-        custom:showAsAction="never" />
 </menu>

@@ -32,6 +32,7 @@
         <item name="podcast_glass_highlight">@color/podcast_glass_highlight_light</item>
         <item name="podcast_tab_highlight">@color/podcast_tab_highlight_light</item>
         <item name="podcast_menu_surface">@color/podcast_menu_surface_light</item>
+        <item name="bottomSheetDialogTheme">@style/ThemeOverlay.Podcast.BottomSheetDialog</item>
         <item name="popupMenuStyle">@style/Widget.Podcast.PopupMenu</item>
         <item name="android:popupMenuStyle">@style/Widget.Podcast.PopupMenu.Framework</item>
         <item name="android:contextPopupMenuStyle" tools:targetApi="n">@style/Widget.Podcast.PopupMenu.Framework</item>
@@ -73,6 +74,7 @@
         <item name="podcast_glass_highlight">@color/podcast_glass_highlight_dark</item>
         <item name="podcast_tab_highlight">@color/podcast_tab_highlight_dark</item>
         <item name="podcast_menu_surface">@color/podcast_menu_surface_dark</item>
+        <item name="bottomSheetDialogTheme">@style/ThemeOverlay.Podcast.BottomSheetDialog</item>
         <item name="popupMenuStyle">@style/Widget.Podcast.PopupMenu</item>
         <item name="android:popupMenuStyle">@style/Widget.Podcast.PopupMenu.Framework</item>
         <item name="android:contextPopupMenuStyle" tools:targetApi="n">@style/Widget.Podcast.PopupMenu.Framework</item>
@@ -117,6 +119,33 @@
     <style name="TextAppearance.Podcast.TitleSmall" parent="TextAppearance.Material3.TitleSmall">
         <item name="android:fontFamily">@font/manrope_semibold</item>
         <item name="fontFamily">@font/manrope_semibold</item>
+    </style>
+    <style name="ThemeOverlay.Podcast.BottomSheetDialog" parent="ThemeOverlay.Material3.BottomSheetDialog">
+        <item name="bottomSheetStyle">@style/Widget.Podcast.BottomSheet</item>
+        <item name="elevationOverlayEnabled">false</item>
+    </style>
+    <style name="Widget.Podcast.BottomSheet" parent="Widget.Material3.BottomSheet.Modal">
+        <item name="backgroundTint">?attr/podcast_menu_surface</item>
+    </style>
+    <style name="Widget.Podcast.SortButton" parent="Widget.Material3.Button.UnelevatedButton">
+        <item name="backgroundTint">?attr/podcast_subtle_fill</item>
+        <item name="android:textColor">?attr/podcast_text_primary</item>
+        <item name="android:textAppearance">@style/TextAppearance.Podcast.SortButton</item>
+        <item name="android:minHeight">52dp</item>
+        <item name="android:insetTop">0dp</item>
+        <item name="android:insetBottom">0dp</item>
+        <item name="cornerRadius">26dp</item>
+        <item name="rippleColor">?attr/podcast_divider</item>
+    </style>
+    <style name="Widget.Podcast.SortButton.Active">
+        <item name="backgroundTint">?attr/podcast_accent</item>
+        <item name="android:textColor">?attr/podcast_on_accent</item>
+    </style>
+    <style name="TextAppearance.Podcast.SortButton" parent="TextAppearance.Material3.LabelLarge">
+        <item name="android:fontFamily">@font/manrope_bold</item>
+        <item name="fontFamily">@font/manrope_bold</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:textAllCaps">false</item>
     </style>
     <style name="Widget.Podcast.PopupMenu" parent="Widget.Material3.PopupMenu">
         <item name="android:popupBackground">@drawable/podcast_popup_background</item>

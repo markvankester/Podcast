@@ -1,6 +1,7 @@
 package de.danoeh.antennapod.ui.episodeslist;
 
 import android.app.Activity;
+import android.os.Build;
 import android.view.ContextMenu;
 import android.view.InputDevice;
 import android.view.MenuInflater;
@@ -212,6 +213,9 @@ public class EpisodeItemListAdapter extends SelectableAdapter<EpisodeItemViewHol
             return;
         }
         inflater.inflate(R.menu.feeditemlist_context, menu);
+        if (Build.VERSION.SDK_INT >= 28) {
+            menu.setGroupDividerEnabled(true);
+        }
         menu.setHeaderTitle(longPressedItem.getTitle());
         FeedItemMenuHandler.onPrepareMenu(menu, Collections.singletonList(longPressedItem), R.id.skip_episode_item);
     }

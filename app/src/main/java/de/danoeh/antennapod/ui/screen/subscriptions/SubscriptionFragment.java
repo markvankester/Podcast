@@ -32,7 +32,6 @@ import de.danoeh.antennapod.ui.screen.AllEpisodesFragment;
 import de.danoeh.antennapod.ui.screen.FavoritesFragment;
 import de.danoeh.antennapod.ui.screen.PlaybackHistoryFragment;
 import de.danoeh.antennapod.ui.screen.download.CompletedDownloadsFragment;
-import de.danoeh.antennapod.ui.screen.download.DownloadLogFragment;
 import de.danoeh.antennapod.ui.screen.queue.QueueFragment;
 import de.danoeh.antennapod.ui.statistics.StatisticsFragment;
 import de.danoeh.antennapod.event.FeedItemEvent;
@@ -198,7 +197,6 @@ public class SubscriptionFragment extends Fragment
             toolbar.getMenu().removeItem(R.id.show_archive);
             toolbar.getMenu().removeItem(R.id.podcast_all_episodes_item);
             toolbar.getMenu().removeItem(R.id.podcast_statistics_item);
-            toolbar.getMenu().removeItem(R.id.podcast_download_log_item);
             floatingSelectMenu.getMenu().removeItem(R.id.keep_updated);
             floatingSelectMenu.getMenu().removeItem(R.id.notify_new_episodes);
             floatingSelectMenu.getMenu().removeItem(R.id.autodownload);
@@ -272,9 +270,6 @@ public class SubscriptionFragment extends Fragment
             return true;
         } else if (itemId == R.id.podcast_statistics_item) {
             ((MainActivity) requireActivity()).loadChildFragment(new StatisticsFragment(), TAG);
-            return true;
-        } else if (itemId == R.id.podcast_download_log_item) {
-            new DownloadLogFragment().show(getParentFragmentManager(), DownloadLogFragment.TAG);
             return true;
         } else if (itemId == R.id.refresh_item) {
             FeedUpdateManager.getInstance().runOnceOrAsk(requireContext());

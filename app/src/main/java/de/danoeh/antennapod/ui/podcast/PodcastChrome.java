@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.widget.ScrollView;
+import androidx.annotation.Nullable;
 import androidx.core.graphics.ColorUtils;
 import androidx.core.graphics.Insets;
 import androidx.core.widget.NestedScrollView;
@@ -15,6 +16,8 @@ import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.color.MaterialColors;
 import de.danoeh.antennapod.R;
 import de.danoeh.antennapod.activity.MainActivity;
@@ -35,6 +38,7 @@ public class PodcastChrome {
                 @Override
                 public void onFragmentViewCreated(FragmentManager fm, Fragment f, View v,
                                                   Bundle savedInstanceState) {
+                    linkRefreshToHeader(v);
                     applyIfMainContent(f);
                 }
 
@@ -48,6 +52,37 @@ public class PodcastChrome {
         this.activity = activity;
         this.dock = new PodcastDock(activity.findViewById(R.id.podcast_dock), listener);
         activity.getSupportFragmentManager().registerFragmentLifecycleCallbacks(fragmentCallbacks, true);
+    }
+
+    private static void linkRefreshToHeader(View root) {
+        AppBarLayout appBar = findView(root, AppBarLayout.class);
+        SwipeRefreshLayout refresh = findView(root, SwipeRefreshLayout.class);
+        if (appBar == null || refresh == null) {
+            return;
+        }
+        appBar.addOnOffsetChangedListener((bar, offset) -> {
+            boolean enabled = offset == 0 || refresh.isRefreshing();
+            if (refresh.isEnabled() != enabled) {
+                refresh.setEnabled(enabled);
+            }
+        });
+    }
+
+    @Nullable
+    private static <T extends View> T findView(View view, Class<T> type) {
+        if (type.isInstance(view)) {
+            return type.cast(view);
+        }
+        if (view instanceof ViewGroup) {
+            ViewGroup group = (ViewGroup) view;
+            for (int i = 0; i < group.getChildCount(); i++) {
+                T found = findView(group.getChildAt(i), type);
+                if (found != null) {
+                    return found;
+                }
+            }
+        }
+        return null;
     }
 
     public PodcastDock getDock() {

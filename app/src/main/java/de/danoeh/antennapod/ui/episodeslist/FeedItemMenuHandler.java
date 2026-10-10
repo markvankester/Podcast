@@ -196,6 +196,9 @@ public class FeedItemMenuHandler {
         } else if (menuItemId == R.id.mark_unread_item) {
             new EpisodeMultiSelectActionHandler(fragment.getActivity(), R.id.mark_unread_item)
                     .handleAction(Collections.singletonList(selectedItem));
+        } else if (menuItemId == R.id.download_item) {
+            new EpisodeMultiSelectActionHandler(fragment.getActivity(), R.id.download_item)
+                    .handleAction(Collections.singletonList(selectedItem));
         } else if (menuItemId == R.id.add_to_queue_item) {
             DBWriter.addQueueItem(context, selectedItem);
         } else if (menuItemId == R.id.remove_from_queue_item) {

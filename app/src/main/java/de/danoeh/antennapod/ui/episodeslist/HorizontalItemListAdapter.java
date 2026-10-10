@@ -1,5 +1,6 @@
 package de.danoeh.antennapod.ui.episodeslist;
 
+import android.os.Build;
 import android.view.ContextMenu;
 import android.view.MenuInflater;
 import android.view.View;
@@ -125,6 +126,9 @@ public class HorizontalItemListAdapter extends RecyclerView.Adapter<HorizontalIt
         }
         menu.clear();
         inflater.inflate(R.menu.feeditemlist_context, menu);
+        if (Build.VERSION.SDK_INT >= 28) {
+            menu.setGroupDividerEnabled(true);
+        }
         menu.setHeaderTitle(longPressedItem.getTitle());
         FeedItemMenuHandler.onPrepareMenu(menu, Collections.singletonList(longPressedItem), R.id.skip_episode_item);
     }
