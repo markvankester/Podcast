@@ -14,4 +14,5 @@
     <attr name="podcast_glass_border" format="color" />
     <attr name="podcast_glass_highlight" format="color" />
     <attr name="podcast_tab_highlight" format="color" />
+    <attr name="podcast_menu_surface" format="color" />
 </resources>

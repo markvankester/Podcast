@@ -8,7 +8,6 @@
     android:layout_height="wrap_content"
     android:paddingHorizontal="8dp"
     android:paddingTop="6dp"
-    android:paddingBottom="14dp"
     android:clipToPadding="false"
     android:clipChildren="false"
     tools:layout_width="150dp">
@@ -28,6 +27,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
+            android:paddingBottom="14dp"
             android:clipChildren="false">
 
             <androidx.cardview.widget.CardView
@@ -36,7 +36,7 @@
                 android:clickable="false"
                 app:cardBackgroundColor="@color/non_square_icon_background"
                 app:cardCornerRadius="14dp"
-                app:cardElevation="6dp">
+                app:cardElevation="0dp">
 
                 <RelativeLayout
                     android:layout_width="match_parent"

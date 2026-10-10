@@ -29,4 +29,6 @@
     <color name="podcast_glass_border_dark">#1FFFFFFF</color>
     <color name="podcast_glass_highlight_dark">#1AFFFFFF</color>
     <color name="podcast_tab_highlight_dark">#14FFFFFF</color>
+    <color name="podcast_menu_surface_light">#FFFFFF</color>
+    <color name="podcast_menu_surface_dark">#262626</color>
 </resources>

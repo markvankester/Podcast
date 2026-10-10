@@ -78,6 +78,7 @@ public class GlassLayout extends FrameLayout {
                 outline.setRoundRect(0, 0, view.getWidth(), view.getHeight(), radius);
             }
         });
+        setClipToOutline(true);
         if (Build.VERSION.SDK_INT >= 28) {
             setOutlineSpotShadowColor(Color.argb(60, 0, 0, 0));
             setOutlineAmbientShadowColor(Color.argb(20, 0, 0, 0));

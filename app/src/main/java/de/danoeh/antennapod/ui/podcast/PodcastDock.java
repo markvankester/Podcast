@@ -4,12 +4,14 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ValueAnimator;
 import android.content.Context;
+import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.OvershootInterpolator;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import androidx.core.view.ViewCompat;
 import com.google.android.material.color.MaterialColors;
@@ -47,7 +49,14 @@ public class PodcastDock {
     private final PodcastTabView[] tabs = new PodcastTabView[TAGS.length];
     private final float[] fractions = new float[TAGS.length];
     private int selectedIndex = 0;
+    private float selectionScale = 1f;
+    private boolean searchActive = false;
+    private final ImageView searchIcon;
+    private final View searchButton;
+    private final int searchActiveColor;
+    private final int searchInactiveColor;
     private ValueAnimator animator;
+    private ValueAnimator searchAnimator;
     private Disposable badgeLoader;
 
     public PodcastDock(View root, Listener listener) {
@@ -56,6 +65,10 @@ public class PodcastDock {
         capsule = root.findViewById(R.id.podcast_tab_capsule);
         highlight = root.findViewById(R.id.podcast_tab_highlight);
         tabsContainer = root.findViewById(R.id.podcast_tabs);
+        searchButton = root.findViewById(R.id.podcast_search_button);
+        searchIcon = root.findViewById(R.id.podcast_search_icon);
+        searchActiveColor = MaterialColors.getColor(context, R.attr.podcast_accent, Color.RED);
+        searchInactiveColor = MaterialColors.getColor(context, R.attr.podcast_text_primary, Color.BLACK);
 
         GradientDrawable highlightBackground = new GradientDrawable();
         highlightBackground.setColor(MaterialColors.getColor(context, R.attr.podcast_tab_highlight,
@@ -73,6 +86,7 @@ public class PodcastDock {
             final int index = i;
             tabsContainer.addView(tabs[i], new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1f));
             tabs[i].setOnClickListener(v -> {
+                PodcastHaptics.tick(v);
                 select(index, true);
                 listener.onTabClicked(TAGS[index]);
             });
@@ -84,7 +98,10 @@ public class PodcastDock {
                 positionHighlight(selectedIndex);
             }
         });
-        root.findViewById(R.id.podcast_search_button).setOnClickListener(v -> listener.onSearchClicked());
+        root.findViewById(R.id.podcast_search_button).setOnClickListener(v -> {
+            PodcastHaptics.tap(v);
+            listener.onSearchClicked();
+        });
     }
 
     public View getRoot() {
@@ -170,9 +187,29 @@ public class PodcastDock {
         highlight.setTranslationX(width * index);
     }
 
+    public void setSearchActive(boolean active) {
+        if (searchActive == active) {
+            return;
+        }
+        searchActive = active;
+        searchButton.setSelected(active);
+        searchIcon.setImageTintList(ColorStateList.valueOf(active ? searchActiveColor : searchInactiveColor));
+        if (searchAnimator != null) {
+            searchAnimator.cancel();
+        }
+        searchAnimator = ValueAnimator.ofFloat(selectionScale, active ? 0f : 1f);
+        searchAnimator.setDuration(ANIMATION_DURATION / 2);
+        searchAnimator.addUpdateListener(a -> {
+            selectionScale = (float) a.getAnimatedValue();
+            highlight.setAlpha(selectionScale);
+            applyFractions();
+        });
+        searchAnimator.start();
+    }
+
     private void applyFractions() {
         for (int i = 0; i < tabs.length; i++) {
-            tabs[i].setSelectionFraction(fractions[i]);
+            tabs[i].setSelectionFraction(fractions[i] * selectionScale);
         }
     }
 
@@ -185,6 +222,9 @@ public class PodcastDock {
         EventBus.getDefault().unregister(this);
         if (animator != null) {
             animator.cancel();
+        }
+        if (searchAnimator != null) {
+            searchAnimator.cancel();
         }
         if (badgeLoader != null) {
             badgeLoader.dispose();

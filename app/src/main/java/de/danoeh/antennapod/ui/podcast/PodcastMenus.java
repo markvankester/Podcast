@@ -1,15 +1,14 @@
 package de.danoeh.antennapod.ui.podcast;
 
-import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.SubMenu;
 import android.view.View;
-import androidx.appcompat.widget.PopupMenu;
 import androidx.appcompat.widget.Toolbar;
 import de.danoeh.antennapod.R;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 public final class PodcastMenus {
@@ -23,39 +22,39 @@ public final class PodcastMenus {
         for (int id : excludedIds) {
             excluded.add(id);
         }
-        PopupMenu popup = new PopupMenu(anchor.getContext(), anchor, Gravity.END);
-        copy(source, popup.getMenu(), excluded);
-        popup.setOnMenuItemClickListener(item -> {
-            MenuItem original = source.findItem(item.getItemId());
-            return listener.onMenuItemClick(original != null ? original : item);
-        });
-        popup.show();
+        showLevel(anchor, source, listener, excluded);
     }
 
-    private static void copy(Menu source, Menu target, Set<Integer> excluded) {
-        Set<Integer> exclusiveGroups = new HashSet<>();
-        for (int i = 0; i < source.size(); i++) {
-            MenuItem item = source.getItem(i);
+    private static void showLevel(View anchor, Menu menu, Toolbar.OnMenuItemClickListener listener,
+                                  Set<Integer> excluded) {
+        List<PodcastPopupMenu.Entry> entries = new ArrayList<>();
+        Integer lastGroup = null;
+        for (int i = 0; i < menu.size(); i++) {
+            MenuItem item = menu.getItem(i);
             if (!item.isVisible() || excluded.contains(item.getItemId()) || item.getTitle() == null) {
                 continue;
             }
+            boolean startsGroup = lastGroup != null && lastGroup != item.getGroupId();
+            lastGroup = item.getGroupId();
+            entries.add(new PodcastPopupMenu.Entry(item.getItemId(), item.getIcon(), item.getTitle(), null,
+                    startsGroup)
+                    .setChecked(item.isCheckable() ? item.isChecked() : null)
+                    .setOpensSubmenu(item.hasSubMenu())
+                    .setEnabled(item.isEnabled()));
+        }
+        if (entries.isEmpty()) {
+            return;
+        }
+        PodcastPopupMenu.show(anchor, PodcastPopupMenu.Colors.fromTheme(anchor.getContext()), entries, id -> {
+            MenuItem item = menu.findItem(id);
+            if (item == null) {
+                return;
+            }
             if (item.hasSubMenu()) {
-                SubMenu sub = target.addSubMenu(item.getGroupId(), item.getItemId(), Menu.NONE, item.getTitle());
-                copy(item.getSubMenu(), sub, excluded);
-                continue;
+                showLevel(anchor, item.getSubMenu(), listener, excluded);
+            } else {
+                listener.onMenuItemClick(item);
             }
-            MenuItem copy = target.add(item.getGroupId(), item.getItemId(), Menu.NONE, item.getTitle());
-            copy.setEnabled(item.isEnabled());
-            if (item.isCheckable()) {
-                copy.setCheckable(true);
-                copy.setChecked(item.isChecked());
-                if (item.getGroupId() != Menu.NONE) {
-                    exclusiveGroups.add(item.getGroupId());
-                }
-            }
-        }
-        for (int group : exclusiveGroups) {
-            target.setGroupCheckable(group, true, true);
-        }
+        });
     }
 }

@@ -35,6 +35,7 @@ import de.danoeh.antennapod.ui.episodes.ImageResourceUtils;
 import de.danoeh.antennapod.event.MessageEvent;
 import de.danoeh.antennapod.storage.database.DBWriter;
 import de.danoeh.antennapod.ui.podcast.PodcastFormat;
+import de.danoeh.antennapod.ui.podcast.PodcastHaptics;
 import org.greenrobot.eventbus.EventBus;
 
 import java.util.Collections;
@@ -202,6 +203,7 @@ public class EpisodeItemViewHolder extends RecyclerView.ViewHolder {
         final FeedItem queuedItem = item;
         final boolean wasNew = queuedItem.isNew();
         DBWriter.addQueueItem(activity, queuedItem);
+        PodcastHaptics.confirm(secondaryActionButton);
         EventBus.getDefault().post(new MessageEvent(activity.getString(R.string.podcast_added_to_queue),
                 context -> {
                     DBWriter.removeQueueItem(context, false, queuedItem);

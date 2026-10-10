@@ -174,6 +174,8 @@ public class MainActivity extends CastEnabledActivity implements NavigationToolb
 
         final FragmentManager fm = getSupportFragmentManager();
         fm.addOnBackStackChangedListener(this::updateMainBackCallbackEnabledState);
+        fm.addOnBackStackChangedListener(this::updateSearchActive);
+        updateSearchActive();
         if (fm.findFragmentByTag(MAIN_FRAGMENT_TAG) == null) {
             if (!UserPreferences.DEFAULT_PAGE_REMEMBER.equals(UserPreferences.getDefaultPage())) {
                 loadFragment(UserPreferences.getDefaultPage(), null);
@@ -518,6 +520,14 @@ public class MainActivity extends CastEnabledActivity implements NavigationToolb
                 .addToBackStack(null)
                 .commit();
         updateMainBackCallbackEnabledState();
+    }
+
+    private void updateSearchActive() {
+        boolean searchActive = false;
+        for (Fragment fragment : getSupportFragmentManager().getFragments()) {
+            searchActive |= fragment instanceof AddFeedFragment;
+        }
+        podcastChrome.getDock().setSearchActive(searchActive);
     }
 
     public void loadChildFragment(Fragment fragment) {

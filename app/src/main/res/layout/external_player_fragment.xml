@@ -69,26 +69,16 @@
 
             <de.danoeh.antennapod.ui.screen.playback.PlayButton
                 android:id="@+id/butPlay"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:layout_marginEnd="2dp"
+                android:background="@drawable/podcast_ripple_oval"
                 android:contentDescription="@string/pause_label"
                 android:padding="6dp"
                 android:scaleType="fitCenter"
                 app:srcCompat="@drawable/ic_play_48dp"
                 app:tint="?attr/podcast_text_primary"
                 tools:src="@drawable/ic_play_48dp" />
-
-            <ImageButton
-                android:id="@+id/podcast_mini_ff"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="@string/fast_forward_label"
-                android:padding="8dp"
-                android:scaleType="fitCenter"
-                app:srcCompat="@drawable/podcast_ic_fast_forward"
-                app:tint="?attr/podcast_text_primary" />
 
         </LinearLayout>
 

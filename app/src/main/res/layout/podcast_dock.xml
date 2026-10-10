@@ -47,9 +47,10 @@
             android:clickable="true"
             android:contentDescription="@string/podcast_search_label"
             android:focusable="true"
-            android:foreground="?attr/selectableItemBackgroundBorderless">
+            android:foreground="?attr/selectableItemBackground">
 
             <ImageView
+                android:id="@+id/podcast_search_icon"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:layout_gravity="center"

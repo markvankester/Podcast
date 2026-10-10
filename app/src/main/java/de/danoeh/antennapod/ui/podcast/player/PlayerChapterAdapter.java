@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import de.danoeh.antennapod.R;
 import de.danoeh.antennapod.model.feed.Chapter;
 import de.danoeh.antennapod.ui.common.Converter;
+import de.danoeh.antennapod.ui.podcast.PodcastHaptics;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.IntConsumer;
@@ -71,6 +72,7 @@ class PlayerChapterAdapter extends RecyclerView.Adapter<PlayerChapterAdapter.Hol
         holder.indicator.setVisibility(isCurrent ? View.VISIBLE : View.INVISIBLE);
         holder.itemView.setBackgroundResource(isCurrent ? R.drawable.podcast_player_chapter_current : 0);
         holder.itemView.setOnClickListener(v -> {
+            PodcastHaptics.tap(v);
             int pos = holder.getBindingAdapterPosition();
             if (pos != RecyclerView.NO_POSITION) {
                 clickListener.accept(pos);

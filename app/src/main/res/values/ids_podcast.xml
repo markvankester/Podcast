@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <item name="podcast_original_bottom_padding" type="id" />
+    <item name="podcast_player_episode_details" type="id" />
 </resources>

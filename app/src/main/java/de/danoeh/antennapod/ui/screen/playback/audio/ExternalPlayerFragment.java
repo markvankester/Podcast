@@ -27,9 +27,9 @@ import de.danoeh.antennapod.playback.service.PlaybackService;
 import de.danoeh.antennapod.playback.service.PlaybackServiceStarter;
 import de.danoeh.antennapod.storage.database.DBReader;
 import de.danoeh.antennapod.storage.preferences.PlaybackPreferences;
-import de.danoeh.antennapod.storage.preferences.UserPreferences;
 import de.danoeh.antennapod.ui.appstartintent.MediaButtonStarter;
 import de.danoeh.antennapod.ui.episodes.ImageResourceUtils;
+import de.danoeh.antennapod.ui.podcast.PodcastHaptics;
 import de.danoeh.antennapod.ui.screen.playback.PlayButton;
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.Maybe;
@@ -82,6 +82,7 @@ public class ExternalPlayerFragment extends Fragment {
         butPlay.setOnClickListener(v -> {
             if (PlaybackService.isRunning
                     && PlaybackPreferences.getCurrentPlayerStatus() == PlaybackPreferences.PLAYER_STATUS_PLAYING) {
+                PodcastHaptics.toggle(v, false);
                 if (BuildConfig.USE_MEDIA3_PLAYBACK_SERVICE) {
                     PlaybackController.bindToMedia3Service(getContext(), controller -> controller.pause());
                 } else {
@@ -89,22 +90,10 @@ public class ExternalPlayerFragment extends Fragment {
                             MediaButtonStarter.createIntent(getContext(), KeyEvent.KEYCODE_MEDIA_PAUSE));
                 }
             } else {
+                PodcastHaptics.toggle(v, true);
                 new PlaybackServiceStarter(getContext(), currentMedia)
                         .callEvenIfRunning(true)
                         .start();
-            }
-        });
-        root.findViewById(R.id.podcast_mini_ff).setOnClickListener(v -> {
-            if (BuildConfig.USE_MEDIA3_PLAYBACK_SERVICE) {
-                PlaybackController.bindToMedia3Service(getContext(), controller -> {
-                    if (controller.getCurrentMediaItem() != null) {
-                        controller.seekForward();
-                    }
-                });
-            } else {
-                PlaybackController.bindToService(getActivity(), playbackService ->
-                        playbackService.seekTo(playbackService.getCurrentPosition()
-                                + UserPreferences.getFastForwardSecs() * 1000));
             }
         });
         return root;

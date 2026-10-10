@@ -28,6 +28,7 @@ import de.danoeh.antennapod.model.feed.FeedItem;
 import de.danoeh.antennapod.model.feed.FeedItemFilter;
 import de.danoeh.antennapod.ui.common.ThemeUtils;
 import de.danoeh.antennapod.ui.episodeslist.EpisodeItemViewHolder;
+import de.danoeh.antennapod.ui.podcast.PodcastHaptics;
 import it.xabaras.android.recyclerview.swipedecorator.RecyclerViewSwipeDecorator;
 
 public class SwipeActions extends ItemTouchHelper.SimpleCallback implements LifecycleObserver {
@@ -155,6 +156,7 @@ public class SwipeActions extends ItemTouchHelper.SimpleCallback implements Life
         }
 
         FeedItem item = ((EpisodeItemViewHolder) viewHolder).getFeedItem();
+        PodcastHaptics.confirm(viewHolder.itemView);
 
         (swipeDir == ItemTouchHelper.RIGHT ? actions.right : actions.left)
                 .performAction(item, fragment, filter);

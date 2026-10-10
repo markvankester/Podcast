@@ -31,6 +31,7 @@ import de.danoeh.antennapod.ui.common.Converter;
 import de.danoeh.antennapod.ui.common.DateFormatter;
 import de.danoeh.antennapod.ui.common.IntentUtils;
 import de.danoeh.antennapod.ui.episodes.ImageResourceUtils;
+import de.danoeh.antennapod.ui.podcast.PodcastHaptics;
 import de.danoeh.antennapod.ui.view.ShownotesWebView;
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.Maybe;
@@ -59,8 +60,6 @@ public class PlayerPanel {
         void onTimecodeSelected(int time);
 
         void onOpenStateChanged(boolean open);
-
-        void onUpNextChanged(@Nullable FeedItem next);
     }
 
     private final Fragment fragment;
@@ -135,7 +134,10 @@ public class PlayerPanel {
         playButton.setOnClickListener(v -> callbacks.onTogglePlayback());
         for (int i = 0; i < tabs.length; i++) {
             final int index = i;
-            tabs[i].setOnClickListener(v -> selectTab(index));
+            tabs[i].setOnClickListener(v -> {
+                PodcastHaptics.tick(v);
+                selectTab(index);
+            });
         }
 
         queueAdapter = new PlayerQueueAdapter(new PlayerQueueAdapter.Listener() {
@@ -417,7 +419,6 @@ public class PlayerPanel {
             queueAdapter.setItems(display);
         }
         updateEmptyState();
-        callbacks.onUpNextChanged(display.isEmpty() ? null : display.get(0));
     }
 
     private void loadNotes() {

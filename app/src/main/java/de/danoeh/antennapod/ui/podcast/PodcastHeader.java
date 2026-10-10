@@ -130,7 +130,7 @@ public class PodcastHeader extends LinearLayout {
                 accent ? R.attr.podcast_accent : R.attr.podcast_text_primary);
         ImageViewCompat.setImageTintList(button, ColorStateList.valueOf(tint));
         button.setContentDescription(getContext().getString(description));
-        button.setOnClickListener(listener);
+        button.setOnClickListener(withHaptic(listener));
         addAction(button);
         return button;
     }
@@ -147,7 +147,7 @@ public class PodcastHeader extends LinearLayout {
         button.setTypeface(ResourcesCompat.getFont(getContext(), R.font.manrope_bold));
         button.setTextColor(ThemeUtils.getColorFromAttr(getContext(), R.attr.podcast_accent));
         button.setBackgroundResource(R.drawable.podcast_bg_pill_fill);
-        button.setOnClickListener(listener);
+        button.setOnClickListener(withHaptic(listener));
         addAction(button);
         return button;
     }
@@ -157,5 +157,12 @@ public class PodcastHeader extends LinearLayout {
         holder[0] = addIconButton(R.drawable.podcast_ic_more, R.string.podcast_more_options, false,
                 v -> PodcastMenus.showPopup(holder[0], menu, listener, excludedIds));
         return holder[0];
+    }
+
+    private static OnClickListener withHaptic(OnClickListener listener) {
+        return v -> {
+            PodcastHaptics.tap(v);
+            listener.onClick(v);
+        };
     }
 }
