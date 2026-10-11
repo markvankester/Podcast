@@ -95,6 +95,13 @@ public abstract class ItemFilterDialog extends BottomSheetDialogFragment {
             ViewGroup.LayoutParams layoutParams = bottomSheet.getLayoutParams();
             bottomSheet.setLayoutParams(layoutParams);
             behavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+            View rowsView = bottomSheet.findViewById(R.id.filter_rows);
+            View scrollView = (View) rowsView.getParent();
+            if (scrollView.getHeight() > rowsView.getHeight()) {
+                ViewGroup.LayoutParams scrollParams = scrollView.getLayoutParams();
+                scrollParams.height = rowsView.getHeight();
+                scrollView.setLayoutParams(scrollParams);
+            }
         }
     }
 

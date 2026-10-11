@@ -170,6 +170,8 @@ public abstract class EpisodesListFragment extends Fragment
         RecyclerView.ItemAnimator animator = recyclerView.getItemAnimator();
         if (animator instanceof SimpleItemAnimator) {
             ((SimpleItemAnimator) animator).setSupportsChangeAnimations(false);
+            animator.setMoveDuration(360);
+            animator.setRemoveDuration(200);
         }
 
         swipeRefreshLayout = root.findViewById(R.id.swipeRefresh);

@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import androidx.core.view.ViewCompat;
 import androidx.fragment.app.Fragment;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
@@ -17,6 +18,7 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import de.danoeh.antennapod.BuildConfig;
 import de.danoeh.antennapod.R;
 import de.danoeh.antennapod.activity.MainActivity;
+import de.danoeh.antennapod.event.MessageEvent;
 import de.danoeh.antennapod.event.PlayerStatusEvent;
 import de.danoeh.antennapod.event.playback.PlaybackPositionEvent;
 import de.danoeh.antennapod.event.playback.PlaybackServiceEvent;
@@ -29,6 +31,7 @@ import de.danoeh.antennapod.storage.database.DBReader;
 import de.danoeh.antennapod.storage.preferences.PlaybackPreferences;
 import de.danoeh.antennapod.ui.appstartintent.MediaButtonStarter;
 import de.danoeh.antennapod.ui.episodes.ImageResourceUtils;
+import de.danoeh.antennapod.ui.podcast.PillDismissLayout;
 import de.danoeh.antennapod.ui.podcast.PodcastHaptics;
 import de.danoeh.antennapod.ui.screen.playback.PlayButton;
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
@@ -79,6 +82,13 @@ public class ExternalPlayerFragment extends Fragment {
                 }
             }
         });
+        PillDismissLayout pillDismissLayout = root.findViewById(R.id.pillDismissLayout);
+        pillDismissLayout.setOnDismissed(this::onPillDismissed);
+        ViewCompat.addAccessibilityAction(root.findViewById(R.id.fragmentLayout),
+                getString(R.string.podcast_player_close), (view, arguments) -> {
+                    pillDismissLayout.dismiss();
+                    return true;
+                });
         butPlay.setOnClickListener(v -> {
             if (PlaybackService.isRunning
                     && PlaybackPreferences.getCurrentPlayerStatus() == PlaybackPreferences.PLAYER_STATUS_PLAYING) {
@@ -97,6 +107,23 @@ public class ExternalPlayerFragment extends Fragment {
             }
         });
         return root;
+    }
+
+    private void onPillDismissed() {
+        Playable dismissedMedia = currentMedia;
+        if (getActivity() instanceof MainActivity) {
+            ((MainActivity) getActivity()).dismissPlayer();
+        }
+        if (dismissedMedia == null) {
+            return;
+        }
+        EventBus.getDefault().post(new MessageEvent(getString(R.string.podcast_player_dismissed), context -> {
+            PlaybackPreferences.writeMediaPlaying(dismissedMedia);
+            ((MainActivity) context).setPlayerVisible(true);
+            if (isAdded()) {
+                loadMediaInfo();
+            }
+        }, getString(R.string.undo)));
     }
 
     @Override

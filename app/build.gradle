@@ -98,6 +98,7 @@ dependencies {
     implementation libs.androidx.appcompat
     implementation libs.androidx.coordinatorlayout
     implementation libs.androidx.core
+    implementation libs.androidx.dynamicanimation
     implementation libs.androidx.fragment
     implementation libs.androidx.gridlayout
     implementation libs.androidx.media

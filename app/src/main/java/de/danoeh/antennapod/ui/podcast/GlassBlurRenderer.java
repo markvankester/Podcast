@@ -21,7 +21,6 @@ import java.util.Map;
 final class GlassBlurRenderer {
     private static final String TAG = "GlassBlurRenderer";
     private static final float BLUR_DP = 20f;
-    private static final float SATURATION = 1.8f;
     private static final long SAME_FRAME_NANOS = 4_000_000L;
     private static final Map<View, SharedContent> SHARED = new HashMap<>();
 
@@ -49,7 +48,7 @@ final class GlassBlurRenderer {
         shared = existing;
         shared.users++;
         ColorMatrix matrix = new ColorMatrix();
-        matrix.setSaturation(SATURATION);
+        matrix.setSaturation(GlassLayout.glassSaturation(glass.getContext()));
         RenderEffect saturation = RenderEffect.createColorFilterEffect(new ColorMatrixColorFilter(matrix));
         RenderEffect blurEffect = RenderEffect.createBlurEffect(blur, blur, Shader.TileMode.CLAMP);
         node.setRenderEffect(RenderEffect.createChainEffect(saturation, blurEffect));
@@ -109,6 +108,9 @@ final class GlassBlurRenderer {
                 canvas.drawRenderNode(shared.node);
             } finally {
                 node.endRecording();
+            }
+            if (!recorded) {
+                glass.invalidate();
             }
             recorded = true;
         } catch (RuntimeException e) {

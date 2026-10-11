@@ -6,6 +6,7 @@
     android:id="@+id/podcast_panel_layer"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:elevation="16dp"
     android:visibility="gone">
 
     <View
@@ -30,6 +31,7 @@
             android:id="@+id/podcast_panel_content"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:clipChildren="false"
             android:orientation="vertical"
             android:paddingLeft="20dp"
             android:paddingRight="20dp"
@@ -153,12 +155,18 @@
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:layout_marginTop="12dp"
-                android:layout_weight="1">
+                android:layout_weight="1"
+                android:clipChildren="false">
 
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/podcast_panel_queue_list"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
+                    android:layout_marginLeft="-20dp"
+                    android:layout_marginRight="-20dp"
+                    android:paddingLeft="20dp"
+                    android:paddingRight="20dp"
+                    android:clipToPadding="false"
                     android:nestedScrollingEnabled="false"
                     android:overScrollMode="never" />
 

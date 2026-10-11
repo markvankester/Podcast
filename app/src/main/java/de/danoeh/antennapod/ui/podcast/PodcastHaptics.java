@@ -32,6 +32,22 @@ public final class PodcastHaptics {
         }
     }
 
+    public static void thresholdActivate(View view) {
+        if (Build.VERSION.SDK_INT >= 34) {
+            view.performHapticFeedback(HapticFeedbackConstants.GESTURE_THRESHOLD_ACTIVATE);
+        } else {
+            view.performHapticFeedback(HapticFeedbackConstants.CONTEXT_CLICK);
+        }
+    }
+
+    public static void thresholdDeactivate(View view) {
+        if (Build.VERSION.SDK_INT >= 34) {
+            view.performHapticFeedback(HapticFeedbackConstants.GESTURE_THRESHOLD_DEACTIVATE);
+        } else {
+            tick(view);
+        }
+    }
+
     public static void gestureStart(View view) {
         if (Build.VERSION.SDK_INT >= 30) {
             view.performHapticFeedback(HapticFeedbackConstants.GESTURE_START);

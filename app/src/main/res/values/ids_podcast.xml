@@ -3,4 +3,5 @@
     <item name="podcast_original_bottom_padding" type="id" />
     <item name="podcast_player_episode_details" type="id" />
     <item name="podcast_glass_applied" type="id" />
+    <item name="podcast_swipe_active" type="id" />
 </resources>

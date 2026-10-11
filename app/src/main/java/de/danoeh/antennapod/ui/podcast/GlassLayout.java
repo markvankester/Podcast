@@ -19,6 +19,7 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.AttributeSet;
+import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewOutlineProvider;
 import android.view.PixelCopy;
@@ -116,6 +117,15 @@ public class GlassLayout extends FrameLayout {
         }
     }
 
+    static float glassSaturation(Context context) {
+        TypedValue value = new TypedValue();
+        if (context.getTheme().resolveAttribute(R.attr.podcast_glass_saturation, value, true)
+                && value.type == TypedValue.TYPE_FLOAT) {
+            return value.getFloat();
+        }
+        return 1.8f;
+    }
+
     public void setBlurSnapshot(Window window) {
         snapshotWindow = window;
     }
@@ -204,7 +214,7 @@ public class GlassLayout extends FrameLayout {
             snapshotNode = new RenderNode("podcast_glass_snapshot");
             float blur = PodcastMetrics.dp(getContext(), 20);
             ColorMatrix matrix = new ColorMatrix();
-            matrix.setSaturation(1.8f);
+            matrix.setSaturation(glassSaturation(getContext()));
             snapshotNode.setRenderEffect(RenderEffect.createChainEffect(
                     RenderEffect.createColorFilterEffect(new ColorMatrixColorFilter(matrix)),
                     RenderEffect.createBlurEffect(blur, blur, Shader.TileMode.CLAMP)));

@@ -116,7 +116,7 @@ public final class PodcastPopupMenu {
                     MaterialColors.getColor(context, R.attr.podcast_glass_border, Color.argb(15, 0, 0, 0)),
                     text,
                     MaterialColors.getColor(context, R.attr.podcast_text_secondary, Color.GRAY),
-                    MaterialColors.getColor(context, R.attr.podcast_divider, Color.LTGRAY),
+                    MaterialColors.getColor(context, R.attr.podcast_popup_divider, Color.LTGRAY),
                     ColorUtils.setAlphaComponent(text, 31),
                     MaterialColors.getColor(context, R.attr.podcast_accent, Color.RED));
             colors.themed = true;
@@ -250,8 +250,17 @@ public final class PodcastPopupMenu {
         container.setBackgroundTintList(ColorStateList.valueOf(Color.TRANSPARENT));
         GlassLayout glass = createGlass(dialog.getContext(), null, activity);
         glass.setCornerRadius(PodcastMetrics.dp(dialog.getContext(), 28), true);
-        container.addView(glass, 0, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT));
+        FrameLayout.LayoutParams glassParams = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT);
+        glassParams.bottomMargin = -container.getPaddingBottom();
+        container.setClipToPadding(false);
+        container.addView(glass, 0, glassParams);
+        container.addOnLayoutChangeListener((v, l, t, r, b, ol, ot, or, ob) -> {
+            if (glassParams.bottomMargin != -container.getPaddingBottom()) {
+                glassParams.bottomMargin = -container.getPaddingBottom();
+                glass.setLayoutParams(glassParams);
+            }
+        });
     }
 
     private static GlassLayout createGlass(Context context, @Nullable Colors colors, @Nullable Activity activity) {

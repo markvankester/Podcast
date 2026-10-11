@@ -8,7 +8,10 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
+import android.graphics.RenderEffect;
+import android.graphics.Shader;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
@@ -20,6 +23,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.PopupMenu;
 import android.widget.PopupWindow;
 import android.widget.ProgressBar;
@@ -129,6 +133,7 @@ public class AudioPlayerFragment extends Fragment implements
     private View root;
     private View background;
     private PlayerCoverView coverView;
+    private ImageView coverBlurView;
     private PlayerGlassLayout sheet;
     private View sheetContent;
     private View topBar;
@@ -195,6 +200,10 @@ public class AudioPlayerFragment extends Fragment implements
 
         background = root.findViewById(R.id.podcast_player_background);
         coverView = root.findViewById(R.id.podcast_player_cover);
+        coverBlurView = root.findViewById(R.id.podcast_player_cover_blur);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            coverBlurView.setRenderEffect(RenderEffect.createBlurEffect(70, 70, Shader.TileMode.CLAMP));
+        }
         sheet = root.findViewById(R.id.podcast_player_sheet);
         sheetContent = root.findViewById(R.id.podcast_player_sheet_content);
         topBar = root.findViewById(R.id.podcast_player_topbar);
@@ -351,10 +360,16 @@ public class AudioPlayerFragment extends Fragment implements
             params.topMargin = top;
             sheet.setLayoutParams(params);
         }
-        int coverHeight = Math.max(root.getWidth(), top + PodcastMetrics.dp(getContext(), 34));
-        ViewGroup.LayoutParams coverParams = coverView.getLayoutParams();
-        if (coverParams.height != coverHeight) {
-            coverParams.height = coverHeight;
+        int freeTop = statusInset + PodcastMetrics.dp(getContext(), 62);
+        int free = top - freeTop;
+        int size = Math.max(0, Math.min(root.getWidth() - 2 * PodcastMetrics.dp(getContext(), 24),
+                free - 2 * PodcastMetrics.dp(getContext(), 16)));
+        ViewGroup.MarginLayoutParams coverParams = (ViewGroup.MarginLayoutParams) coverView.getLayoutParams();
+        int coverTop = freeTop + (free - size) / 2;
+        if (coverParams.width != size || coverParams.height != size || coverParams.topMargin != coverTop) {
+            coverParams.width = size;
+            coverParams.height = size;
+            coverParams.topMargin = coverTop;
             coverView.setLayoutParams(coverParams);
         }
     }
@@ -649,6 +664,12 @@ public class AudioPlayerFragment extends Fragment implements
                     return;
                 }
                 coverView.setImageBitmap(copy);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    coverBlurView.setImageBitmap(copy);
+                } else {
+                    coverBlurView.setImageBitmap(Bitmap.createScaledBitmap(copy, 24,
+                            Math.max(1, 24 * copy.getHeight() / copy.getWidth()), true));
+                }
                 sheet.setBlurBitmap(copy);
                 panel.setBlurBitmap(copy);
                 PlayerPalette.extract(copy, color -> {
@@ -664,6 +685,7 @@ public class AudioPlayerFragment extends Fragment implements
                     return;
                 }
                 coverView.setImageDrawable(null);
+                coverBlurView.setImageDrawable(null);
                 sheet.setBlurBitmap(null);
                 panel.setBlurBitmap(null);
                 animateColor(PlayerPalette.FALLBACK_COLOR);

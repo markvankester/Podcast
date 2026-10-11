@@ -13,6 +13,7 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.FragmentActivity;
+import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.RecyclerView;
 
 import de.danoeh.antennapod.ui.SelectableAdapter;
@@ -25,6 +26,7 @@ import java.util.List;
 import de.danoeh.antennapod.R;
 import de.danoeh.antennapod.activity.MainActivity;
 import de.danoeh.antennapod.model.feed.FeedItem;
+import de.danoeh.antennapod.ui.podcast.PodcastSwipeHelper;
 import de.danoeh.antennapod.ui.screen.episode.ItemPagerFragment;
 
 /**
@@ -60,8 +62,42 @@ public class EpisodeItemListAdapter extends SelectableAdapter<EpisodeItemViewHol
     }
 
     public void updateItems(List<FeedItem> items) {
+        List<FeedItem> oldItems = episodes;
         episodes = items;
-        notifyDataSetChanged();
+        if (oldItems == items || oldItems.isEmpty() || items.isEmpty() || dummyViews != 0) {
+            notifyDataSetChanged();
+        } else {
+            DiffUtil.calculateDiff(new DiffUtil.Callback() {
+                @Override
+                public int getOldListSize() {
+                    return oldItems.size();
+                }
+
+                @Override
+                public int getNewListSize() {
+                    return items.size();
+                }
+
+                @Override
+                public boolean areItemsTheSame(int oldPosition, int newPosition) {
+                    FeedItem oldItem = oldItems.get(oldPosition);
+                    FeedItem newItem = items.get(newPosition);
+                    return oldItem == newItem
+                            || (oldItem != null && newItem != null && oldItem.getId() == newItem.getId());
+                }
+
+                @Override
+                public boolean areContentsTheSame(int oldPosition, int newPosition) {
+                    return false;
+                }
+
+                @Nullable
+                @Override
+                public Object getChangePayload(int oldPosition, int newPosition) {
+                    return "foo";
+                }
+            }).dispatchUpdatesTo(this);
+        }
         onSelectedItemsUpdated();
     }
 
@@ -89,6 +125,11 @@ public class EpisodeItemListAdapter extends SelectableAdapter<EpisodeItemViewHol
         // Reset state of recycled views
         holder.coverHolder.setVisibility(View.VISIBLE);
         holder.dragHandle.setVisibility(View.GONE);
+        if (!PodcastSwipeHelper.isActive(holder.itemView)) {
+            holder.itemView.setAlpha(1f);
+            holder.itemView.setTranslationX(0f);
+            holder.itemView.setLayerType(View.LAYER_TYPE_NONE, null);
+        }
 
         beforeBindViewHolder(holder, pos);
 
@@ -157,6 +198,8 @@ public class EpisodeItemListAdapter extends SelectableAdapter<EpisodeItemViewHol
         holder.itemView.setOnCreateContextMenuListener(null);
         holder.itemView.setOnLongClickListener(null);
         holder.itemView.setOnTouchListener(null);
+        holder.itemView.setTranslationX(0f);
+        holder.itemView.setLayerType(View.LAYER_TYPE_NONE, null);
         holder.secondaryActionButton.setOnClickListener(null);
         holder.dragHandle.setOnTouchListener(null);
         holder.coverHolder.setOnTouchListener(null);

@@ -2,10 +2,9 @@ package de.danoeh.antennapod.ui.swipeactions;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.graphics.Canvas;
 
 import androidx.annotation.NonNull;
-import androidx.core.graphics.ColorUtils;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleObserver;
@@ -17,7 +16,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import de.danoeh.antennapod.R;
 import de.danoeh.antennapod.ui.screen.AllEpisodesFragment;
 import de.danoeh.antennapod.ui.screen.download.CompletedDownloadsFragment;
 import de.danoeh.antennapod.ui.screen.FavoritesFragment;
@@ -26,10 +24,8 @@ import de.danoeh.antennapod.ui.screen.PlaybackHistoryFragment;
 import de.danoeh.antennapod.ui.screen.queue.QueueFragment;
 import de.danoeh.antennapod.model.feed.FeedItem;
 import de.danoeh.antennapod.model.feed.FeedItemFilter;
-import de.danoeh.antennapod.ui.common.ThemeUtils;
 import de.danoeh.antennapod.ui.episodeslist.EpisodeItemViewHolder;
-import de.danoeh.antennapod.ui.podcast.PodcastHaptics;
-import it.xabaras.android.recyclerview.swipedecorator.RecyclerViewSwipeDecorator;
+import de.danoeh.antennapod.ui.podcast.PodcastSwipeHelper;
 
 public class SwipeActions extends ItemTouchHelper.SimpleCallback implements LifecycleObserver {
     public static final String PREF_NAME = "SwipeActionsPrefs";
@@ -49,12 +45,13 @@ public class SwipeActions extends ItemTouchHelper.SimpleCallback implements Life
     private FeedItemFilter filter = null;
 
     Actions actions;
-    boolean swipeOutEnabled = true;
-    int swipedOutTo = 0;
+    private boolean dragging = false;
+    private RecyclerView attachedRecyclerView;
+    private PodcastSwipeHelper swipeHelper;
     private final ItemTouchHelper itemTouchHelper = new ItemTouchHelper(this);
 
     public SwipeActions(int dragDirs, Fragment fragment, String tag) {
-        super(dragDirs, ItemTouchHelper.RIGHT | ItemTouchHelper.LEFT);
+        super(dragDirs, 0);
         this.fragment = fragment;
         this.tag = tag;
         reloadPreference();
@@ -76,8 +73,7 @@ public class SwipeActions extends ItemTouchHelper.SimpleCallback implements Life
 
     @OnLifecycleEvent(Lifecycle.Event.ON_START)
     public void reloadPreference() {
-        actions = InboxFragment.TAG.equals(tag)
-                ? getPrefsWithDefaults(fragment.requireContext(), tag) : getPrefs(fragment.requireContext(), tag);
+        actions = getPrefsWithDefaults(fragment.requireContext(), tag);
     }
 
     public void setFilter(FeedItemFilter filter) {
@@ -85,12 +81,61 @@ public class SwipeActions extends ItemTouchHelper.SimpleCallback implements Life
     }
 
     public SwipeActions attachTo(RecyclerView recyclerView) {
+        removeSwipeHelper();
         itemTouchHelper.attachToRecyclerView(recyclerView);
+        attachedRecyclerView = recyclerView;
+        swipeHelper = new PodcastSwipeHelper(
+                new PodcastSwipeHelper.Callback() {
+                    @Override
+                    public boolean canSwipe(RecyclerView.ViewHolder holder) {
+                        return !dragging && isSwipeActionEnabled() && holder instanceof EpisodeItemViewHolder
+                                && ((EpisodeItemViewHolder) holder).getFeedItem() != null;
+                    }
+
+                    @Override
+                    public Object getItem(RecyclerView.ViewHolder holder) {
+                        return holder instanceof EpisodeItemViewHolder
+                                ? ((EpisodeItemViewHolder) holder).getFeedItem() : null;
+                    }
+
+                    @Override
+                    public boolean canDismissInDirection(Object item, boolean toRight) {
+                        return item instanceof FeedItem
+                                && getActionForDirection(toRight).willRemove(filter, (FeedItem) item);
+                    }
+
+                    @Override
+                    public void onDismissed(Object item, boolean toRight) {
+                        onItemSwiped((FeedItem) item, toRight ? ItemTouchHelper.RIGHT : ItemTouchHelper.LEFT);
+                    }
+
+                    @Override
+                    public void onSwipedWithoutDismiss(Object item, boolean toRight) {
+                        onItemSwiped((FeedItem) item, toRight ? ItemTouchHelper.RIGHT : ItemTouchHelper.LEFT);
+                    }
+                });
+        recyclerView.addOnItemTouchListener(swipeHelper);
         return this;
     }
 
     public void detach() {
         itemTouchHelper.attachToRecyclerView(null);
+        removeSwipeHelper();
+    }
+
+    private void removeSwipeHelper() {
+        if (attachedRecyclerView != null && swipeHelper != null) {
+            attachedRecyclerView.removeOnItemTouchListener(swipeHelper);
+            swipeHelper.clear();
+        }
+        swipeHelper = null;
+    }
+
+    private SwipeAction getActionForDirection(boolean toRight) {
+        if (!actions.hasActions()) {
+            return new ShowFirstSwipeDialogAction();
+        }
+        return toRight ? actions.right : actions.left;
     }
 
     private static Actions getPrefs(Context context, String tag, String defaultActions) {
@@ -108,7 +153,7 @@ public class SwipeActions extends ItemTouchHelper.SimpleCallback implements Life
         String defaultActions;
         switch (tag) {
             case InboxFragment.TAG:
-                defaultActions = SwipeAction.ADD_TO_QUEUE + "," + SwipeAction.REMOVE_FROM_INBOX;
+                defaultActions = SwipeAction.REMOVE_FROM_INBOX + "," + SwipeAction.REMOVE_FROM_INBOX;
                 break;
             case QueueFragment.TAG:
                 defaultActions = SwipeAction.REMOVE_FROM_QUEUE + "," + SwipeAction.REMOVE_FROM_QUEUE;
@@ -133,7 +178,10 @@ public class SwipeActions extends ItemTouchHelper.SimpleCallback implements Life
 
     public static boolean isSwipeActionEnabled(Context context, String tag) {
         SharedPreferences prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
-        return prefs.getBoolean(KEY_PREFIX_NO_ACTION + tag, true);
+        boolean defaultEnabled = QueueFragment.TAG.equals(tag) || InboxFragment.TAG.equals(tag)
+                || CompletedDownloadsFragment.TAG.equals(tag) || PlaybackHistoryFragment.TAG.equals(tag)
+                || FavoritesFragment.TAG.equals(tag);
+        return prefs.getBoolean(KEY_PREFIX_NO_ACTION + tag, defaultEnabled);
     }
 
     private boolean isSwipeActionEnabled() {
@@ -149,108 +197,28 @@ public class SwipeActions extends ItemTouchHelper.SimpleCallback implements Life
 
     @Override
     public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int swipeDir) {
+        onItemSwiped(((EpisodeItemViewHolder) viewHolder).getFeedItem(), swipeDir);
+    }
+
+    protected void onItemSwiped(FeedItem item, int swipeDir) {
         if (!actions.hasActions()) {
             //open settings dialog if no prefs are set
             new SwipeActionsDialog(fragment.requireContext(), tag).show(this::reloadPreference);
             return;
         }
 
-        FeedItem item = ((EpisodeItemViewHolder) viewHolder).getFeedItem();
-        PodcastHaptics.confirm(viewHolder.itemView);
+        if (item == null) {
+            return;
+        }
 
         (swipeDir == ItemTouchHelper.RIGHT ? actions.right : actions.left)
                 .performAction(item, fragment, filter);
     }
 
     @Override
-    public void onChildDraw(@NonNull Canvas c, @NonNull RecyclerView recyclerView,
-                            @NonNull RecyclerView.ViewHolder viewHolder,
-                            float dx, float dy, int actionState, boolean isCurrentlyActive) {
-        SwipeAction right;
-        SwipeAction left;
-        if (actions.hasActions()) {
-            right = actions.right;
-            left = actions.left;
-        } else {
-            right = left = new ShowFirstSwipeDialogAction();
-        }
-
-        //check if it will be removed
-        FeedItem item = ((EpisodeItemViewHolder) viewHolder).getFeedItem();
-        boolean rightWillRemove = right.willRemove(filter, item);
-        boolean leftWillRemove = left.willRemove(filter, item);
-        boolean wontLeave = (dx > 0 && !rightWillRemove) || (dx < 0 && !leftWillRemove);
-
-        //Limit swipe if it's not removed
-        int maxMovement = recyclerView.getWidth() * 2 / 5;
-        float sign = dx > 0 ? 1 : -1;
-        float limitMovement = Math.min(maxMovement, sign * dx);
-        float displacementPercentage = limitMovement / maxMovement;
-        boolean swipeThresholdReached = displacementPercentage >= 0.85;
-
-        if (actionState == ItemTouchHelper.ACTION_STATE_SWIPE && wontLeave) {
-            swipeOutEnabled = false;
-            // Move slower when getting near the maxMovement
-            dx = sign * maxMovement * 0.7f * (float) Math.sin((Math.PI / 2) * displacementPercentage);
-
-            if (isCurrentlyActive) {
-                int dir = dx > 0 ? ItemTouchHelper.RIGHT : ItemTouchHelper.LEFT;
-                swipedOutTo = swipeThresholdReached ? dir : 0;
-            }
-        } else {
-            swipeOutEnabled = true;
-        }
-
-        //add color and icon
-        Context context = fragment.requireContext();
-        int themeColor = ThemeUtils.getColorFromAttr(context, android.R.attr.colorBackground);
-        int actionColor = ThemeUtils.getColorFromAttr(context,
-                dx > 0 ? right.getActionColor() : left.getActionColor());
-        RecyclerViewSwipeDecorator.Builder builder = new RecyclerViewSwipeDecorator.Builder(
-                c, recyclerView, viewHolder, dx, dy, actionState, isCurrentlyActive)
-                .addSwipeRightActionIcon(right.getActionIcon())
-                .addSwipeLeftActionIcon(left.getActionIcon())
-                .addSwipeRightBackgroundColor(ThemeUtils.getColorFromAttr(context, R.attr.background_elevated))
-                .addSwipeLeftBackgroundColor(ThemeUtils.getColorFromAttr(context, R.attr.background_elevated))
-                .setActionIconTint(ColorUtils.blendARGB(themeColor, actionColor,
-                        (!wontLeave || swipeThresholdReached) ? 1.0f : 0.7f));
-        builder.create().decorate();
-
-        super.onChildDraw(c, recyclerView, viewHolder, dx, dy, actionState, isCurrentlyActive);
-    }
-
-    @Override
-    public float getSwipeEscapeVelocity(float defaultValue) {
-        return swipeOutEnabled ? defaultValue * 1.5f : Float.MAX_VALUE;
-    }
-
-    @Override
-    public float getSwipeVelocityThreshold(float defaultValue) {
-        return swipeOutEnabled ? defaultValue * 0.6f : 0;
-    }
-
-    @Override
-    public float getSwipeThreshold(@NonNull RecyclerView.ViewHolder viewHolder) {
-        return swipeOutEnabled ? super.getSwipeThreshold(viewHolder) : 1.0f;
-    }
-
-    @Override
-    public void clearView(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder) {
-        super.clearView(recyclerView, viewHolder);
-
-        if (swipedOutTo != 0) {
-            onSwiped(viewHolder, swipedOutTo);
-            swipedOutTo = 0;
-        }
-    }
-
-    @Override
-    public int getMovementFlags(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder) {
-        if (!isSwipeActionEnabled()) {
-            return makeMovementFlags(getDragDirs(recyclerView, viewHolder), 0);
-        } else {
-            return super.getMovementFlags(recyclerView, viewHolder);
-        }
+    public void onSelectedChanged(@Nullable RecyclerView.ViewHolder viewHolder, int actionState) {
+        super.onSelectedChanged(viewHolder, actionState);
+        dragging = actionState == ItemTouchHelper.ACTION_STATE_DRAG;
     }
 
     public void startDrag(EpisodeItemViewHolder holder) {

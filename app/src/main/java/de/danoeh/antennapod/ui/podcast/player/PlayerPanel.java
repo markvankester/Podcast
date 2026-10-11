@@ -20,6 +20,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import de.danoeh.antennapod.R;
+import de.danoeh.antennapod.event.MessageEvent;
 import de.danoeh.antennapod.model.feed.Chapter;
 import de.danoeh.antennapod.model.feed.FeedItem;
 import de.danoeh.antennapod.model.feed.FeedMedia;
@@ -32,6 +33,7 @@ import de.danoeh.antennapod.ui.common.DateFormatter;
 import de.danoeh.antennapod.ui.common.IntentUtils;
 import de.danoeh.antennapod.ui.episodes.ImageResourceUtils;
 import de.danoeh.antennapod.ui.podcast.PodcastHaptics;
+import de.danoeh.antennapod.ui.podcast.PodcastSwipeHelper;
 import de.danoeh.antennapod.ui.view.ShownotesWebView;
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.Maybe;
@@ -39,6 +41,7 @@ import io.reactivex.rxjava3.disposables.Disposable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 import java.util.ArrayList;
 import java.util.List;
+import org.greenrobot.eventbus.EventBus;
 
 public class PlayerPanel {
     private static final String TAG = "PlayerPanel";
@@ -86,6 +89,7 @@ public class PlayerPanel {
     private int[] realIndices = new int[0];
     private int dragFrom = -1;
     private int dragTo = -1;
+    private boolean dragging = false;
     private List<FeedItem> pendingQueue;
     private int tab = TAB_QUEUE;
     private int color = PlayerPalette.FALLBACK_COLOR;
@@ -148,12 +152,7 @@ public class PlayerPanel {
 
             @Override
             public void onRemove(FeedItem item) {
-                if (dragFrom != -1) {
-                    return;
-                }
-                removeFromDisplayedQueue(item);
-                DBWriter.removeQueueItem(fragment.requireContext(), true, item);
-                updateEmptyState();
+                removeWithUndo(item);
             }
 
             @Override
@@ -183,6 +182,12 @@ public class PlayerPanel {
             }
 
             @Override
+            public void onSelectedChanged(@Nullable RecyclerView.ViewHolder viewHolder, int actionState) {
+                super.onSelectedChanged(viewHolder, actionState);
+                dragging = actionState == ItemTouchHelper.ACTION_STATE_DRAG;
+            }
+
+            @Override
             public boolean isLongPressDragEnabled() {
                 return false;
             }
@@ -204,6 +209,38 @@ public class PlayerPanel {
             }
         });
         touchHelper.attachToRecyclerView(queueList);
+        PodcastSwipeHelper swipeHelper = new PodcastSwipeHelper(new PodcastSwipeHelper.Callback() {
+            @Override
+            public boolean canSwipe(RecyclerView.ViewHolder holder) {
+                return !dragging && dragFrom == -1;
+            }
+
+            @Override
+            public Object getItem(RecyclerView.ViewHolder holder) {
+                int position = holder.getBindingAdapterPosition();
+                if (position < 0 || position >= queueAdapter.getItemCount()) {
+                    return null;
+                }
+                return queueAdapter.getItems().get(position);
+            }
+
+            @Override
+            public boolean canDismissInDirection(Object item, boolean toRight) {
+                return item != null;
+            }
+
+            @Override
+            public void onDismissed(Object item, boolean toRight) {
+                if (dragFrom != -1 || !(item instanceof FeedItem)) {
+                    queueAdapter.notifyDataSetChanged();
+                    return;
+                }
+                removeWithUndo((FeedItem) item);
+            }
+        });
+        queueList.addOnItemTouchListener(swipeHelper);
+        queueList.getItemAnimator().setMoveDuration(360);
+        queueList.getItemAnimator().setRemoveDuration(200);
 
         chapterAdapter = new PlayerChapterAdapter(position -> {
             if (chapters != null && position < chapters.size()) {
@@ -374,6 +411,24 @@ public class PlayerPanel {
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(this::onQueueLoaded, error -> Log.e(TAG, Log.getStackTraceString(error)));
+    }
+
+    private void removeWithUndo(FeedItem item) {
+        if (dragFrom != -1) {
+            return;
+        }
+        int index = queueAdapter.getItems().indexOf(item);
+        if (index < 0 || index >= realIndices.length) {
+            return;
+        }
+        final int realPosition = realIndices[index];
+        removeFromDisplayedQueue(item);
+        DBWriter.removeQueueItem(fragment.requireContext(), true, item);
+        updateEmptyState();
+        EventBus.getDefault().post(new MessageEvent(
+                fragment.getResources().getQuantityString(R.plurals.removed_from_queue_message, 1, 1),
+                context -> DBWriter.addQueueItemAt(context, item.getId(), realPosition),
+                fragment.getString(R.string.undo)));
     }
 
     private void removeFromDisplayedQueue(FeedItem item) {

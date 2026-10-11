@@ -464,6 +464,8 @@ public class QueueFragment extends Fragment implements MaterialToolbar.OnMenuIte
         RecyclerView.ItemAnimator animator = recyclerView.getItemAnimator();
         if (animator instanceof SimpleItemAnimator) {
             ((SimpleItemAnimator) animator).setSupportsChangeAnimations(false);
+            animator.setMoveDuration(360);
+            animator.setRemoveDuration(200);
         }
         registerForContextMenu(recyclerView);
 
@@ -763,13 +765,13 @@ public class QueueFragment extends Fragment implements MaterialToolbar.OnMenuIte
         }
 
         @Override
-        public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
+        protected void onItemSwiped(FeedItem item, int direction) {
             if (disposable != null) {
                 disposable.dispose();
             }
 
             //SwipeActions
-            super.onSwiped(viewHolder, direction);
+            super.onItemSwiped(item, direction);
         }
 
         @Override

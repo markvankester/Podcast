@@ -18,6 +18,7 @@ androidx-core = { module = "androidx.core:core", version = "1.16.0" }
 androidx-core-ktx = { module = "androidx.core:core-ktx", version = "1.18.0" }
 androidx-core-splashscreen = { module = "androidx.core:core-splashscreen", version = "1.0.0" }
 androidx-documentfile = { module = "androidx.documentfile:documentfile", version = "1.0.1" }
+androidx-dynamicanimation = { module = "androidx.dynamicanimation:dynamicanimation", version = "1.1.0" }
 androidx-drawerlayout = { module = "androidx.drawerlayout:drawerlayout", version = "1.2.0" }
 androidx-fragment = { module = "androidx.fragment:fragment", version = "1.8.9" }
 androidx-gridlayout = { module = "androidx.gridlayout:gridlayout", version = "1.0.0" }

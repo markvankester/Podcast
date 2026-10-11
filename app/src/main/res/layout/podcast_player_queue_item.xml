@@ -47,20 +47,11 @@
             android:textSize="13sp" />
     </LinearLayout>
 
-    <ImageButton
-        android:id="@+id/podcast_queue_remove"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:background="?attr/selectableItemBackgroundBorderless"
-        android:contentDescription="@string/podcast_player_remove_from_queue"
-        android:padding="14dp"
-        android:alpha="0.8"
-        android:src="@drawable/podcast_player_close" />
-
     <ImageView
         android:id="@+id/podcast_queue_drag"
         android:layout_width="48dp"
         android:layout_height="48dp"
+        android:layout_marginStart="4dp"
         android:alpha="0.8"
         android:contentDescription="@string/podcast_player_reorder"
         android:padding="12dp"

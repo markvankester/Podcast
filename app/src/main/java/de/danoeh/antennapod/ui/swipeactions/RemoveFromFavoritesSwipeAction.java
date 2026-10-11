@@ -5,9 +5,12 @@ import android.content.Context;
 import androidx.fragment.app.Fragment;
 
 import de.danoeh.antennapod.R;
+import de.danoeh.antennapod.event.MessageEvent;
 import de.danoeh.antennapod.storage.database.DBWriter;
 import de.danoeh.antennapod.model.feed.FeedItem;
 import de.danoeh.antennapod.model.feed.FeedItemFilter;
+import java.util.Collections;
+import org.greenrobot.eventbus.EventBus;
 
 public class RemoveFromFavoritesSwipeAction implements SwipeAction {
 
@@ -34,6 +37,10 @@ public class RemoveFromFavoritesSwipeAction implements SwipeAction {
     @Override
     public void performAction(FeedItem item, Fragment fragment, FeedItemFilter filter) {
         DBWriter.toggleFavoriteItem(item);
+        EventBus.getDefault().post(new MessageEvent(
+                fragment.getResources().getQuantityString(R.plurals.removed_from_favorites_message, 1, 1),
+                context -> DBWriter.addFavoriteItems(Collections.singletonList(item)),
+                fragment.getString(R.string.undo)));
     }
 
     @Override

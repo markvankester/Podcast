@@ -13,6 +13,8 @@
     <string name="podcast_player_up_next">Up Next</string>
     <string name="podcast_player_chapter_number">Chapter %1$d</string>
     <string name="podcast_player_close_panel">Close panel</string>
+    <string name="podcast_player_dismissed">Player closed</string>
+    <string name="podcast_player_close">Close player</string>
     <string name="podcast_player_remove_from_queue">Remove from queue</string>
     <string name="podcast_player_reorder">Reorder</string>
     <string name="podcast_player_queue_empty">Nothing queued after this episode</string>

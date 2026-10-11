@@ -15,4 +15,9 @@
     <attr name="podcast_glass_highlight" format="color" />
     <attr name="podcast_tab_highlight" format="color" />
     <attr name="podcast_menu_surface" format="color" />
+    <attr name="podcast_segment_fill" format="color" />
+    <attr name="podcast_segment_checked_fill" format="color" />
+    <attr name="podcast_segment_checked_text" format="color" />
+    <attr name="podcast_popup_divider" format="color" />
+    <attr name="podcast_glass_saturation" format="float" />
 </resources>

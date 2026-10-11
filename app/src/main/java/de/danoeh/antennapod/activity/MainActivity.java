@@ -302,13 +302,7 @@ public class MainActivity extends CastEnabledActivity implements NavigationToolb
                 onSlide(view, 1.0f);
                 bottomSheetBackPressedCallback.setEnabled(true);
             } else if (state == BottomSheetBehavior.STATE_HIDDEN) {
-                PlaybackController.bindToMedia3Service(MainActivity.this, controller -> {
-                    controller.clearMediaItems();
-                    controller.stop();
-                });
-                PlaybackPreferences.writeNoMediaPlaying();
-                setPlayerVisible(false);
-                bottomSheetBackPressedCallback.setEnabled(false);
+                dismissPlayer();
             }
         }
 
@@ -327,6 +321,16 @@ public class MainActivity extends CastEnabledActivity implements NavigationToolb
 
             audioPlayer.fadePlayerToToolbar(slideOffset);
         }
+    }
+
+    public void dismissPlayer() {
+        PlaybackController.bindToMedia3Service(MainActivity.this, controller -> {
+            controller.clearMediaItems();
+            controller.stop();
+        });
+        PlaybackPreferences.writeNoMediaPlaying();
+        setPlayerVisible(false);
+        bottomSheetBackPressedCallback.setEnabled(false);
     }
 
     @Override
@@ -412,7 +416,7 @@ public class MainActivity extends CastEnabledActivity implements NavigationToolb
             podcastChrome.onSheetSlide(0f);
         }
         sheetBehavior.setPeekHeight(podcastChrome.getPeekHeight());
-        sheetBehavior.setHideable(true);
+        sheetBehavior.setHideable(false);
         sheetBehavior.setGestureInsetBottomIgnored(true);
 
         FragmentContainerView playerView = findViewById(R.id.playerFragment);

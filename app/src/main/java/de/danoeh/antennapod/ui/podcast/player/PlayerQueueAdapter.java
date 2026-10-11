@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
+import androidx.core.view.ViewCompat;
 import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import de.danoeh.antennapod.R;
@@ -15,6 +16,7 @@ import de.danoeh.antennapod.model.feed.FeedItem;
 import de.danoeh.antennapod.model.feed.FeedMedia;
 import de.danoeh.antennapod.ui.common.Converter;
 import de.danoeh.antennapod.ui.episodes.ImageResourceUtils;
+import de.danoeh.antennapod.ui.podcast.PodcastSwipeHelper;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -69,6 +71,11 @@ class PlayerQueueAdapter extends RecyclerView.Adapter<PlayerQueueAdapter.Holder>
     @SuppressLint("ClickableViewAccessibility")
     @Override
     public void onBindViewHolder(@NonNull Holder holder, int position) {
+        if (!PodcastSwipeHelper.isActive(holder.itemView)) {
+            holder.itemView.setAlpha(1f);
+            holder.itemView.setTranslationX(0f);
+            holder.itemView.setLayerType(View.LAYER_TYPE_NONE, null);
+        }
         FeedItem item = items.get(position);
         holder.title.setText(item.getTitle());
         FeedMedia media = item.getMedia();
@@ -83,7 +90,14 @@ class PlayerQueueAdapter extends RecyclerView.Adapter<PlayerQueueAdapter.Holder>
                 .dontAnimate()
                 .into(holder.cover);
         holder.itemView.setOnClickListener(v -> listener.onPlay(item));
-        holder.remove.setOnClickListener(v -> listener.onRemove(item));
+        if (holder.removeActionId != View.NO_ID) {
+            ViewCompat.removeAccessibilityAction(holder.itemView, holder.removeActionId);
+        }
+        holder.removeActionId = ViewCompat.addAccessibilityAction(holder.itemView,
+                holder.itemView.getContext().getString(R.string.remove_from_queue_label), (v, args) -> {
+                    listener.onRemove(item);
+                    return true;
+                });
         holder.drag.setOnTouchListener((v, event) -> {
             if (event.getActionMasked() == MotionEvent.ACTION_DOWN) {
                 listener.onStartDrag(holder);
@@ -101,15 +115,14 @@ class PlayerQueueAdapter extends RecyclerView.Adapter<PlayerQueueAdapter.Holder>
         final ImageView cover;
         final TextView title;
         final TextView subtitle;
-        final View remove;
         final View drag;
+        int removeActionId = View.NO_ID;
 
         Holder(View view) {
             super(view);
             cover = view.findViewById(R.id.podcast_queue_cover);
             title = view.findViewById(R.id.podcast_queue_title);
             subtitle = view.findViewById(R.id.podcast_queue_subtitle);
-            remove = view.findViewById(R.id.podcast_queue_remove);
             drag = view.findViewById(R.id.podcast_queue_drag);
         }
     }
