@@ -191,7 +191,10 @@ public class GlassLayout extends FrameLayout {
             return;
         }
         powerSave = enabled;
-        if (!enabled && snapshotWindow != null && snapshot == null && Build.VERSION.SDK_INT >= 31) {
+        if (enabled) {
+            snapshot = null;
+            snapshotDirty = true;
+        } else if (snapshotWindow != null && Build.VERSION.SDK_INT >= 31) {
             requestSnapshot();
         }
         invalidate();

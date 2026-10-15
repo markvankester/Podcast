@@ -62,6 +62,8 @@ class PlayerQueueAdapter extends RecyclerView.Adapter<PlayerQueueAdapter.Holder>
                 FeedItem oldItem = oldItems.get(oldPosition);
                 FeedItem newItem = newItems.get(newPosition);
                 return Objects.equals(oldItem.getTitle(), newItem.getTitle())
+                        && Objects.equals(oldItem.getFeed() != null ? oldItem.getFeed().getTitle() : null,
+                            newItem.getFeed() != null ? newItem.getFeed().getTitle() : null)
                         && Objects.equals(oldItem.getImageLocation(), newItem.getImageLocation())
                         && (oldItem.getMedia() == null ? 0 : oldItem.getMedia().getDuration())
                             == (newItem.getMedia() == null ? 0 : newItem.getMedia().getDuration());
