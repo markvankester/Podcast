@@ -144,7 +144,7 @@ public final class PodcastPopupMenu {
         }
 
         GlassLayout glass = createGlass(context, colors, findActivity(context));
-        glass.setCornerRadius(PodcastMetrics.dp(context, 22), false);
+        glass.setCornerRadius(context.getResources().getDimension(R.dimen.podcast_radius_large), false);
         glass.addView(scroll);
         FrameLayout frame = new FrameLayout(context);
         int shadow = PodcastMetrics.dp(context, 14);
@@ -249,7 +249,7 @@ public final class PodcastPopupMenu {
         container.setTag(R.id.podcast_glass_applied, true);
         container.setBackgroundTintList(ColorStateList.valueOf(Color.TRANSPARENT));
         GlassLayout glass = createGlass(dialog.getContext(), null, activity);
-        glass.setCornerRadius(PodcastMetrics.dp(dialog.getContext(), 28), true);
+        glass.setCornerRadius(dialog.getContext().getResources().getDimension(R.dimen.podcast_radius_sheet), true);
         FrameLayout.LayoutParams glassParams = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT);
         glassParams.bottomMargin = -container.getPaddingBottom();
@@ -307,10 +307,10 @@ public final class PodcastPopupMenu {
         row.setPadding(horizontal, 0, horizontal, 0);
         row.setMinimumHeight(PodcastMetrics.dp(context, 50));
         GradientDrawable shape = new GradientDrawable();
-        shape.setCornerRadius(PodcastMetrics.dp(context, 14));
+        shape.setCornerRadius(context.getResources().getDimension(R.dimen.podcast_radius_medium));
         shape.setColor(selected ? colors.accentSoft : Color.TRANSPARENT);
         GradientDrawable mask = new GradientDrawable();
-        mask.setCornerRadius(PodcastMetrics.dp(context, 14));
+        mask.setCornerRadius(context.getResources().getDimension(R.dimen.podcast_radius_medium));
         mask.setColor(Color.WHITE);
         row.setBackground(new RippleDrawable(ColorStateList.valueOf(colors.ripple), shape, mask));
         LinearLayout.LayoutParams rowParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,

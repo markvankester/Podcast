@@ -57,7 +57,7 @@
             android:layout_gravity="top"
             android:layout_marginTop="352dp"
             app:glassBlurDp="64"
-            app:glassRadiusDp="34"
+            app:glassRadius="@dimen/podcast_radius_screen"
             app:glassTintAlpha="0.74">
 
             <LinearLayout
@@ -218,7 +218,7 @@
                         android:layout_gravity="top|center_horizontal"
                         android:alpha="0"
                         app:cardBackgroundColor="#CC000000"
-                        app:cardCornerRadius="10dp"
+                        app:cardCornerRadius="@dimen/podcast_radius_small"
                         app:cardElevation="0dp"
                         tools:alpha="1">
 

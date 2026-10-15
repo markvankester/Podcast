@@ -148,7 +148,7 @@
         <item name="android:minHeight">52dp</item>
         <item name="android:insetTop">0dp</item>
         <item name="android:insetBottom">0dp</item>
-        <item name="cornerRadius">26dp</item>
+        <item name="cornerRadius">@dimen/podcast_radius_pill</item>
         <item name="rippleColor">?attr/podcast_divider</item>
     </style>
     <style name="Widget.Podcast.SortButton.Active">
@@ -196,7 +196,7 @@
         <item name="android:paddingLeft">14dp</item>
         <item name="android:paddingEnd">14dp</item>
         <item name="android:paddingRight">14dp</item>
-        <item name="cornerRadius">14dp</item>
+        <item name="cornerRadius">@dimen/podcast_radius_medium</item>
         <item name="rippleColor">?attr/podcast_divider</item>
         <item name="iconGravity">end</item>
         <item name="iconSize">20dp</item>
@@ -215,7 +215,7 @@
         <item name="android:minHeight">48dp</item>
         <item name="android:insetTop">0dp</item>
         <item name="android:insetBottom">0dp</item>
-        <item name="cornerRadius">24dp</item>
+        <item name="cornerRadius">@dimen/podcast_radius_pill</item>
         <item name="strokeColor">?attr/podcast_divider</item>
         <item name="strokeWidth">1dp</item>
         <item name="rippleColor">?attr/podcast_divider</item>

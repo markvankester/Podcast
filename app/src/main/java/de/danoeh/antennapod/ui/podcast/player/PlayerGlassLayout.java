@@ -45,17 +45,17 @@ public class PlayerGlassLayout extends FrameLayout {
     public PlayerGlassLayout(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         setWillNotDraw(false);
-        float r = 34;
+        float r = PodcastMetrics.dp(context, 34);
         float blur = 36;
         float alpha = 0.42f;
         if (attrs != null) {
             TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.PlayerGlassLayout);
-            r = a.getFloat(R.styleable.PlayerGlassLayout_glassRadiusDp, r);
+            r = a.getDimension(R.styleable.PlayerGlassLayout_glassRadius, r);
             blur = a.getFloat(R.styleable.PlayerGlassLayout_glassBlurDp, blur);
             alpha = a.getFloat(R.styleable.PlayerGlassLayout_glassTintAlpha, alpha);
             a.recycle();
         }
-        radius = PodcastMetrics.dp(context, r);
+        radius = r;
         blurDp = blur;
         tintAlpha = alpha;
 

@@ -97,7 +97,7 @@ public class PodcastTabView extends FrameLayout {
         badge.setMinHeight(PodcastMetrics.dp(context, 16));
         GradientDrawable badgeBackground = new GradientDrawable();
         badgeBackground.setColor(activeColor);
-        badgeBackground.setCornerRadius(PodcastMetrics.dp(context, 8));
+        badgeBackground.setCornerRadius(context.getResources().getDimension(R.dimen.podcast_radius_pill));
         badge.setBackground(badgeBackground);
         badge.setVisibility(GONE);
         LayoutParams badgeParams = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);

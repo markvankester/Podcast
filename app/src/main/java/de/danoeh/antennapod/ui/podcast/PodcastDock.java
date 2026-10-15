@@ -75,7 +75,7 @@ public class PodcastDock {
         GradientDrawable highlightBackground = new GradientDrawable();
         highlightBackground.setColor(MaterialColors.getColor(context, R.attr.podcast_tab_highlight,
                 Color.argb(15, 0, 0, 0)));
-        highlightBackground.setCornerRadius(PodcastMetrics.dp(context, 100));
+        highlightBackground.setCornerRadius(context.getResources().getDimension(R.dimen.podcast_radius_pill));
         highlight.setBackground(highlightBackground);
 
         tabs[0] = new PodcastTabView(context, R.drawable.podcast_ic_home_outline,

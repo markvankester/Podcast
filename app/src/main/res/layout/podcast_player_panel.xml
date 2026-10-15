@@ -24,7 +24,7 @@
         android:clickable="true"
         android:focusable="false"
         app:glassBlurDp="40"
-        app:glassRadiusDp="34"
+        app:glassRadius="@dimen/podcast_radius_screen"
         app:glassTintAlpha="0.72">
 
         <LinearLayout

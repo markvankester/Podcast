@@ -41,7 +41,7 @@
                 android:layout_marginVertical="8dp"
                 android:layout_marginEnd="14dp"
                 app:cardBackgroundColor="@color/non_square_icon_background"
-                app:cardCornerRadius="8dp"
+                app:cardCornerRadius="@dimen/podcast_radius_small"
                 app:cardPreventCornerOverlap="false"
                 app:cardElevation="0dp">
 
@@ -259,7 +259,7 @@
                         android:max="100"
                         android:layout_marginHorizontal="8dp"
                         app:trackThickness="3dp"
-                        app:trackCornerRadius="2dp"
+                        app:trackCornerRadius="@dimen/podcast_radius_hairline"
                         app:trackColor="?attr/podcast_divider"
                         app:indicatorColor="?attr/podcast_accent"
                         app:trackStopIndicatorSize="0dp" />

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="podcast_radius_small">8dp</dimen>
+    <dimen name="podcast_radius_medium">14dp</dimen>
+    <dimen name="podcast_radius_large">22dp</dimen>
+    <dimen name="podcast_radius_sheet">28dp</dimen>
+    <dimen name="podcast_radius_screen">34dp</dimen>
+    <dimen name="podcast_radius_pill">999dp</dimen>
+    <dimen name="podcast_radius_hairline">2dp</dimen>
+</resources>
