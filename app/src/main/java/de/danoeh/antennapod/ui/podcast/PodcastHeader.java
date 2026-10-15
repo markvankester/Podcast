@@ -125,8 +125,9 @@ public class PodcastHeader extends LinearLayout {
         button.setPadding(padding, padding, padding, padding);
         button.setScaleType(ImageView.ScaleType.FIT_CENTER);
         button.setImageResource(icon);
-        button.setBackgroundResource(accent
-                ? R.drawable.podcast_bg_round_accent_soft : R.drawable.podcast_bg_round_fill);
+        button.setBackgroundResource(R.drawable.podcast_bg_round);
+        button.setBackgroundTintList(ColorStateList.valueOf(ThemeUtils.getColorFromAttr(getContext(),
+                accent ? R.attr.podcast_accent_soft : R.attr.podcast_subtle_fill)));
         int tint = ThemeUtils.getColorFromAttr(getContext(),
                 accent ? R.attr.podcast_accent : R.attr.podcast_text_primary);
         ImageViewCompat.setImageTintList(button, ColorStateList.valueOf(tint));
@@ -148,7 +149,9 @@ public class PodcastHeader extends LinearLayout {
                 getResources().getDimension(R.dimen.podcast_text_body));
         button.setTypeface(ResourcesCompat.getFont(getContext(), R.font.manrope_bold));
         button.setTextColor(ThemeUtils.getColorFromAttr(getContext(), R.attr.podcast_accent));
-        button.setBackgroundResource(R.drawable.podcast_bg_pill_fill);
+        button.setBackgroundResource(R.drawable.podcast_bg_pill);
+        button.setBackgroundTintList(ColorStateList.valueOf(ThemeUtils.getColorFromAttr(getContext(),
+                R.attr.podcast_subtle_fill)));
         button.setOnClickListener(withHaptic(listener));
         addAction(button);
         return button;

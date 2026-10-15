@@ -274,4 +274,12 @@
         <item name="fontFamily">@font/manrope_extrabold</item>
         <item name="android:letterSpacing">-0.02</item>
     </style>
+
+    <style name="ThemeOverlay.Podcast.EpisodeCover.Large" parent="">
+        <item name="podcast_cover_placeholder_text_size">11sp</item>
+    </style>
+
+    <style name="ThemeOverlay.Podcast.EpisodeCover.Small" parent="">
+        <item name="podcast_cover_placeholder_text_size">10sp</item>
+    </style>
 </resources>

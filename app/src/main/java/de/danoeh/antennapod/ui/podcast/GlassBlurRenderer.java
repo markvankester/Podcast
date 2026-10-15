@@ -2,12 +2,8 @@ package de.danoeh.antennapod.ui.podcast;
 
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.ColorMatrix;
-import android.graphics.ColorMatrixColorFilter;
 import android.graphics.RecordingCanvas;
-import android.graphics.RenderEffect;
 import android.graphics.RenderNode;
-import android.graphics.Shader;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewParent;
@@ -47,11 +43,7 @@ final class GlassBlurRenderer {
         }
         shared = existing;
         shared.users++;
-        ColorMatrix matrix = new ColorMatrix();
-        matrix.setSaturation(GlassLayout.glassSaturation(glass.getContext()));
-        RenderEffect saturation = RenderEffect.createColorFilterEffect(new ColorMatrixColorFilter(matrix));
-        RenderEffect blurEffect = RenderEffect.createBlurEffect(blur, blur, Shader.TileMode.CLAMP);
-        node.setRenderEffect(RenderEffect.createChainEffect(saturation, blurEffect));
+        node.setRenderEffect(GlassEffects.blurSaturation(glass.getContext(), blur));
     }
 
     void release() {

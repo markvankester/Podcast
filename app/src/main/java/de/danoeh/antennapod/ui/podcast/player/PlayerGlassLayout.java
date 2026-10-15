@@ -1,5 +1,6 @@
 package de.danoeh.antennapod.ui.podcast.player;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
@@ -10,8 +11,6 @@ import android.graphics.Path;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
 import android.graphics.RectF;
-import android.graphics.RenderEffect;
-import android.graphics.Shader;
 import android.os.Build;
 import android.util.AttributeSet;
 import android.view.View;
@@ -19,6 +18,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import androidx.annotation.ColorInt;
 import de.danoeh.antennapod.R;
+import de.danoeh.antennapod.ui.podcast.GlassEffects;
 import de.danoeh.antennapod.ui.podcast.PodcastMetrics;
 
 public class PlayerGlassLayout extends FrameLayout {
@@ -28,11 +28,13 @@ public class PlayerGlassLayout extends FrameLayout {
     private final View tintView;
     private final Path clipPath = new Path();
     private final RectF rect = new RectF();
-    private final Paint borderPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private final Paint borderPaint;
     private final float radius;
     private final float blurDp;
     private final float tintAlpha;
     private int baseColor = PlayerPalette.FALLBACK_COLOR;
+    private boolean powerSave = false;
+    private BroadcastReceiver powerSaveReceiver;
 
     public PlayerGlassLayout(Context context) {
         this(context, null);
@@ -67,13 +69,11 @@ public class PlayerGlassLayout extends FrameLayout {
         tintView = new View(context);
         addView(tintView, 1, new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
 
-        borderPaint.setStyle(Paint.Style.STROKE);
-        borderPaint.setStrokeWidth(PodcastMetrics.dp(context, 1));
-        borderPaint.setColor(Color.argb(77, 255, 255, 255));
+        borderPaint = GlassEffects.createBorderPaint(Color.argb(77, 255, 255, 255), PodcastMetrics.dp(context, 1));
 
         if (Build.VERSION.SDK_INT >= 31) {
             float px = PodcastMetrics.dp(context, blurDp);
-            blurView.setRenderEffect(RenderEffect.createBlurEffect(px, px, Shader.TileMode.CLAMP));
+            blurView.setRenderEffect(GlassEffects.blur(px));
         } else {
             blurView.setVisibility(GONE);
         }
@@ -90,28 +90,44 @@ public class PlayerGlassLayout extends FrameLayout {
     }
 
     private void applyColor(@ColorInt int color) {
-        int alpha = Build.VERSION.SDK_INT >= 31 ? Math.round(tintAlpha * 255) : Math.round(
+        boolean blurEnabled = Build.VERSION.SDK_INT >= 31 && !powerSave;
+        int alpha = blurEnabled ? Math.round(tintAlpha * 255) : Math.round(
                 Math.max(tintAlpha, 0.9f) * 255);
         tintView.setBackgroundColor(Color.argb(alpha, Color.red(color), Color.green(color), Color.blue(color)));
         setBackgroundColor(Color.TRANSPARENT);
-        if (Build.VERSION.SDK_INT < 31) {
-            blurView.setVisibility(GONE);
-        }
+        blurView.setVisibility(blurEnabled ? VISIBLE : GONE);
         invalidate();
+    }
+
+    @Override
+    protected void onAttachedToWindow() {
+        super.onAttachedToWindow();
+        powerSave = GlassEffects.isPowerSave(getContext());
+        applyColor(baseColor);
+        powerSaveReceiver = GlassEffects.watchPowerSave(getContext(), () -> {
+            powerSave = GlassEffects.isPowerSave(getContext());
+            applyColor(baseColor);
+        });
+    }
+
+    @Override
+    protected void onDetachedFromWindow() {
+        if (powerSaveReceiver != null) {
+            GlassEffects.unwatchPowerSave(getContext(), powerSaveReceiver);
+            powerSaveReceiver = null;
+        }
+        super.onDetachedFromWindow();
     }
 
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
         rect.set(0, 0, w, h);
-        clipPath.reset();
-        float[] radii = {radius, radius, radius, radius, 0, 0, 0, 0};
-        clipPath.addRoundRect(rect, radii, Path.Direction.CW);
+        GlassEffects.roundRectPath(clipPath, rect, radius, 0);
     }
 
     @Override
     protected void dispatchDraw(Canvas canvas) {
-        final float inset = borderPaint.getStrokeWidth() / 2f;
         final int save = canvas.save();
         canvas.clipPath(clipPath);
         canvas.drawColor(Color.rgb(Color.red(baseColor), Color.green(baseColor), Color.blue(baseColor)));
@@ -119,8 +135,7 @@ public class PlayerGlassLayout extends FrameLayout {
         canvas.restoreToCount(save);
         canvas.save();
         canvas.clipRect(0, 0, getWidth(), radius);
-        canvas.drawRoundRect(inset, inset, getWidth() - inset, getHeight() + radius,
-                radius - inset, radius - inset, borderPaint);
+        GlassEffects.drawBorder(canvas, borderPaint, getWidth(), getHeight() + radius, radius);
         canvas.restore();
     }
 }

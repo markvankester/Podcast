@@ -122,7 +122,8 @@
                 android:layout_height="46dp"
                 android:layout_weight="1"
                 android:orientation="horizontal"
-                android:background="@drawable/podcast_bg_pill_accent"
+                android:background="@drawable/podcast_bg_pill"
+                android:backgroundTint="?attr/podcast_accent"
                 android:gravity="center">
 
                 <ImageView
@@ -154,7 +155,8 @@
                 android:layout_marginStart="10dp"
                 android:layout_weight="1"
                 android:orientation="horizontal"
-                android:background="@drawable/podcast_bg_pill_fill"
+                android:background="@drawable/podcast_bg_pill"
+                android:backgroundTint="?attr/podcast_subtle_fill"
                 android:gravity="center">
 
                 <FrameLayout

@@ -2,7 +2,7 @@
     android:color="?attr/colorControlHighlight">
     <item>
         <shape android:shape="oval">
-            <solid android:color="?attr/podcast_subtle_fill" />
+            <solid android:color="@android:color/white" />
         </shape>
     </item>
 </ripple>

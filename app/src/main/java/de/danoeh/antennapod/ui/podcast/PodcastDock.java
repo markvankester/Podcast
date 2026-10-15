@@ -36,6 +36,7 @@ import org.greenrobot.eventbus.ThreadMode;
 public class PodcastDock {
     private static final String TAG = "PodcastDock";
     private static final long ANIMATION_DURATION = 300;
+    private static final long BADGE_UPDATE_DELAY = 500;
     private static final String[] TAGS = {HomeFragment.TAG, QueueFragment.TAG, InboxFragment.TAG,
             SubscriptionFragment.TAG};
 
@@ -61,6 +62,7 @@ public class PodcastDock {
     private ValueAnimator animator;
     private ValueAnimator searchAnimator;
     private Disposable badgeLoader;
+    private final Runnable badgeUpdater = this::updateBadge;
 
     public PodcastDock(View root, Listener listener) {
         this.root = root;
@@ -225,6 +227,7 @@ public class PodcastDock {
 
     public void onDestroyView() {
         EventBus.getDefault().unregister(this);
+        root.removeCallbacks(badgeUpdater);
         if (animator != null) {
             animator.cancel();
         }
@@ -249,15 +252,20 @@ public class PodcastDock {
                         error -> Log.e(TAG, Log.getStackTraceString(error)));
     }
 
+    private void scheduleBadgeUpdate() {
+        root.removeCallbacks(badgeUpdater);
+        root.postDelayed(badgeUpdater, BADGE_UPDATE_DELAY);
+    }
+
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onUnreadItemsChanged(FeedItemEvent event) {
         if (event.unreadStatusChanged) {
-            updateBadge();
+            scheduleBadgeUpdate();
         }
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onFeedListChanged(FeedListUpdateEvent event) {
-        updateBadge();
+        scheduleBadgeUpdate();
     }
 }

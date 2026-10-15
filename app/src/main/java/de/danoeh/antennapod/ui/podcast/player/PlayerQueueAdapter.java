@@ -9,6 +9,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.core.view.ViewCompat;
+import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import de.danoeh.antennapod.R;
@@ -20,6 +21,7 @@ import de.danoeh.antennapod.ui.podcast.PodcastSwipeHelper;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 class PlayerQueueAdapter extends RecyclerView.Adapter<PlayerQueueAdapter.Holder> {
     interface Listener {
@@ -38,9 +40,36 @@ class PlayerQueueAdapter extends RecyclerView.Adapter<PlayerQueueAdapter.Holder>
     }
 
     void setItems(List<FeedItem> newItems) {
+        List<FeedItem> oldItems = new ArrayList<>(items);
+        DiffUtil.DiffResult diff = DiffUtil.calculateDiff(new DiffUtil.Callback() {
+            @Override
+            public int getOldListSize() {
+                return oldItems.size();
+            }
+
+            @Override
+            public int getNewListSize() {
+                return newItems.size();
+            }
+
+            @Override
+            public boolean areItemsTheSame(int oldPosition, int newPosition) {
+                return oldItems.get(oldPosition).getId() == newItems.get(newPosition).getId();
+            }
+
+            @Override
+            public boolean areContentsTheSame(int oldPosition, int newPosition) {
+                FeedItem oldItem = oldItems.get(oldPosition);
+                FeedItem newItem = newItems.get(newPosition);
+                return Objects.equals(oldItem.getTitle(), newItem.getTitle())
+                        && Objects.equals(oldItem.getImageLocation(), newItem.getImageLocation())
+                        && (oldItem.getMedia() == null ? 0 : oldItem.getMedia().getDuration())
+                            == (newItem.getMedia() == null ? 0 : newItem.getMedia().getDuration());
+            }
+        });
         items.clear();
         items.addAll(newItems);
-        notifyDataSetChanged();
+        diff.dispatchUpdatesTo(this);
     }
 
     List<FeedItem> getItems() {
