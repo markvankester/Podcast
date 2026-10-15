@@ -69,4 +69,13 @@
         <item quantity="one">%d selected</item>
         <item quantity="other">%d selected</item>
     </plurals>
+    <string name="podcast_action_played">Played</string>
+    <string name="podcast_action_unplayed">Unplayed</string>
+    <string name="podcast_action_remove">Remove</string>
+    <string name="podcast_action_queue">Queue</string>
+    <string name="podcast_action_favorite">Favorite</string>
+    <string name="podcast_action_unfavorite">Unfavorite</string>
+    <string name="podcast_action_reset">Reset</string>
+    <string name="podcast_action_to_top">To top</string>
+    <string name="podcast_action_to_bottom">To bottom</string>
 </resources>

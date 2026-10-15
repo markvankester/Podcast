@@ -17,6 +17,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.util.AttributeSet;
 import android.view.View;
+import android.view.ViewParent;
 import android.view.ViewOutlineProvider;
 import android.view.PixelCopy;
 import android.view.ViewTreeObserver;
@@ -175,7 +176,7 @@ public class GlassLayout extends FrameLayout {
         }
         if (Build.VERSION.SDK_INT >= 31 && blurRenderer == null) {
             View content = getRootView().findViewById(R.id.main_content_view);
-            if (content != null) {
+            if (content != null && !isInside(content)) {
                 blurRenderer = new GlassBlurRenderer(this, content);
             }
         }
@@ -198,6 +199,17 @@ public class GlassLayout extends FrameLayout {
             requestSnapshot();
         }
         invalidate();
+    }
+
+    private boolean isInside(View ancestor) {
+        ViewParent parent = getParent();
+        while (parent instanceof View) {
+            if (parent == ancestor) {
+                return true;
+            }
+            parent = parent.getParent();
+        }
+        return false;
     }
 
     @RequiresApi(31)

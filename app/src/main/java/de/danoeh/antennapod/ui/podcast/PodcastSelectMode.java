@@ -1,5 +1,7 @@
 package de.danoeh.antennapod.ui.podcast;
 
+import android.content.Context;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import androidx.annotation.Nullable;
@@ -38,6 +40,40 @@ public final class PodcastSelectMode {
         if (header != null) {
             header.startSelectMode(adapter);
         }
+        menu.post(() -> {
+            View bar = activity.findViewById(R.id.action_mode_bar);
+            if (bar != null) {
+                bar.setPivotY(0f);
+                bar.setScaleY(0f);
+            }
+        });
+    }
+
+    public static CharSequence shortLabel(Context context, MenuItem item) {
+        int id = item.getItemId();
+        int label;
+        if (id == R.id.mark_read_item) {
+            label = R.string.podcast_action_played;
+        } else if (id == R.id.mark_unread_item) {
+            label = R.string.podcast_action_unplayed;
+        } else if (id == R.id.remove_from_queue_item || id == R.id.remove_inbox_item) {
+            label = R.string.podcast_action_remove;
+        } else if (id == R.id.add_to_queue_item) {
+            label = R.string.podcast_action_queue;
+        } else if (id == R.id.add_to_favorites_item) {
+            label = R.string.podcast_action_favorite;
+        } else if (id == R.id.remove_from_favorites_item) {
+            label = R.string.podcast_action_unfavorite;
+        } else if (id == R.id.reset_position) {
+            label = R.string.podcast_action_reset;
+        } else if (id == R.id.move_to_top_item) {
+            label = R.string.podcast_action_to_top;
+        } else if (id == R.id.move_to_bottom_item) {
+            label = R.string.podcast_action_to_bottom;
+        } else {
+            return item.getTitle();
+        }
+        return context.getString(label);
     }
 
     public static void end(FragmentActivity activity, FloatingSelectMenu menu, View scrollView,

@@ -13,6 +13,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.widget.PopupMenu;
 import androidx.core.widget.ImageViewCompat;
 import de.danoeh.antennapod.R;
+import de.danoeh.antennapod.ui.podcast.PodcastSelectMode;
 import de.danoeh.antennapod.databinding.FloatingSelectMenuBinding;
 import de.danoeh.antennapod.databinding.FloatingSelectMenuItemBinding;
 import de.danoeh.antennapod.ui.common.ThemeUtils;
@@ -66,7 +67,8 @@ public class FloatingSelectMenu extends FrameLayout {
             }
             FloatingSelectMenuItemBinding itemBinding = FloatingSelectMenuItemBinding.bind(
                     View.inflate(getContext(), R.layout.floating_select_menu_item, null));
-            itemBinding.titleLabel.setText(item.getTitle());
+            itemBinding.titleLabel.setText(PodcastSelectMode.shortLabel(getContext(), item));
+            itemBinding.getRoot().setContentDescription(item.getTitle());
             itemBinding.icon.setImageDrawable(item.getIcon());
             if (item.getItemId() == R.id.remove_item) {
                 int accent = ThemeUtils.getColorFromAttr(getContext(), R.attr.podcast_accent);
