@@ -6,6 +6,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.core.content.res.ResourcesCompat;
+import androidx.core.util.Consumer;
 import androidx.recyclerview.widget.RecyclerView;
 import de.danoeh.antennapod.R;
 import de.danoeh.antennapod.model.feed.Chapter;
@@ -13,14 +14,13 @@ import de.danoeh.antennapod.ui.common.Converter;
 import de.danoeh.antennapod.ui.podcast.PodcastHaptics;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.IntConsumer;
 
 class PlayerChapterAdapter extends RecyclerView.Adapter<PlayerChapterAdapter.Holder> {
     private final List<Chapter> chapters = new ArrayList<>();
-    private final IntConsumer clickListener;
+    private final Consumer<Integer> clickListener;
     private int current = -1;
 
-    PlayerChapterAdapter(IntConsumer clickListener) {
+    PlayerChapterAdapter(Consumer<Integer> clickListener) {
         this.clickListener = clickListener;
     }
 

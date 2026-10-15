@@ -49,7 +49,11 @@ public final class PodcastMenus {
             items.add(item);
         }
         if (items.size() > 1) {
-            items.removeIf(item -> item.getItemId() == R.id.refresh_item);
+            for (int i = items.size() - 1; i >= 0; i--) {
+                if (items.get(i).getItemId() == R.id.refresh_item) {
+                    items.remove(i);
+                }
+            }
         }
         if (items.isEmpty()) {
             return;

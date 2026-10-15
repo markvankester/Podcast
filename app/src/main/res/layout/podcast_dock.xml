@@ -16,7 +16,8 @@
         android:clipChildren="false"
         android:clipToPadding="false"
         android:gravity="center_vertical"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:baselineAligned="false">
 
         <de.danoeh.antennapod.ui.podcast.GlassLayout
             android:id="@+id/podcast_tab_capsule"

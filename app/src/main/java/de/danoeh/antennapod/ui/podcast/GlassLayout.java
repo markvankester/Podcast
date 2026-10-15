@@ -69,7 +69,7 @@ public class GlassLayout extends FrameLayout {
     private boolean preDrawRegistered = false;
 
     private final ViewTreeObserver.OnPreDrawListener preDrawListener = () -> {
-        if (blurRenderer != null && !powerSave) {
+        if (Build.VERSION.SDK_INT >= 31 && blurRenderer != null && !powerSave) {
             blurRenderer.record();
         }
         return true;
@@ -271,7 +271,7 @@ public class GlassLayout extends FrameLayout {
             getViewTreeObserver().removeOnPreDrawListener(preDrawListener);
             preDrawRegistered = false;
         }
-        if (blurRenderer != null) {
+        if (Build.VERSION.SDK_INT >= 31 && blurRenderer != null) {
             blurRenderer.release();
         }
         blurRenderer = null;
@@ -290,7 +290,7 @@ public class GlassLayout extends FrameLayout {
             canvas.clipPath(shapePath);
             blurred = drawSnapshot(canvas);
             canvas.restore();
-        } else if (!powerSave && blurRenderer != null) {
+        } else if (Build.VERSION.SDK_INT >= 31 && !powerSave && blurRenderer != null) {
             canvas.save();
             canvas.clipPath(shapePath);
             blurred = blurRenderer.draw(canvas);
