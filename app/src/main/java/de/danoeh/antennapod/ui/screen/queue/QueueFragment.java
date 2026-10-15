@@ -13,9 +13,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
-import android.widget.ImageView;
 import android.widget.ProgressBar;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -27,7 +25,6 @@ import androidx.recyclerview.widget.SimpleItemAnimator;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.google.android.material.appbar.MaterialToolbar;
-import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import de.danoeh.antennapod.event.MessageEvent;
@@ -59,10 +56,6 @@ import de.danoeh.antennapod.event.PlayerStatusEvent;
 import de.danoeh.antennapod.event.QueueEvent;
 import de.danoeh.antennapod.event.playback.PlaybackPositionEvent;
 import de.danoeh.antennapod.ui.episodeslist.EpisodeMultiSelectActionHandler;
-import de.danoeh.antennapod.playback.service.PlaybackStatus;
-import de.danoeh.antennapod.storage.preferences.PlaybackPreferences;
-import de.danoeh.antennapod.ui.CoverLoader;
-import de.danoeh.antennapod.ui.episodes.ImageResourceUtils;
 import de.danoeh.antennapod.ui.podcast.PodcastFormat;
 import de.danoeh.antennapod.ui.podcast.PodcastHeader;
 import de.danoeh.antennapod.ui.podcast.PodcastSelectMode;
@@ -91,13 +84,6 @@ public class QueueFragment extends Fragment implements MaterialToolbar.OnMenuIte
     private static final String SCROLL_OFFSET_KEY = "scroll_offset";
 
     private PodcastHeader header;
-    private View nowPlayingBlock;
-    private View upNextLabel;
-    private ImageView nowPlayingCover;
-    private TextView nowPlayingTitle;
-    private TextView nowPlayingMeta;
-    private ProgressBar nowPlayingProgress;
-    private FeedItem nowPlayingItem;
     private EpisodeItemListRecyclerView recyclerView;
     private QueueRecyclerAdapter recyclerAdapter;
     private EmptyViewHandler emptyView;
@@ -238,10 +224,6 @@ public class QueueFragment extends Fragment implements MaterialToolbar.OnMenuIte
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEventMainThread(PlaybackPositionEvent event) {
-        if (nowPlayingItem != null && nowPlayingItem.getMedia() != null
-                && PlaybackStatus.isPlaying(nowPlayingItem.getMedia())) {
-            updateNowPlayingProgress(event.getPosition(), event.getDuration());
-        }
         if (recyclerAdapter != null) {
             for (int i = 0; i < recyclerAdapter.getItemCount(); i++) {
                 EpisodeItemViewHolder holder = (EpisodeItemViewHolder)
@@ -451,14 +433,6 @@ public class QueueFragment extends Fragment implements MaterialToolbar.OnMenuIte
         }
         header.addPillButton(R.string.podcast_edit, v -> startEditing());
         header.addOverflowButton(toolbar.getMenu(), this);
-        nowPlayingBlock = root.findViewById(R.id.queue_now_playing);
-        upNextLabel = root.findViewById(R.id.queue_up_next_label);
-        nowPlayingCover = root.findViewById(R.id.queue_now_playing_cover);
-        nowPlayingTitle = root.findViewById(R.id.queue_now_playing_title);
-        nowPlayingMeta = root.findViewById(R.id.queue_now_playing_meta);
-        nowPlayingProgress = root.findViewById(R.id.queue_now_playing_progress);
-        root.findViewById(R.id.queue_now_playing_card).setOnClickListener(v ->
-                ((MainActivity) requireActivity()).getBottomSheet().setState(BottomSheetBehavior.STATE_EXPANDED));
 
         recyclerView = root.findViewById(R.id.recyclerView);
         RecyclerView.ItemAnimator animator = recyclerView.getItemAnimator();
@@ -534,11 +508,7 @@ public class QueueFragment extends Fragment implements MaterialToolbar.OnMenuIte
         if (recyclerAdapter == null || recyclerAdapter.getItemCount() == 0 || recyclerAdapter.inActionMode()) {
             return;
         }
-        int first = recyclerAdapter.isHidden(0) ? 1 : 0;
-        if (first >= recyclerAdapter.getItemCount()) {
-            return;
-        }
-        recyclerAdapter.startSelectMode(first);
+        recyclerAdapter.startSelectMode(0);
     }
 
     private void refreshInfoBar() {
@@ -556,48 +526,6 @@ public class QueueFragment extends Fragment implements MaterialToolbar.OnMenuIte
         String episodes = getResources().getQuantityString(R.plurals.num_episodes, queue.size(), queue.size());
         String time = PodcastFormat.duration(requireContext(), timeLeft);
         header.setSubtitle(getString(R.string.podcast_queue_summary, episodes, time));
-        refreshNowPlaying();
-    }
-
-    private void refreshNowPlaying() {
-        long mediaId = PlaybackPreferences.getCurrentlyPlayingFeedMediaId();
-        nowPlayingItem = null;
-        for (FeedItem item : queue) {
-            if (item.getMedia() != null && item.getMedia().getId() == mediaId) {
-                nowPlayingItem = item;
-                break;
-            }
-        }
-        if (recyclerAdapter != null) {
-            long hiddenId = nowPlayingItem != null && queue.get(0) == nowPlayingItem ? nowPlayingItem.getId() : -1;
-            if (recyclerAdapter.setHiddenItemId(hiddenId)) {
-                recyclerAdapter.notifyDataSetChanged();
-            }
-        }
-        boolean hasNowPlaying = nowPlayingItem != null && queue.get(0) == nowPlayingItem;
-        nowPlayingBlock.setVisibility(hasNowPlaying ? View.VISIBLE : View.GONE);
-        upNextLabel.setVisibility(queue.size() > (hasNowPlaying ? 1 : 0) ? View.VISIBLE : View.GONE);
-        if (hasNowPlaying) {
-            nowPlayingTitle.setText(nowPlayingItem.getTitle());
-            new CoverLoader()
-                    .withUri(ImageResourceUtils.getEpisodeListImageLocation(nowPlayingItem))
-                    .withFallbackUri(nowPlayingItem.getFeed().getImageUrl())
-                    .withCoverView(nowPlayingCover)
-                    .load();
-            updateNowPlayingProgress(nowPlayingItem.getMedia().getPosition(),
-                    nowPlayingItem.getMedia().getDuration());
-        }
-    }
-
-    private void updateNowPlayingProgress(int position, int duration) {
-        if (nowPlayingItem == null || duration <= 0) {
-            nowPlayingProgress.setProgress(0);
-            nowPlayingMeta.setText(nowPlayingItem == null ? "" : nowPlayingItem.getFeed().getTitle());
-            return;
-        }
-        nowPlayingProgress.setProgress((int) (1000L * position / duration));
-        nowPlayingMeta.setText(getString(R.string.podcast_meta_separator, nowPlayingItem.getFeed().getTitle(),
-                PodcastFormat.timeLeft(requireContext(), duration, position)));
     }
 
     private void loadItems() {
@@ -750,8 +678,7 @@ public class QueueFragment extends Fragment implements MaterialToolbar.OnMenuIte
             int from = viewHolder.getBindingAdapterPosition();
             int to = target.getBindingAdapterPosition();
             Log.d(TAG, "move(" + from + ", " + to + ") in memory");
-            if (queue == null || from >= queue.size() || to >= queue.size() || from < 0 || to < 0
-                    || recyclerAdapter.isHidden(to) || recyclerAdapter.isHidden(from)) {
+            if (queue == null || from >= queue.size() || to >= queue.size() || from < 0 || to < 0) {
                 return false;
             }
             // Update tracked position

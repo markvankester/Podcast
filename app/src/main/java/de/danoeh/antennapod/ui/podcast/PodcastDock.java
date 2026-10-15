@@ -22,6 +22,7 @@ import de.danoeh.antennapod.model.feed.FeedItemFilter;
 import de.danoeh.antennapod.storage.database.DBReader;
 import de.danoeh.antennapod.ui.screen.InboxFragment;
 import de.danoeh.antennapod.ui.screen.home.HomeFragment;
+import de.danoeh.antennapod.ui.screen.queue.QueueFragment;
 import de.danoeh.antennapod.ui.screen.subscriptions.SubscriptionFragment;
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.Observable;
@@ -34,7 +35,8 @@ import org.greenrobot.eventbus.ThreadMode;
 public class PodcastDock {
     private static final String TAG = "PodcastDock";
     private static final long ANIMATION_DURATION = 300;
-    private static final String[] TAGS = {HomeFragment.TAG, InboxFragment.TAG, SubscriptionFragment.TAG};
+    private static final String[] TAGS = {HomeFragment.TAG, QueueFragment.TAG, InboxFragment.TAG,
+            SubscriptionFragment.TAG};
 
     public interface Listener {
         void onTabClicked(String tag);
@@ -78,9 +80,11 @@ public class PodcastDock {
 
         tabs[0] = new PodcastTabView(context, R.drawable.podcast_ic_home_outline,
                 R.drawable.podcast_ic_home_filled, R.string.podcast_tab_home);
-        tabs[1] = new PodcastTabView(context, R.drawable.podcast_ic_new_outline,
+        tabs[1] = new PodcastTabView(context, R.drawable.podcast_ic_queue_outline,
+                R.drawable.podcast_ic_queue_filled, R.string.podcast_tab_queue);
+        tabs[2] = new PodcastTabView(context, R.drawable.podcast_ic_new_outline,
                 R.drawable.podcast_ic_new_filled, R.string.podcast_tab_new);
-        tabs[2] = new PodcastTabView(context, R.drawable.podcast_ic_library_outline,
+        tabs[3] = new PodcastTabView(context, R.drawable.podcast_ic_library_outline,
                 R.drawable.podcast_ic_library_filled, R.string.podcast_tab_library);
         for (int i = 0; i < tabs.length; i++) {
             final int index = i;
@@ -240,7 +244,7 @@ public class PodcastDock {
                         () -> DBReader.getTotalEpisodeCount(new FeedItemFilter(FeedItemFilter.NEW)))
                 .subscribeOn(Schedulers.computation())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(result -> tabs[1].setBadgeCount(result),
+                .subscribe(result -> tabs[2].setBadgeCount(result),
                         error -> Log.e(TAG, Log.getStackTraceString(error)));
     }
 
