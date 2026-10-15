@@ -1,6 +1,7 @@
 package de.danoeh.antennapod.ui.view;
 
 import android.content.Context;
+import android.content.res.ColorStateList;
 import android.util.AttributeSet;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -10,10 +11,12 @@ import androidx.annotation.MenuRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.PopupMenu;
-import com.google.android.material.elevation.SurfaceColors;
+import androidx.core.widget.ImageViewCompat;
 import de.danoeh.antennapod.R;
 import de.danoeh.antennapod.databinding.FloatingSelectMenuBinding;
 import de.danoeh.antennapod.databinding.FloatingSelectMenuItemBinding;
+import de.danoeh.antennapod.ui.common.ThemeUtils;
+import de.danoeh.antennapod.ui.podcast.PodcastMetrics;
 
 public class FloatingSelectMenu extends FrameLayout {
     private FloatingSelectMenuBinding viewBinding;
@@ -38,8 +41,8 @@ public class FloatingSelectMenu extends FrameLayout {
     private void setup() {
         viewBinding = FloatingSelectMenuBinding.bind(
                 View.inflate(getContext(), R.layout.floating_select_menu, null));
-        viewBinding.card.setCardBackgroundColor(
-                SurfaceColors.getColorForElevation(getContext(), 8 * getResources().getDisplayMetrics().density));
+        viewBinding.scrollView.addOnLayoutChangeListener(
+                (v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom) -> equalizeItems());
         addView(viewBinding.getRoot());
         setVisibility(View.GONE);
     }
@@ -65,8 +68,30 @@ public class FloatingSelectMenu extends FrameLayout {
                     View.inflate(getContext(), R.layout.floating_select_menu_item, null));
             itemBinding.titleLabel.setText(item.getTitle());
             itemBinding.icon.setImageDrawable(item.getIcon());
+            if (item.getItemId() == R.id.remove_item) {
+                int accent = ThemeUtils.getColorFromAttr(getContext(), R.attr.podcast_accent);
+                itemBinding.titleLabel.setTextColor(accent);
+                ImageViewCompat.setImageTintList(itemBinding.icon, ColorStateList.valueOf(accent));
+            }
             itemBinding.getRoot().setOnClickListener(view -> menuItemClickListener.onMenuItemClick(item));
             viewBinding.selectContainer.addView(itemBinding.getRoot());
+        }
+        equalizeItems();
+    }
+
+    private void equalizeItems() {
+        int count = viewBinding.selectContainer.getChildCount();
+        if (count == 0) {
+            return;
+        }
+        int available = viewBinding.scrollView.getWidth() - viewBinding.scrollView.getPaddingLeft()
+                - viewBinding.scrollView.getPaddingRight();
+        int minWidth = Math.max(PodcastMetrics.dp(getContext(), 64), available / count);
+        for (int i = 0; i < count; i++) {
+            View child = viewBinding.selectContainer.getChildAt(i);
+            if (child.getMinimumWidth() != minWidth) {
+                child.setMinimumWidth(minWidth);
+            }
         }
     }
 

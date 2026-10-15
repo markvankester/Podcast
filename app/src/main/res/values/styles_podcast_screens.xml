@@ -62,6 +62,14 @@
         <item name="android:ellipsize">end</item>
     </style>
 
+    <style name="Podcast.Text.SelectAction">
+        <item name="android:textSize">@dimen/podcast_text_xs</item>
+        <item name="android:fontFamily">@font/manrope_semibold</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:ellipsize">end</item>
+        <item name="android:gravity">center</item>
+    </style>
+
     <style name="Podcast.Text.CardTitle">
         <item name="android:textSize">@dimen/podcast_text_body</item>
         <item name="android:fontFamily">@font/manrope_bold</item>

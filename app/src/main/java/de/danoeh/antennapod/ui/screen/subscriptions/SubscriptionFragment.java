@@ -541,7 +541,7 @@ public class SubscriptionFragment extends Fragment
 
     @Override
     public void onEndSelectMode() {
-        PodcastSelectMode.end(requireActivity(), floatingSelectMenu, subscriptionRecycler);
+        PodcastSelectMode.end(requireActivity(), floatingSelectMenu, subscriptionRecycler, header);
         tagsRecycler.setVisibility(shouldShowTags ? View.VISIBLE : View.GONE);
         updateFilterVisibility();
         setCollapsingToolbarFlags(AppBarLayout.LayoutParams.SCROLL_FLAG_SCROLL);
@@ -549,7 +549,8 @@ public class SubscriptionFragment extends Fragment
 
     @Override
     public void onStartSelectMode() {
-        PodcastSelectMode.start(requireActivity(), floatingSelectMenu, subscriptionRecycler);
+        PodcastSelectMode.start(requireActivity(), floatingSelectMenu, subscriptionRecycler, header,
+                subscriptionAdapter);
         tagsRecycler.setVisibility(shouldShowTags ? View.INVISIBLE : View.GONE);
         updateFilterVisibility();
         setCollapsingToolbarFlags(AppBarLayout.LayoutParams.SCROLL_FLAG_SCROLL);

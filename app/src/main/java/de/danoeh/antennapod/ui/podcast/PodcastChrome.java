@@ -25,10 +25,13 @@ import de.danoeh.antennapod.R;
 import de.danoeh.antennapod.activity.MainActivity;
 
 public class PodcastChrome {
+    private static final int DOCK_HIDE_SHIFT_DP = 16;
+    private static final long DOCK_ANIMATION_MS = 150;
     private final MainActivity activity;
     private final PodcastDock dock;
     private Insets insets = Insets.NONE;
     private boolean playerVisible = false;
+    private boolean dockHidden = false;
     private float lastSlideOffset = -1f;
     private View sheet;
     private View playerContent;
@@ -99,6 +102,33 @@ public class PodcastChrome {
         return dock;
     }
 
+    public void setDockHidden(boolean hidden) {
+        if (dockHidden == hidden) {
+            return;
+        }
+        dockHidden = hidden;
+        View root = dock.getRoot();
+        root.animate().cancel();
+        if (hidden) {
+            root.animate().alpha(0f).translationY(PodcastMetrics.dp(activity, DOCK_HIDE_SHIFT_DP))
+                    .setDuration(DOCK_ANIMATION_MS)
+                    .withEndAction(() -> {
+                        if (dockHidden) {
+                            root.setVisibility(View.INVISIBLE);
+                        }
+                    }).start();
+            return;
+        }
+        float offset = Math.max(0f, lastSlideOffset);
+        lastSlideOffset = -1f;
+        if (offset > 0f) {
+            onSheetSlide(offset);
+            return;
+        }
+        root.setVisibility(View.VISIBLE);
+        root.animate().alpha(1f).translationY(0f).setDuration(DOCK_ANIMATION_MS).start();
+    }
+
     public void onDestroy() {
         activity.getSupportFragmentManager().unregisterFragmentLifecycleCallbacks(fragmentCallbacks);
     }
@@ -137,11 +167,13 @@ public class PodcastChrome {
         }
         lastSlideOffset = offset;
         View root = dock.getRoot();
-        float travel = root.getHeight()
-                + PodcastMetrics.dp(activity, PodcastMetrics.DOCK_BOTTOM_MARGIN_DP) + insets.bottom;
-        root.setTranslationY(offset * travel);
-        root.setAlpha(1f - Math.min(1f, offset * 2.5f));
-        root.setVisibility(offset >= 0.99f ? View.INVISIBLE : View.VISIBLE);
+        if (!dockHidden) {
+            float travel = root.getHeight()
+                    + PodcastMetrics.dp(activity, PodcastMetrics.DOCK_BOTTOM_MARGIN_DP) + insets.bottom;
+            root.setTranslationY(offset * travel);
+            root.setAlpha(1f - Math.min(1f, offset * 2.5f));
+            root.setVisibility(offset >= 0.99f ? View.INVISIBLE : View.VISIBLE);
+        }
 
         if (sheet == null) {
             sheet = activity.findViewById(R.id.audioplayerFragment);

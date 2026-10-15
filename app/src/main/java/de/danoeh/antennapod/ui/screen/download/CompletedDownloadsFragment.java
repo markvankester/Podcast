@@ -78,6 +78,7 @@ public class CompletedDownloadsFragment extends Fragment
     private EmptyViewHandler emptyView;
     private boolean displayUpArrow;
     private FloatingSelectMenu floatingSelectMenu;
+    private PodcastHeader header;
     private SwipeActions swipeActions;
     private ProgressBar progressBar;
     private MaterialToolbar toolbar;
@@ -101,7 +102,7 @@ public class CompletedDownloadsFragment extends Fragment
             displayUpArrow = savedInstanceState.getBoolean(KEY_UP_ARROW);
         }
         ((MainActivity) getActivity()).setupToolbarToggle(toolbar, displayUpArrow);
-        PodcastHeader header = root.findViewById(R.id.podcast_header);
+        header = root.findViewById(R.id.podcast_header);
         header.setTitle(getString(R.string.downloads_label));
         if (displayUpArrow) {
             header.setBackLink(getString(R.string.podcast_back_to_library),
@@ -352,12 +353,12 @@ public class CompletedDownloadsFragment extends Fragment
     @Override
     public void onStartSelectMode() {
         swipeActions.detach();
-        PodcastSelectMode.start(requireActivity(), floatingSelectMenu, recyclerView);
+        PodcastSelectMode.start(requireActivity(), floatingSelectMenu, recyclerView, header, adapter);
     }
 
     @Override
     public void onEndSelectMode() {
-        PodcastSelectMode.end(requireActivity(), floatingSelectMenu, recyclerView);
+        PodcastSelectMode.end(requireActivity(), floatingSelectMenu, recyclerView, header);
         swipeActions.attachTo(recyclerView);
     }
 

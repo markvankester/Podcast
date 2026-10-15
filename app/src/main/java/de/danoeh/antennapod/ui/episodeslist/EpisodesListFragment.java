@@ -335,12 +335,12 @@ public abstract class EpisodesListFragment extends Fragment
 
     @Override
     public void onStartSelectMode() {
-        PodcastSelectMode.start(requireActivity(), floatingSelectMenu, recyclerView);
+        PodcastSelectMode.start(requireActivity(), floatingSelectMenu, recyclerView, header, listAdapter);
     }
 
     @Override
     public void onEndSelectMode() {
-        PodcastSelectMode.end(requireActivity(), floatingSelectMenu, recyclerView);
+        PodcastSelectMode.end(requireActivity(), floatingSelectMenu, recyclerView, header);
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)

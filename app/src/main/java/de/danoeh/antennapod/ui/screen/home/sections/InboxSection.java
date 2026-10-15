@@ -60,7 +60,7 @@ public class InboxSection extends HomeSection {
                 MenuItemUtils.setOnClickListeners(menu, InboxSection.this::onContextItemSelected);
             }
         };
-        adapter.setRowStyle(EpisodeItemListAdapter.ROW_COMPACT);
+        adapter.setRowStyle(EpisodeItemListAdapter.ROW_NEW);
         adapter.setDummyViews(NUM_EPISODES);
         viewBinding.recyclerView.setAdapter(adapter);
         viewBinding.emptyLabel.setText(R.string.home_new_empty_text);

@@ -12,11 +12,6 @@
                     <solid android:color="?attr/podcast_accent_soft" />
                 </shape>
             </item>
-            <item android:state_selected="true">
-                <shape android:shape="rectangle">
-                    <solid android:color="?attr/podcast_accent_soft" />
-                </shape>
-            </item>
             <item android:drawable="@android:color/transparent" />
         </selector>
     </item>

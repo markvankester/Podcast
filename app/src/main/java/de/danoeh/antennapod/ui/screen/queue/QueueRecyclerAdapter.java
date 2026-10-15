@@ -66,6 +66,7 @@ public class QueueRecyclerAdapter extends EpisodeItemListAdapter {
             });
         }
         if (inActionMode()) {
+            holder.dragHandle.setVisibility(View.GONE);
             holder.dragHandle.setOnTouchListener(null);
             holder.coverHolder.setOnTouchListener(null);
         }

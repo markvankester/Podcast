@@ -8,6 +8,7 @@
     <dimen name="podcast_radius_pill">999dp</dimen>
     <dimen name="podcast_radius_hairline">2dp</dimen>
     <dimen name="podcast_screen_padding">20dp</dimen>
+    <dimen name="podcast_header_subtitle_gap">14dp</dimen>
     <dimen name="podcast_side_margin">12dp</dimen>
     <dimen name="podcast_tab_row_height">66dp</dimen>
     <dimen name="podcast_pill_height">56dp</dimen>

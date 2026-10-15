@@ -22,6 +22,8 @@ public abstract class SelectableAdapter<T extends RecyclerView.ViewHolder> exten
     private final HashSet<Long> selectedIds = new HashSet<>();
     private final FragmentActivity activity;
     private OnSelectModeListener onSelectModeListener;
+    private Runnable onSelectionChangedListener;
+    private int displayedSelectedCount = 0;
     protected boolean shouldSelectLazyLoadedItems = false;
     private int totalNumberOfItems = COUNT_AUTOMATICALLY;
 
@@ -67,11 +69,7 @@ public abstract class SelectableAdapter<T extends RecyclerView.ViewHolder> exten
             @Override
             public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
                 if (item.getItemId() == R.id.select_toggle) {
-                    boolean selectAll = selectedIds.size() != getItemCount();
-                    shouldSelectLazyLoadedItems = selectAll;
-                    setSelected(0, getItemCount(), selectAll);
-                    toggleSelectAllIcon(mode.getMenu());
-                    onSelectedItemsUpdated();
+                    toggleSelectAll();
                     return true;
                 } else if (item.getItemId() == R.id.select_all_above) {
                     int firstSelectedPosition = 0;
@@ -171,6 +169,17 @@ public abstract class SelectableAdapter<T extends RecyclerView.ViewHolder> exten
         }
     }
 
+    public void toggleSelectAll() {
+        if (actionMode == null) {
+            return;
+        }
+        boolean selectAll = selectedIds.size() != getItemCount();
+        shouldSelectLazyLoadedItems = selectAll;
+        setSelected(0, getItemCount(), selectAll);
+        toggleSelectAllIcon(actionMode.getMenu());
+        onSelectedItemsUpdated();
+    }
+
     public boolean inActionMode() {
         return actionMode != null;
     }
@@ -200,6 +209,18 @@ public abstract class SelectableAdapter<T extends RecyclerView.ViewHolder> exten
         actionMode.setTitle(activity.getResources()
                 .getQuantityString(R.plurals.num_selected_label, selectedIds.size(),
                 selectedCount, totalCount));
+        displayedSelectedCount = selectedCount;
+        if (onSelectionChangedListener != null) {
+            onSelectionChangedListener.run();
+        }
+    }
+
+    public int getDisplayedSelectedCount() {
+        return displayedSelectedCount;
+    }
+
+    public void setOnSelectionChangedListener(Runnable listener) {
+        this.onSelectionChangedListener = listener;
     }
 
     public void setOnSelectModeListener(OnSelectModeListener onSelectModeListener) {

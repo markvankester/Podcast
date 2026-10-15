@@ -12,6 +12,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import androidx.annotation.AttrRes;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
@@ -21,6 +22,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.core.widget.ImageViewCompat;
 import de.danoeh.antennapod.R;
+import de.danoeh.antennapod.ui.SelectableAdapter;
 import de.danoeh.antennapod.ui.common.ThemeUtils;
 
 public class PodcastHeader extends LinearLayout {
@@ -35,6 +37,11 @@ public class PodcastHeader extends LinearLayout {
     private final TextView subtitle;
     private final LinearLayout actions;
     private final LinearLayout topRowContainer;
+    private SelectableAdapter<?> selectAdapter;
+    private CharSequence savedSubtitle;
+    private int[] savedActionVisibility;
+    private TextView selectAllPill;
+    private TextView donePill;
 
     public PodcastHeader(Context context) {
         this(context, null);
@@ -83,8 +90,15 @@ public class PodcastHeader extends LinearLayout {
     }
 
     public void setSubtitle(@Nullable CharSequence text) {
+        if (selectAdapter != null) {
+            savedSubtitle = text;
+            return;
+        }
         subtitle.setText(text);
-        subtitle.setVisibility(text == null || text.length() == 0 ? GONE : VISIBLE);
+        boolean visible = text != null && text.length() > 0;
+        subtitle.setVisibility(visible ? VISIBLE : GONE);
+        titleRow.setPadding(titleRow.getPaddingLeft(), titleRow.getPaddingTop(), titleRow.getPaddingRight(),
+                visible ? getResources().getDimensionPixelSize(R.dimen.podcast_header_subtitle_gap) : 0);
     }
 
     public void setBackLink(@Nullable CharSequence label, @Nullable OnClickListener listener) {
@@ -138,6 +152,12 @@ public class PodcastHeader extends LinearLayout {
     }
 
     public View addPillButton(@StringRes int text, OnClickListener listener) {
+        TextView button = createPill(text, R.attr.podcast_accent, listener);
+        addAction(button);
+        return button;
+    }
+
+    private TextView createPill(@StringRes int text, @AttrRes int textColor, OnClickListener listener) {
         TextView button = new TextView(getContext());
         button.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT,
                 PodcastMetrics.dp(getContext(), PILL_HEIGHT_DP)));
@@ -148,13 +168,68 @@ public class PodcastHeader extends LinearLayout {
         button.setTextSize(TypedValue.COMPLEX_UNIT_PX,
                 getResources().getDimension(R.dimen.podcast_text_body));
         button.setTypeface(ResourcesCompat.getFont(getContext(), R.font.manrope_bold));
-        button.setTextColor(ThemeUtils.getColorFromAttr(getContext(), R.attr.podcast_accent));
+        button.setTextColor(ThemeUtils.getColorFromAttr(getContext(), textColor));
         button.setBackgroundResource(R.drawable.podcast_bg_pill);
         button.setBackgroundTintList(ColorStateList.valueOf(ThemeUtils.getColorFromAttr(getContext(),
                 R.attr.podcast_subtle_fill)));
         button.setOnClickListener(withHaptic(listener));
-        addAction(button);
         return button;
+    }
+
+    public void startSelectMode(SelectableAdapter<?> adapter) {
+        if (selectAdapter != null) {
+            endSelectMode();
+        }
+        selectAdapter = adapter;
+        savedSubtitle = subtitle.getText();
+        int count = actions.getChildCount();
+        savedActionVisibility = new int[count];
+        for (int i = 0; i < count; i++) {
+            View child = actions.getChildAt(i);
+            savedActionVisibility[i] = child.getVisibility();
+            child.setVisibility(GONE);
+        }
+        selectAllPill = createPill(R.string.select_all_label, R.attr.podcast_text_primary,
+                v -> adapter.toggleSelectAll());
+        donePill = createPill(R.string.podcast_done, R.attr.podcast_accent, v -> adapter.endSelectMode());
+        actions.addView(selectAllPill);
+        LinearLayout.LayoutParams doneParams = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT,
+                PodcastMetrics.dp(getContext(), PILL_HEIGHT_DP));
+        doneParams.setMarginStart(PodcastMetrics.dp(getContext(), 8));
+        actions.addView(donePill, doneParams);
+        adapter.setOnSelectionChangedListener(this::updateSelection);
+        updateSelection();
+    }
+
+    public void endSelectMode() {
+        if (selectAdapter == null) {
+            return;
+        }
+        selectAdapter.setOnSelectionChangedListener(null);
+        selectAdapter = null;
+        actions.removeView(selectAllPill);
+        actions.removeView(donePill);
+        selectAllPill = null;
+        donePill = null;
+        for (int i = 0; i < savedActionVisibility.length && i < actions.getChildCount(); i++) {
+            actions.getChildAt(i).setVisibility(savedActionVisibility[i]);
+        }
+        CharSequence restored = savedSubtitle;
+        savedSubtitle = null;
+        setSubtitle(restored);
+    }
+
+    private void updateSelection() {
+        if (selectAdapter == null) {
+            return;
+        }
+        int selected = selectAdapter.getDisplayedSelectedCount();
+        subtitle.setText(selected == 0 ? getContext().getString(R.string.podcast_nothing_selected)
+                : getResources().getQuantityString(R.plurals.podcast_selected_count, selected, selected));
+        subtitle.setVisibility(VISIBLE);
+        boolean allSelected = selectAdapter.getSelectedCount() > 0
+                && selectAdapter.getSelectedCount() == selectAdapter.getItemCount();
+        selectAllPill.setText(allSelected ? R.string.deselect_all_label : R.string.select_all_label);
     }
 
     public View addOverflowButton(Menu menu, Toolbar.OnMenuItemClickListener listener, int... excludedIds) {

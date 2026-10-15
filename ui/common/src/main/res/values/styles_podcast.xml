@@ -37,6 +37,7 @@
         <item name="podcast_segment_checked_text">@color/podcast_on_accent_light</item>
         <item name="podcast_popup_divider">@color/podcast_divider_light</item>
         <item name="podcast_glass_saturation">1.8</item>
+        <item name="actionModeStyle">@style/Widget.Podcast.ActionMode</item>
         <item name="chipStyle">@style/Widget.Podcast.Chip</item>
         <item name="bottomSheetDialogTheme">@style/ThemeOverlay.Podcast.BottomSheetDialog</item>
         <item name="popupMenuStyle">@style/Widget.Podcast.PopupMenu</item>
@@ -85,6 +86,7 @@
         <item name="podcast_segment_checked_text">@color/podcast_accent_dark</item>
         <item name="podcast_popup_divider">@color/podcast_popup_divider_dark</item>
         <item name="podcast_glass_saturation">1.1</item>
+        <item name="actionModeStyle">@style/Widget.Podcast.ActionMode</item>
         <item name="chipStyle">@style/Widget.Podcast.Chip</item>
         <item name="bottomSheetDialogTheme">@style/ThemeOverlay.Podcast.BottomSheetDialog</item>
         <item name="popupMenuStyle">@style/Widget.Podcast.PopupMenu</item>
@@ -137,6 +139,11 @@
         <item name="elevationOverlayEnabled">false</item>
         <item name="enableEdgeToEdge">true</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>
+    </style>
+    <style name="Widget.Podcast.ActionMode" parent="Widget.Material3.ActionMode">
+        <item name="height">1dp</item>
+        <item name="background">@android:color/transparent</item>
+        <item name="backgroundSplit">@android:color/transparent</item>
     </style>
     <style name="Widget.Podcast.BottomSheet" parent="Widget.Material3.BottomSheet.Modal">
         <item name="backgroundTint">?attr/podcast_menu_surface</item>

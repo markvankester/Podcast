@@ -26,6 +26,7 @@ import java.util.List;
 import de.danoeh.antennapod.R;
 import de.danoeh.antennapod.activity.MainActivity;
 import de.danoeh.antennapod.model.feed.FeedItem;
+import de.danoeh.antennapod.ui.podcast.PodcastHaptics;
 import de.danoeh.antennapod.ui.podcast.PodcastSwipeHelper;
 import de.danoeh.antennapod.ui.screen.episode.ItemPagerFragment;
 
@@ -150,6 +151,7 @@ public class EpisodeItemListAdapter extends SelectableAdapter<EpisodeItemViewHol
                             .commitAllowingStateLoss();
                 }
             } else {
+                PodcastHaptics.tick(v);
                 toggleSelection(holder.getBindingAdapterPosition());
             }
         });
@@ -170,10 +172,14 @@ public class EpisodeItemListAdapter extends SelectableAdapter<EpisodeItemViewHol
         });
 
         holder.itemView.setSelected(false);
+        holder.selectCheck.setVisibility(inActionMode() ? View.VISIBLE : View.GONE);
         if (inActionMode()) {
             holder.itemView.setActivated(false);
             holder.secondaryActionButton.setOnClickListener(
-                    v -> toggleSelection(holder.getBindingAdapterPosition()));
+                    v -> {
+                        PodcastHaptics.tick(v);
+                        toggleSelection(holder.getBindingAdapterPosition());
+                    });
             if (isSelected(pos)) {
                 holder.itemView.setSelected(true);
             }

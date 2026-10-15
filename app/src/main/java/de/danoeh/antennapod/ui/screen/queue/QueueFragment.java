@@ -431,7 +431,6 @@ public class QueueFragment extends Fragment implements MaterialToolbar.OnMenuIte
             header.setBackLink(getString(R.string.podcast_back_to_library),
                     v -> getParentFragmentManager().popBackStack());
         }
-        header.addPillButton(R.string.podcast_edit, v -> startEditing());
         header.addOverflowButton(toolbar.getMenu(), this);
 
         recyclerView = root.findViewById(R.id.recyclerView);
@@ -504,13 +503,6 @@ public class QueueFragment extends Fragment implements MaterialToolbar.OnMenuIte
         super.onSaveInstanceState(outState);
     }
 
-    private void startEditing() {
-        if (recyclerAdapter == null || recyclerAdapter.getItemCount() == 0 || recyclerAdapter.inActionMode()) {
-            return;
-        }
-        recyclerAdapter.startSelectMode(0);
-    }
-
     private void refreshInfoBar() {
         long timeLeft = 0;
         for (FeedItem item : queue) {
@@ -567,14 +559,14 @@ public class QueueFragment extends Fragment implements MaterialToolbar.OnMenuIte
     @Override
     public void onStartSelectMode() {
         swipeActions.detach();
-        PodcastSelectMode.start(requireActivity(), floatingSelectMenu, recyclerView);
+        PodcastSelectMode.start(requireActivity(), floatingSelectMenu, recyclerView, header, recyclerAdapter);
         refreshToolbarState();
         refreshInfoBar();
     }
 
     @Override
     public void onEndSelectMode() {
-        PodcastSelectMode.end(requireActivity(), floatingSelectMenu, recyclerView);
+        PodcastSelectMode.end(requireActivity(), floatingSelectMenu, recyclerView, header);
         swipeActions.attachTo(recyclerView);
         refreshInfoBar();
     }

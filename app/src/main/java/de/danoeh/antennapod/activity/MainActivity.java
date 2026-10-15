@@ -382,6 +382,10 @@ public class MainActivity extends CastEnabledActivity implements NavigationToolb
         return drawerLayout != null && navDrawer != null && drawerLayout.isDrawerOpen(navDrawer);
     }
 
+    public PodcastChrome getPodcastChrome() {
+        return podcastChrome;
+    }
+
     public int getDockClearance() {
         return podcastChrome.getClearance();
     }

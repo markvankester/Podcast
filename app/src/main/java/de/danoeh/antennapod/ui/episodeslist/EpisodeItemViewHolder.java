@@ -47,6 +47,7 @@ public class EpisodeItemViewHolder extends RecyclerView.ViewHolder {
     private static final String TAG = "EpisodeItemViewHolder";
 
     public final View container;
+    public final View selectCheck;
     public final ImageView dragHandle;
     public final TextView placeholder;
     public final ImageView cover;
@@ -88,6 +89,7 @@ public class EpisodeItemViewHolder extends RecyclerView.ViewHolder {
         durationSeparator = itemView.findViewById(R.id.podcast_sep_duration);
         isDownloaded = itemView.findViewById(R.id.ivDownloaded);
         container = itemView.findViewById(R.id.container);
+        selectCheck = itemView.findViewById(R.id.podcast_select_check);
         dragHandle = itemView.findViewById(R.id.drag_handle);
         placeholder = itemView.findViewById(R.id.txtvPlaceholder);
         cover = itemView.findViewById(R.id.imgvCover);

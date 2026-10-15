@@ -25,7 +25,6 @@ import de.danoeh.antennapod.model.feed.SortOrder;
 import de.danoeh.antennapod.storage.preferences.UserPreferences;
 import de.danoeh.antennapod.ui.episodeslist.EpisodeItemListAdapter;
 import de.danoeh.antennapod.ui.episodeslist.EpisodesListFragment;
-import de.danoeh.antennapod.ui.podcast.PodcastFooterHint;
 import org.greenrobot.eventbus.EventBus;
 
 import java.util.List;
@@ -53,16 +52,13 @@ public class InboxFragment extends EpisodesListFragment {
         emptyView.setIcon(R.drawable.ic_inbox);
         emptyView.setTitle(R.string.no_inbox_head_label);
         emptyView.setMessage(R.string.home_new_empty_text);
-        recyclerView.addItemDecoration(new PodcastFooterHint(requireContext(), R.string.podcast_swipe_hint_new));
         return root;
     }
 
     @Override
     protected void onConfigureHeader() {
         header.setTitle(getString(R.string.podcast_tab_new));
-        header.addPillButton(R.string.podcast_clear_all,
-                v -> onMenuItemClick(toolbar.getMenu().findItem(R.id.remove_all_inbox_item)));
-        header.addOverflowButton(toolbar.getMenu(), this, R.id.remove_all_inbox_item);
+        header.addOverflowButton(toolbar.getMenu(), this);
     }
 
     @Override
