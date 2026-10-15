@@ -7,6 +7,8 @@ import android.graphics.Paint;
 import android.graphics.RectF;
 import android.util.AttributeSet;
 import androidx.appcompat.widget.AppCompatSeekBar;
+import androidx.core.content.ContextCompat;
+import de.danoeh.antennapod.R;
 import de.danoeh.antennapod.ui.podcast.PodcastMetrics;
 
 public class PlayerSeekBar extends AppCompatSeekBar {
@@ -36,12 +38,12 @@ public class PlayerSeekBar extends AppCompatSeekBar {
         trackHeight = PodcastMetrics.dp(context, 6);
         gap = PodcastMetrics.dp(context, 3);
         thumbRadius = PodcastMetrics.dp(context, 8);
-        trackPaint.setColor(Color.argb(61, 255, 255, 255));
-        bufferPaint.setColor(Color.argb(46, 255, 255, 255));
+        trackPaint.setColor(ContextCompat.getColor(context, R.color.podcast_white_a3D));
+        bufferPaint.setColor(ContextCompat.getColor(context, R.color.podcast_white_a2E));
         fillPaint.setColor(Color.WHITE);
         thumbPaint.setColor(Color.WHITE);
         thumbPaint.setShadowLayer(PodcastMetrics.dp(context, 4), 0, PodcastMetrics.dp(context, 2),
-                Color.argb(77, 0, 0, 0));
+                ContextCompat.getColor(context, R.color.podcast_black_a4D));
         setLayerType(LAYER_TYPE_SOFTWARE, null);
     }
 

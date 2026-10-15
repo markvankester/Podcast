@@ -48,7 +48,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="52dp"
                 android:layout_marginTop="16dp"
-                android:layout_marginHorizontal="20dp"
+                android:layout_marginHorizontal="@dimen/podcast_screen_padding"
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
                 android:background="@drawable/podcast_bg_search_field">
@@ -84,7 +84,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
-                android:layout_marginHorizontal="20dp"
+                android:layout_marginHorizontal="@dimen/podcast_screen_padding"
                 android:orientation="horizontal">
 
                 <TextView
@@ -124,7 +124,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="28dp"
-                android:paddingHorizontal="20dp"
+                android:paddingHorizontal="@dimen/podcast_screen_padding"
                 android:text="@string/podcast_discover"
                 android:accessibilityHeading="true"
                 style="@style/Podcast.Text.Section" />
@@ -141,7 +141,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:paddingHorizontal="20dp">
+                android:paddingHorizontal="@dimen/podcast_screen_padding">
 
                 <include
                     android:id="@+id/addViaUrlButton"

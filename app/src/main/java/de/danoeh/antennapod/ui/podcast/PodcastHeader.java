@@ -2,6 +2,7 @@ package de.danoeh.antennapod.ui.podcast;
 
 import android.content.Context;
 import android.content.res.ColorStateList;
+import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.Menu;
 import android.util.AttributeSet;
@@ -143,7 +144,8 @@ public class PodcastHeader extends LinearLayout {
         button.setPadding(padding, 0, padding, 0);
         button.setGravity(Gravity.CENTER);
         button.setText(text);
-        button.setTextSize(14);
+        button.setTextSize(TypedValue.COMPLEX_UNIT_PX,
+                getResources().getDimension(R.dimen.podcast_text_body));
         button.setTypeface(ResourcesCompat.getFont(getContext(), R.font.manrope_bold));
         button.setTextColor(ThemeUtils.getColorFromAttr(getContext(), R.attr.podcast_accent));
         button.setBackgroundResource(R.drawable.podcast_bg_pill_fill);

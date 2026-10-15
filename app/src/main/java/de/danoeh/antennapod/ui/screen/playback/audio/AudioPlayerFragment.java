@@ -1008,7 +1008,8 @@ public class AudioPlayerFragment extends Fragment implements
             entries.add(menuEntry(R.id.open_social_interact_url, R.drawable.podcast_menu_comments,
                     R.string.visit_social_interact_label, null, groupStart));
         }
-        playerMenu = PodcastPopupMenu.show(anchor, PodcastPopupMenu.Colors.forPlayer(displayedColor), entries,
+        playerMenu = PodcastPopupMenu.show(anchor,
+                PodcastPopupMenu.Colors.forPlayer(requireContext(), displayedColor), entries,
                 this::performMenuAction);
     }
 

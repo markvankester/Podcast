@@ -43,7 +43,7 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="bottom"
-        android:paddingStart="20dp"
+        android:paddingStart="@dimen/podcast_screen_padding"
         android:paddingEnd="16dp"
         android:paddingTop="32dp">
 

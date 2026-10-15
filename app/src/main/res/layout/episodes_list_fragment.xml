@@ -35,7 +35,7 @@
             android:background="?attr/selectableItemBackground"
             android:text="@string/filtered_label"
             android:paddingVertical="4dp"
-            android:paddingHorizontal="20dp"
+            android:paddingHorizontal="@dimen/podcast_screen_padding"
             android:textColor="?attr/podcast_text_secondary"
             android:visibility="gone"
             app:layout_scrollFlags="scroll"

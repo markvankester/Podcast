@@ -12,7 +12,7 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="66dp"
+        android:layout_height="@dimen/podcast_tab_row_height"
         android:clipChildren="false"
         android:clipToPadding="false"
         android:gravity="center_vertical"
@@ -40,10 +40,10 @@
 
         <de.danoeh.antennapod.ui.podcast.GlassLayout
             android:id="@+id/podcast_search_button"
-            android:layout_width="66dp"
-            android:layout_height="66dp"
-            android:layout_marginStart="8dp"
-            android:layout_marginLeft="8dp"
+            android:layout_width="@dimen/podcast_tab_row_height"
+            android:layout_height="@dimen/podcast_tab_row_height"
+            android:layout_marginStart="@dimen/podcast_row_gap"
+            android:layout_marginLeft="@dimen/podcast_row_gap"
             android:clickable="true"
             android:contentDescription="@string/podcast_search_label"
             android:focusable="true"

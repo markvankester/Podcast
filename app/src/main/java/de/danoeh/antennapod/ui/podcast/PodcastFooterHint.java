@@ -6,7 +6,6 @@ import android.graphics.Rect;
 import android.text.Layout;
 import android.text.StaticLayout;
 import android.text.TextPaint;
-import android.util.TypedValue;
 import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.annotation.StringRes;
@@ -19,7 +18,6 @@ public class PodcastFooterHint extends RecyclerView.ItemDecoration {
     private static final int SIDE_PADDING_DP = 20;
     private static final int TOP_PADDING_DP = 14;
     private static final int BOTTOM_PADDING_DP = 8;
-    private static final float TEXT_SIZE_SP = 13f;
 
     private final String text;
     private final TextPaint paint = new TextPaint(TextPaint.ANTI_ALIAS_FLAG);
@@ -32,8 +30,7 @@ public class PodcastFooterHint extends RecyclerView.ItemDecoration {
     public PodcastFooterHint(Context context, @StringRes int text) {
         this.text = context.getString(text);
         paint.setColor(ThemeUtils.getColorFromAttr(context, R.attr.podcast_text_secondary));
-        paint.setTextSize(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, TEXT_SIZE_SP,
-                context.getResources().getDisplayMetrics()));
+        paint.setTextSize(context.getResources().getDimension(R.dimen.podcast_text_m));
         paint.setTypeface(ResourcesCompat.getFont(context, R.font.manrope));
         sidePadding = PodcastMetrics.dp(context, SIDE_PADDING_DP);
         topPadding = PodcastMetrics.dp(context, TOP_PADDING_DP);

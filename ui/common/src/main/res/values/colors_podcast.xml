@@ -34,4 +34,30 @@
     <color name="podcast_segment_fill_dark">#14FFFFFF</color>
     <color name="podcast_segment_checked_fill_dark">#33E8657B</color>
     <color name="podcast_popup_divider_dark">#1FFFFFFF</color>
+
+    <color name="podcast_white">#FFFFFF</color>
+    <color name="podcast_white_a14">#14FFFFFF</color>
+    <color name="podcast_white_a1E">#1EFFFFFF</color>
+    <color name="podcast_white_a1F">#1FFFFFFF</color>
+    <color name="podcast_white_a24">#24FFFFFF</color>
+    <color name="podcast_white_a2E">#2EFFFFFF</color>
+    <color name="podcast_white_a33">#33FFFFFF</color>
+    <color name="podcast_white_a3D">#3DFFFFFF</color>
+    <color name="podcast_white_a42">#42FFFFFF</color>
+    <color name="podcast_white_a47">#47FFFFFF</color>
+    <color name="podcast_white_a59">#59FFFFFF</color>
+    <color name="podcast_white_a80">#80FFFFFF</color>
+    <color name="podcast_white_aB3">#B3FFFFFF</color>
+    <color name="podcast_white_aB8">#B8FFFFFF</color>
+    <color name="podcast_white_aBF">#BFFFFFFF</color>
+    <color name="podcast_white_aC7">#C7FFFFFF</color>
+    <color name="podcast_white_aCC">#CCFFFFFF</color>
+    <color name="podcast_black_a33">#33000000</color>
+    <color name="podcast_black_a38">#38000000</color>
+    <color name="podcast_black_a4D">#4D000000</color>
+    <color name="podcast_black_a66">#66000000</color>
+    <color name="podcast_black_aCC">#CC000000</color>
+    <color name="podcast_glass_border_fallback">#0F000000</color>
+    <color name="podcast_player_topbar_fill">#4D140A06</color>
+    <color name="podcast_player_backdrop">#2B2B2B</color>
 </resources>

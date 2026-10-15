@@ -76,7 +76,7 @@ public class PodcastTabView extends FrameLayout {
 
         label = new TextView(context);
         label.setText(labelRes);
-        label.setTextSize(TypedValue.COMPLEX_UNIT_SP, 10);
+        label.setTextSize(TypedValue.COMPLEX_UNIT_PX, context.getResources().getDimension(R.dimen.podcast_text_xxs));
         label.setSingleLine(true);
         label.setGravity(Gravity.CENTER);
         LinearLayout.LayoutParams labelParams = new LinearLayout.LayoutParams(
@@ -85,7 +85,7 @@ public class PodcastTabView extends FrameLayout {
         column.addView(label, labelParams);
 
         badge = new TextView(context);
-        badge.setTextSize(TypedValue.COMPLEX_UNIT_SP, 10);
+        badge.setTextSize(TypedValue.COMPLEX_UNIT_PX, context.getResources().getDimension(R.dimen.podcast_text_xxs));
         badge.setTypeface(selectedTypeface);
         badge.setTextColor(MaterialColors.getColor(context, R.attr.podcast_on_accent, Color.WHITE));
         badge.setImportantForAccessibility(IMPORTANT_FOR_ACCESSIBILITY_NO);

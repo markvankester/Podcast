@@ -59,8 +59,8 @@
                         android:max="100"
                         app:trackThickness="4dp"
                         app:trackCornerRadius="@dimen/podcast_radius_hairline"
-                        app:trackColor="#59FFFFFF"
-                        app:indicatorColor="#FFFFFFFF"
+                        app:trackColor="@color/podcast_white_a59"
+                        app:indicatorColor="@color/podcast_white"
                         app:trackStopIndicatorSize="0dp"
                         tools:progress="50" />
 

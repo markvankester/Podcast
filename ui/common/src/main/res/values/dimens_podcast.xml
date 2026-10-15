@@ -7,4 +7,21 @@
     <dimen name="podcast_radius_screen">34dp</dimen>
     <dimen name="podcast_radius_pill">999dp</dimen>
     <dimen name="podcast_radius_hairline">2dp</dimen>
+    <dimen name="podcast_screen_padding">20dp</dimen>
+    <dimen name="podcast_side_margin">12dp</dimen>
+    <dimen name="podcast_tab_row_height">66dp</dimen>
+    <dimen name="podcast_pill_height">56dp</dimen>
+    <dimen name="podcast_row_gap">8dp</dimen>
+    <dimen name="podcast_text_xxs">10sp</dimen>
+    <dimen name="podcast_text_xs">11sp</dimen>
+    <dimen name="podcast_text_s">12sp</dimen>
+    <dimen name="podcast_text_m">13sp</dimen>
+    <dimen name="podcast_text_body">14sp</dimen>
+    <dimen name="podcast_text_l">15sp</dimen>
+    <dimen name="podcast_text_xl">16sp</dimen>
+    <dimen name="podcast_text_section">21sp</dimen>
+    <dimen name="podcast_text_sheet_title">22sp</dimen>
+    <dimen name="podcast_text_title">24sp</dimen>
+    <dimen name="podcast_text_display">34sp</dimen>
+    <dimen name="podcast_text_popup_title">20sp</dimen>
 </resources>

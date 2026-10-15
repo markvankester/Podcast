@@ -13,6 +13,7 @@ import android.view.ViewGroup;
 import android.view.animation.OvershootInterpolator;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import androidx.core.content.ContextCompat;
 import androidx.core.view.ViewCompat;
 import com.google.android.material.color.MaterialColors;
 import de.danoeh.antennapod.R;
@@ -74,7 +75,7 @@ public class PodcastDock {
 
         GradientDrawable highlightBackground = new GradientDrawable();
         highlightBackground.setColor(MaterialColors.getColor(context, R.attr.podcast_tab_highlight,
-                Color.argb(15, 0, 0, 0)));
+                ContextCompat.getColor(context, R.color.podcast_glass_border_fallback)));
         highlightBackground.setCornerRadius(context.getResources().getDimension(R.dimen.podcast_radius_pill));
         highlight.setBackground(highlightBackground);
 

@@ -10,6 +10,7 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.RippleDrawable;
 import android.text.TextUtils;
+import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -22,6 +23,7 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import androidx.annotation.ColorInt;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.core.graphics.ColorUtils;
 import androidx.core.util.Consumer;
@@ -90,7 +92,7 @@ public final class PodcastPopupMenu {
         @ColorInt
         final int accent;
         @ColorInt
-        int accentSoft = Color.argb(36, 255, 255, 255);
+        int accentSoft;
         boolean themed = false;
 
         public Colors(@ColorInt int background, @ColorInt int border, @ColorInt int text,
@@ -104,16 +106,21 @@ public final class PodcastPopupMenu {
             this.accent = accent;
         }
 
-        public static Colors forPlayer(@ColorInt int baseColor) {
-            return new Colors(ColorUtils.blendARGB(baseColor, Color.BLACK, 0.45f) | 0xFF000000,
-                    Color.argb(46, 255, 255, 255), Color.WHITE, Color.argb(179, 255, 255, 255),
-                    Color.argb(31, 255, 255, 255), Color.argb(51, 255, 255, 255), Color.WHITE);
+        public static Colors forPlayer(Context context, @ColorInt int baseColor) {
+            Colors colors = new Colors(ColorUtils.blendARGB(baseColor, Color.BLACK, 0.45f) | 0xFF000000,
+                    ContextCompat.getColor(context, R.color.podcast_white_a2E), Color.WHITE,
+                    ContextCompat.getColor(context, R.color.podcast_white_aB3),
+                    ContextCompat.getColor(context, R.color.podcast_white_a1F),
+                    ContextCompat.getColor(context, R.color.podcast_white_a33), Color.WHITE);
+            colors.accentSoft = ContextCompat.getColor(context, R.color.podcast_white_a24);
+            return colors;
         }
 
         public static Colors fromTheme(Context context) {
             int text = MaterialColors.getColor(context, R.attr.podcast_text_primary, Color.BLACK);
             Colors colors = new Colors(MaterialColors.getColor(context, R.attr.podcast_menu_surface, Color.WHITE),
-                    MaterialColors.getColor(context, R.attr.podcast_glass_border, Color.argb(15, 0, 0, 0)),
+                    MaterialColors.getColor(context, R.attr.podcast_glass_border,
+                            ContextCompat.getColor(context, R.color.podcast_glass_border_fallback)),
                     text,
                     MaterialColors.getColor(context, R.attr.podcast_text_secondary, Color.GRAY),
                     MaterialColors.getColor(context, R.attr.podcast_popup_divider, Color.LTGRAY),
@@ -199,7 +206,8 @@ public final class PodcastPopupMenu {
             TextView header = new TextView(context);
             header.setText(title);
             header.setTextColor(colors.text);
-            header.setTextSize(20);
+            header.setTextSize(TypedValue.COMPLEX_UNIT_PX,
+                    context.getResources().getDimension(R.dimen.podcast_text_popup_title));
             header.setTypeface(ResourcesCompat.getFont(context, R.font.manrope_extrabold));
             header.setMaxLines(2);
             header.setEllipsize(TextUtils.TruncateAt.END);
@@ -272,7 +280,7 @@ public final class PodcastPopupMenu {
         if (colors != null && !colors.themed) {
             glass.setGlassColors(ColorUtils.setAlphaComponent(colors.background, 0xC8),
                     ColorUtils.setAlphaComponent(colors.background, 0xF2), colors.border,
-                    Color.argb(30, 255, 255, 255));
+                    ContextCompat.getColor(context, R.color.podcast_white_a1E));
         }
         return glass;
     }
@@ -335,7 +343,8 @@ public final class PodcastPopupMenu {
         TextView label = new TextView(context);
         label.setText(entry.label);
         label.setTextColor(selected ? colors.accent : colors.text);
-        label.setTextSize(15);
+        label.setTextSize(TypedValue.COMPLEX_UNIT_PX,
+                context.getResources().getDimension(R.dimen.podcast_text_l));
         label.setTypeface(ResourcesCompat.getFont(context,
                 selected ? R.font.manrope_extrabold : R.font.manrope_semibold));
         label.setMaxLines(2);
@@ -347,7 +356,8 @@ public final class PodcastPopupMenu {
             TextView value = new TextView(context);
             value.setText(entry.value);
             value.setTextColor(colors.secondary);
-            value.setTextSize(13);
+            value.setTextSize(TypedValue.COMPLEX_UNIT_PX,
+                    context.getResources().getDimension(R.dimen.podcast_text_m));
             value.setTypeface(ResourcesCompat.getFont(context, R.font.manrope_bold));
             LinearLayout.LayoutParams valueParams = new LinearLayout.LayoutParams(
                     ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);

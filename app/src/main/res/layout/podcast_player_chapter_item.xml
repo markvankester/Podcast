@@ -13,7 +13,7 @@
         android:layout_width="60dp"
         android:layout_height="wrap_content"
         android:fontFamily="@font/manrope_bold"
-        android:textColor="#BFFFFFFF"
+        android:textColor="@color/podcast_white_aBF"
         android:textSize="13sp" />
 
     <TextView
@@ -24,7 +24,7 @@
         android:ellipsize="end"
         android:fontFamily="@font/manrope_semibold"
         android:maxLines="2"
-        android:textColor="#FFFFFF"
+        android:textColor="@color/podcast_white"
         android:textSize="15sp" />
 
     <ImageView

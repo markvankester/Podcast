@@ -27,7 +27,7 @@
             android:id="@+id/podcast_player_background"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="#2B2B2B" />
+            android:background="@color/podcast_player_backdrop" />
 
         <ImageView
             android:id="@+id/podcast_player_cover_blur"
@@ -39,7 +39,7 @@
         <View
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="#66000000" />
+            android:background="@color/podcast_black_a66" />
 
         <de.danoeh.antennapod.ui.podcast.player.PlayerCoverView
             android:id="@+id/podcast_player_cover"
@@ -91,7 +91,7 @@
                             android:letterSpacing="0.08"
                             android:maxLines="1"
                             android:textAllCaps="true"
-                            android:textColor="#C7FFFFFF"
+                            android:textColor="@color/podcast_white_aC7"
                             android:textSize="12sp"
                             tools:text="HET LANGE GESPREK" />
 
@@ -105,7 +105,7 @@
                             android:letterSpacing="-0.02"
                             android:lineSpacingMultiplier="1.05"
                             android:maxLines="3"
-                            android:textColor="#FFFFFF"
+                            android:textColor="@color/podcast_white"
                             android:textSize="24sp"
                             tools:text="Een avond met een vuurtorenwachter" />
                     </LinearLayout>
@@ -153,21 +153,19 @@
                                 android:layout_height="wrap_content"
                                 android:layout_marginStart="6dp"
                                 android:fontFamily="@font/manrope_bold"
-                                android:textColor="#BFFFFFFF"
+                                android:textColor="@color/podcast_white_aBF"
                                 android:textSize="13sp"
                                 tools:text="Chapter 2" />
 
                             <TextView
+                                style="@style/Podcast.Text.PlayerValue"
                                 android:id="@+id/podcast_player_chapter_name"
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
                                 android:layout_marginStart="6dp"
                                 android:layout_weight="1"
                                 android:ellipsize="end"
-                                android:fontFamily="@font/manrope_bold"
                                 android:maxLines="1"
-                                android:textColor="#FFFFFF"
-                                android:textSize="13sp"
                                 tools:text="Een leven op het eiland" />
                         </LinearLayout>
 
@@ -194,7 +192,7 @@
                                 android:layout_alignParentStart="true"
                                 android:fontFamily="@font/manrope_semibold"
                                 android:text="@string/position_default_label"
-                                android:textColor="#CCFFFFFF"
+                                android:textColor="@color/podcast_white_aCC"
                                 android:textSize="12sp" />
 
                             <de.danoeh.antennapod.ui.screen.playback.audio.NoRelayoutTextView
@@ -206,7 +204,7 @@
                                 android:fontFamily="@font/manrope_semibold"
                                 android:text="@string/position_default_label"
                                 android:textAlignment="textEnd"
-                                android:textColor="#CCFFFFFF"
+                                android:textColor="@color/podcast_white_aCC"
                                 android:textSize="12sp" />
                         </RelativeLayout>
                     </LinearLayout>
@@ -217,23 +215,21 @@
                         android:layout_height="wrap_content"
                         android:layout_gravity="top|center_horizontal"
                         android:alpha="0"
-                        app:cardBackgroundColor="#CC000000"
+                        app:cardBackgroundColor="@color/podcast_black_aCC"
                         app:cardCornerRadius="@dimen/podcast_radius_small"
                         app:cardElevation="0dp"
                         tools:alpha="1">
 
                         <TextView
+                            style="@style/Podcast.Text.PlayerAction"
                             android:id="@+id/txtvSeek"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:fontFamily="@font/manrope_bold"
                             android:gravity="center"
                             android:paddingLeft="20dp"
                             android:paddingTop="4dp"
                             android:paddingRight="20dp"
                             android:paddingBottom="4dp"
-                            android:textColor="#FFFFFF"
-                            android:textSize="14sp"
                             tools:text="1:06:29" />
                     </androidx.cardview.widget.CardView>
                 </FrameLayout>
@@ -286,7 +282,7 @@
                             android:fontFamily="@font/manrope_extrabold"
                             android:gravity="center"
                             android:paddingTop="2dp"
-                            android:textColor="#FFFFFF"
+                            android:textColor="@color/podcast_white"
                             android:textSize="10sp"
                             tools:text="10" />
                     </FrameLayout>
@@ -316,7 +312,7 @@
                             style="?android:attr/progressBarStyle"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
-                            android:indeterminateTint="#33000000"
+                            android:indeterminateTint="@color/podcast_black_a33"
                             android:padding="4dp"
                             android:visibility="gone" />
                     </FrameLayout>
@@ -348,7 +344,7 @@
                             android:fontFamily="@font/manrope_extrabold"
                             android:gravity="center"
                             android:paddingTop="2dp"
-                            android:textColor="#FFFFFF"
+                            android:textColor="@color/podcast_white"
                             android:textSize="10sp"
                             tools:text="30" />
                     </FrameLayout>
@@ -392,19 +388,17 @@
                             android:src="@drawable/podcast_player_up_next_icon" />
 
                         <TextView
+                            style="@style/Podcast.Text.PlayerCaption"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="4dp"
-                            android:fontFamily="@font/manrope_semibold"
-                            android:text="@string/podcast_player_up_next"
-                            android:textColor="#BFFFFFFF"
-                            android:textSize="11sp" />
+                            android:text="@string/podcast_player_up_next" />
                     </LinearLayout>
 
                     <View
                         android:layout_width="1dp"
                         android:layout_height="match_parent"
-                        android:background="#24FFFFFF" />
+                        android:background="@color/podcast_white_a24" />
 
                     <LinearLayout
                         android:id="@+id/podcast_player_open_chapters"
@@ -422,19 +416,17 @@
                             android:src="@drawable/podcast_player_chapters" />
 
                         <TextView
+                            style="@style/Podcast.Text.PlayerCaption"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="4dp"
-                            android:fontFamily="@font/manrope_semibold"
-                            android:text="@string/podcast_player_chapters"
-                            android:textColor="#BFFFFFFF"
-                            android:textSize="11sp" />
+                            android:text="@string/podcast_player_chapters" />
                     </LinearLayout>
 
                     <View
                         android:layout_width="1dp"
                         android:layout_height="match_parent"
-                        android:background="#24FFFFFF" />
+                        android:background="@color/podcast_white_a24" />
 
                     <LinearLayout
                         android:id="@+id/podcast_player_open_notes"
@@ -452,13 +444,11 @@
                             android:src="@drawable/podcast_player_notes" />
 
                         <TextView
+                            style="@style/Podcast.Text.PlayerCaption"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="4dp"
-                            android:fontFamily="@font/manrope_semibold"
-                            android:text="@string/podcast_player_notes"
-                            android:textColor="#BFFFFFFF"
-                            android:textSize="11sp" />
+                            android:text="@string/podcast_player_notes" />
                     </LinearLayout>
                 </LinearLayout>
 
@@ -502,13 +492,11 @@
                     android:src="@drawable/podcast_player_moon" />
 
                 <TextView
+                    style="@style/Podcast.Text.PlayerAction"
                     android:id="@+id/podcast_player_sleep_value"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:fontFamily="@font/manrope_bold"
-                    android:textColor="#FFFFFF"
-                    android:textSize="14sp" />
+                    android:layout_marginStart="8dp" />
             </LinearLayout>
 
             <FrameLayout

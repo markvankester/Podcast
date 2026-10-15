@@ -47,7 +47,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:paddingHorizontal="20dp"
+                    android:paddingHorizontal="@dimen/podcast_screen_padding"
                     android:paddingTop="18dp">
 
                     <include
@@ -73,7 +73,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="22dp"
-                    android:paddingHorizontal="20dp"
+                    android:paddingHorizontal="@dimen/podcast_screen_padding"
                     android:paddingBottom="6dp"
                     android:text="@string/podcast_shows"
                     android:accessibilityHeading="true"
@@ -94,7 +94,7 @@
                     android:id="@+id/feeds_filtered_message"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:paddingHorizontal="20dp"
+                    android:paddingHorizontal="@dimen/podcast_screen_padding"
                     android:paddingVertical="4dp"
                     android:background="?android:attr/selectableItemBackground"
                     android:text="@string/filtered_label"

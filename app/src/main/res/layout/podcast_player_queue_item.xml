@@ -32,7 +32,7 @@
             android:fontFamily="@font/manrope_bold"
             android:lineSpacingMultiplier="1.1"
             android:maxLines="2"
-            android:textColor="#FFFFFF"
+            android:textColor="@color/podcast_white"
             android:textSize="15sp" />
 
         <TextView
@@ -43,7 +43,7 @@
             android:ellipsize="end"
             android:fontFamily="@font/manrope"
             android:maxLines="1"
-            android:textColor="#B8FFFFFF"
+            android:textColor="@color/podcast_white_aB8"
             android:textSize="13sp" />
     </LinearLayout>
 
