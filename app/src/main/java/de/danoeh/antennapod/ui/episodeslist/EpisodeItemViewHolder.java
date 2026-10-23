@@ -71,6 +71,8 @@ public class EpisodeItemViewHolder extends RecyclerView.ViewHolder {
     private final View dateSeparator;
     private final View durationSeparator;
     private final ImageView isDownloaded;
+    private final CircularProgressBar downloadProgress;
+    private final TextView downloadLabel;
     private final int rowStyle;
 
     private final Activity activity;
@@ -88,6 +90,8 @@ public class EpisodeItemViewHolder extends RecyclerView.ViewHolder {
         dateSeparator = itemView.findViewById(R.id.podcast_sep_date);
         durationSeparator = itemView.findViewById(R.id.podcast_sep_duration);
         isDownloaded = itemView.findViewById(R.id.ivDownloaded);
+        downloadProgress = itemView.findViewById(R.id.podcast_download_progress);
+        downloadLabel = itemView.findViewById(R.id.podcast_download_label);
         container = itemView.findViewById(R.id.container);
         selectCheck = itemView.findViewById(R.id.podcast_select_check);
         dragHandle = itemView.findViewById(R.id.drag_handle);
@@ -150,6 +154,8 @@ public class EpisodeItemViewHolder extends RecyclerView.ViewHolder {
         isFavorite.setVisibility(item.isTagged(FeedItem.TAG_FAVORITE) ? View.VISIBLE : View.GONE);
         isInQueue.setVisibility(item.isTagged(FeedItem.TAG_QUEUE) ? View.VISIBLE : View.GONE);
         container.setAlpha(item.isPlayed() ? 0.5f : 1.0f);
+        downloadProgress.setVisibility(View.GONE);
+        downloadLabel.setVisibility(View.GONE);
 
         configureSecondaryAction();
 
@@ -213,6 +219,23 @@ public class EpisodeItemViewHolder extends RecyclerView.ViewHolder {
                         DBWriter.markItemsPlayed(FeedItem.NEW, false, Collections.singletonList(queuedItem));
                     }
                 }, activity.getString(R.string.undo)));
+    }
+
+    public void bindInlineDownloadProgress() {
+        FeedMedia media = item.getMedia();
+        if (media == null || !DownloadServiceInterface.get().isDownloadingEpisode(media.getDownloadUrl())) {
+            downloadProgress.setVisibility(View.GONE);
+            downloadLabel.setVisibility(View.GONE);
+            return;
+        }
+        boolean waiting = DownloadServiceInterface.get().isEpisodeQueued(media.getDownloadUrl());
+        int percent = Math.max(DownloadServiceInterface.get().getProgress(media.getDownloadUrl()), 0);
+        downloadProgress.setPercentage(Math.max(0.01f * percent, 0.01f), item);
+        downloadProgress.setIndeterminate(waiting);
+        downloadLabel.setText(waiting ? activity.getString(R.string.podcast_download_waiting)
+                : activity.getString(R.string.podcast_download_percent, percent));
+        downloadProgress.setVisibility(View.VISIBLE);
+        downloadLabel.setVisibility(View.VISIBLE);
     }
 
     public void setCompactMeta(boolean compact) {

@@ -73,6 +73,7 @@ public class QueueRecyclerAdapter extends EpisodeItemListAdapter {
 
         holder.isInQueue.setVisibility(View.GONE);
         holder.secondaryActionButton.setVisibility(View.GONE);
+        holder.bindInlineDownloadProgress();
         holder.setCompactMeta(true);
     }
 

@@ -43,6 +43,17 @@
         android:importantForAccessibility="no"
         app:srcCompat="@drawable/podcast_ic_downloaded" />
 
+    <de.danoeh.antennapod.ui.common.CircularProgressBar
+        android:id="@+id/podcast_download_progress"
+        android:layout_width="14dp"
+        android:layout_height="14dp"
+        android:importantForAccessibility="no" />
+
+    <TextView
+        android:id="@+id/podcast_download_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
     <TextView
         android:id="@+id/separatorIcons"
         android:layout_width="wrap_content"

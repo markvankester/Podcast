@@ -51,6 +51,8 @@
     <string name="podcast_meta_separator">%1$s · %2$s</string>
     <string name="podcast_left_suffix">left</string>
     <string name="podcast_downloaded">Downloaded</string>
+    <string name="podcast_download_percent">%d%%</string>
+    <string name="podcast_download_waiting">Waiting</string>
     <string name="podcast_back">Back</string>
     <string name="podcast_search_title">Search</string>
     <string name="podcast_search_hint">Podcasts and episodes</string>
